@@ -59,7 +59,7 @@ Content is built and packaged as part of the source code's build process.
                                                                
 #### Code Metadata Generation
 
-TypeScript is generated for every asset.  This means that your game code is aware of every asset, at compile-time.  Missing, or incorrectly named assets are detected before the game runs and identified by the TypeScript compiler.
+TypeScript is generated for every asset.  This means that your game code is aware of every asset, at compile-time.  Missing, or incorrectly named assets are detected before the game runs and raised as errors by the TypeScript compiler.
 
 #### Packaging
 
