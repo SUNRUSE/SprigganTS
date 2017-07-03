@@ -277,10 +277,10 @@ A collection of SpriteFrame/BackgroundFrame objects representing an animation.  
 
 A "fire-and-forget" sound.
 
-	// Number of seconds.
-	Content.Battle.Effects.Sword.Duration
+    // Number of seconds.
+    Content.Battle.Effects.Sword.Duration
 
-	// This may do nothing on some platforms.
+    // This may do nothing on some platforms.
     Content.Battle.Effects.Sword.Play()
 
 ###### Music
