@@ -382,6 +382,18 @@ The following methods exist on all scene graph objects:
     // Animations will not continue, and events will not be triggered.
     groupOrSprite.Delete()
     
+    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is right of its parent's origin.
+    groupOrSprite.X()
+    
+    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is right of otherGroupOrSprite's origin.
+    groupOrSprite.X(otherGroupOrSprite)
+    
+    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is below its parent's origin.
+    groupOrSprite.Y()
+    
+    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is below otherGroupOrSprite's origin.
+    groupOrSprite.Y(otherGroupOrSprite)
+    
 #### Events
 
 The following classes exist to help organize events in your game logic.
