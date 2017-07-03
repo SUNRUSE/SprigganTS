@@ -480,3 +480,39 @@ These types use this event queue, so it is recommended to use them over setTimeo
     const recurring = new TimerRecurring(0.4, undefined, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     recurring.Stop()
+
+#### Font
+
+A simplistic bitmap font system is included, which generates sets of Sprites.
+
+    // This creates a bitmap font using the sprites a, b and c for characters a, b and c respectively.
+    // These will be looped, so characters can be animated.
+    // There are 2 emulated pixels between each line of text.
+    // Characters are 10 emulated pixels high (so lines are 12 emulated pixels high).
+    // There is 1 emulated pixel between each character horizontally.
+    // All characters are assumed to be 8 emulated pixels wide, except the letter b, which is 16.
+    const font = new Font({ 
+        a: new SpriteFrame(...),
+        b: new SpriteFrame(...),
+        c: new SpriteFrame(...),
+        ...
+    }, 2, 10, 1, 8, {
+        b: 16
+    })
+
+    // "Left", "Middle", "Right"; default is "Left" when not given.
+    const horizontalAlignment = "Left"
+
+    // "Top", "Middle", "Bottom"; default is "Top" when not given.
+    const verticalAlignment = "Top"
+
+    font.Write(group, "Hello World!\nThis is on a subsequent line.\n\tThis is indented.", horizontalAlignment, verticalAlignment)
+
+    // Returns the number of emulated pixels needed to write the string horizontally.
+    font.CalculateWidth("Hello World!\nThis is on a subsequent line.\n\tThis is indented.")
+
+    // Returns the number of emulated pixels needed to write the string vertically.
+    font.CalculateHeight("Hello World!\nThis is on a subsequent line.\n\tThis is indented.")
+
+    // Returns the given string, with extra newlines to wrap it to 24 horizontal emulated pixels.
+    font.Wrap("Hello World!\nThis is on a subsequent line.\n\tThis is indented.", 24)
