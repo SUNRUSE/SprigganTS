@@ -82,7 +82,7 @@ As such, no information required to play the game should be in the background.
 
 ##### Sounds
 
-Short sound effects which are played as "fire-and-forget".  Loaded at start-up, or after the first tap on mobile devices due to browser restrictions.
+Short sound effects which are played as "fire-and-forget".  Loaded on-demand; may only start playing after a delay, or not at all if cannot be loaded.  If played from startup, mobile devices will not play until the user taps due to browser restrictions.
 
 ##### Music
 
