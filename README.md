@@ -336,6 +336,7 @@ An invisible object, which can contain other scene graph objects.
     
     // Moves the referenced scene graph object under this group.
     // Pause/resume/hide/show state and animations/movements will be retained.
+    // However, the location/movement will be retained relative to the parent, not the scene as a whole.
     new Group()
         .Add(new Group(...))
         .Add(new Sprite(...))
