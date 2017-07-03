@@ -432,10 +432,12 @@ Listeners added after calling Raise() are not called until the next call to Rais
     recurring.Raise()
     console.log("Logged last")
     
-#### Scheduling
+#### Timers
 
 Although SprigganTS uses setTimeout and setInterval under the hood, it only uses these to trigger an internal event queue, to ensure that the order of events is deterministic regardless of browser or device.
 These types use this event queue, so it is recommended to use them over setTimeout and setInterval directly.
+
+##### Once
 
     const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"))
 
@@ -456,6 +458,8 @@ These types use this event queue, so it is recommended to use them over setTimeo
     const once = new TimerOnce(0.4, undefined, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     once.Cancel()
+
+##### Recurring
     
     const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"))
 
