@@ -328,7 +328,11 @@ A visible object, which displays a SpriteFrame.
     
 ##### Group
 
-An invisible object, which can contain other scene graph objects.
+An invisible object, which can contain other scene graph objects. These can be used for:
+
+- Grouping individual sprites into a single "object".
+- Grouping scene graph objects into layers, for z-ordering.
+- Grouping objects which should be paused together.
 
     new Group()
 
