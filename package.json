@@ -1,0 +1,25 @@
+{
+    "scripts": {
+        "postinstall": "npm-run-all postinstall-content postinstall-typescript postinstall-uglify postinstall-copy-source-for-map",
+        "postinstall-content": "ts-node BuildContent/Entry.ts",
+        "postinstall-typescript": "tsc -p .",
+        "postinstall-uglify": "uglifyjs Build/Index.js --compress --mangle --ie8 --toplevel --output Build/Index.min.js --source-map content=Build/Index.js.map,base=Build,url=Index.min.js.map",
+        "postinstall-copy-source-for-map": "cpr Source Build/Source -d -f \"^(?!.*\\.ts)\"",
+        "develop": "npm install && npm-run-all --parallel develop-content develop-typescript develop-uglify develop-host",
+        "develop-content": "nodemon -e ase,flp --watch Source --exec \"npm run-script postinstall-content\"",
+        "develop-typescript": "tsc -w -p .",
+        "develop-uglify": "nodemon --watch Build/Index.js --exec \"npm run-script postinstall-uglify && npm run-script postinstall-copy-source-for-map\"",
+        "develop-host": "mkdirp Build && cd Build && http-static"
+    },
+    "devDependencies": {
+        "@types/node": "^8.0.7",
+        "cpr": "^2.2.0",
+        "http-static": "0.0.8",
+        "mkdirp": "^0.5.1",
+        "nodemon": "^1.11.0",
+        "npm-run-all": "^4.0.2",
+        "ts-node": "^3.1.0",
+        "typescript": "^2.4.1",
+        "uglify-js": "^3.0.23"
+    }
+}
