@@ -16,15 +16,15 @@ function EndsWith(str: string, endsWith: string): boolean {
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string) {
+    constructor(public readonly Extension: string, public readonly Pack: (callback: () => void) => void) {
         ContentTypes[Extension] = this
     }
 }
 
-new ContentType(".sprite.ase")
-new ContentType(".background.ase")
-new ContentType(".sound.flp")
-new ContentType(".music.flp")
+new ContentType(".sprite.ase", () => { })
+new ContentType(".background.ase", () => { })
+new ContentType(".sound.flp", () => { })
+new ContentType(".music.flp", () => { })
 
 const Build: { [filename: string]: number } = {}
 
@@ -129,7 +129,31 @@ function CompareBuilds() {
         FilesCreated.push(filename)
     }
 
-    GenerateBuild()
+    Pack()
+}
+
+function Pack() {
+    console.info("Checking for content types which require packing...")
+    const remaining = Object.keys(ContentTypes)
+    TakeNext()
+    function TakeNext() {
+        var extension = remaining.pop()
+        if (extension) {
+            var requiresPacking = false
+            for (const filename of FilesCreated.concat(FilesModified).concat(FilesDeleted)) {
+                if (!EndsWith(filename, extension)) continue
+                requiresPacking = true
+                break
+            }
+            if (!requiresPacking) {
+                console.info(`No content with extension ${extension} has changed, no packing required`)
+                TakeNext()
+            } else {
+                console.info(`Content with extension ${extension} has changed, packing...`)
+                ContentTypes[extension].Pack(TakeNext)
+            }
+        } else GenerateBuild()
+    }
 }
 
 function GenerateBuild() {
