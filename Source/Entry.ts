@@ -1,1 +1,7 @@
-alert("Hello World")
+/// <reference path="LoadingMessage.ts" />
+
+onload = () => {
+    RemoveLoadingMessage()
+}
+
+SetLoadingMessage("Starting scripts, please wait...")
