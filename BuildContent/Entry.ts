@@ -1,5 +1,7 @@
 import fs = require("fs")
+import mkdirp = require("mkdirp")
 import path = require("path")
+import child_process = require("child_process")
 
 function Error(message: any) {
     if (!message) return
@@ -21,7 +23,15 @@ class ContentType {
     }
 }
 
-new ContentType(".sprite.ase", then => then(), (filename, then) => then())
+new ContentType(".sprite.ase", then => then(), (filename, then) => {
+    mkdirp(`Temp/${filename}`, err => {
+        Error(err)
+        child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--save-as", `Temp/${filename}/Frame.png`]).on("exit", status => {
+            if (status != 0) Error(`Failed to invoke Aseprite to convert sprite "${filename}"`)
+            then()
+        })
+    })
+})
 new ContentType(".background.ase", then => then(), (filename, then) => then())
 new ContentType(".sound.flp", then => then(), (filename, then) => then())
 new ContentType(".music.flp", then => then(), (filename, then) => then())
