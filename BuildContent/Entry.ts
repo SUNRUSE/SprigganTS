@@ -16,15 +16,20 @@ function EndsWith(str: string, endsWith: string): boolean {
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string, public readonly Pack: (callback: () => void) => void) {
+    constructor(public readonly Extension: string, public readonly Pack: (callback: () => void) => void, public readonly Convert: (filename: string, then: () => void) => void) {
         ContentTypes[Extension] = this
     }
 }
 
-new ContentType(".sprite.ase", () => { })
-new ContentType(".background.ase", () => { })
-new ContentType(".sound.flp", () => { })
-new ContentType(".music.flp", () => { })
+new ContentType(".sprite.ase", () => { }, (filename, then) => then())
+new ContentType(".background.ase", () => { }, (filename, then) => then())
+new ContentType(".sound.flp", () => { }, (filename, then) => then())
+new ContentType(".music.flp", () => { }, (filename, then) => then())
+
+function RemoveExtension(filename: string): string {
+    filename = filename.slice(0, filename.lastIndexOf("."))
+    return filename.slice(0, filename.lastIndexOf("."))
+}
 
 const Build: { [filename: string]: number } = {}
 
@@ -129,7 +134,42 @@ function CompareBuilds() {
         FilesCreated.push(filename)
     }
 
-    Pack()
+    DeleteTempFoldersForDeletedOrModifiedContent()
+}
+
+function DeleteTempFoldersForDeletedOrModifiedContent() {
+    console.info("Deleting temporary folders for modified or deleted content...")
+    const remaining = FilesModified.concat(FilesDeleted)
+    TakeNext()
+    function TakeNext() {
+        const filename = remaining.pop()
+        if (!filename) {
+            RunConversions()
+        } else {
+            const directory = RemoveExtension(filename)
+            console.log(`Deleting "${directory}"...`)
+            TakeNext()
+        }
+    }
+}
+
+function RunConversions() {
+    console.info("Running conversions...")
+    const remaining = FilesCreated.concat(FilesModified)
+    TakeNext()
+    function TakeNext() {
+        const filename = remaining.pop()
+        if (!filename) {
+            Pack()
+        } else {
+            for (const extension in ContentTypes) {
+                if (EndsWith(filename, extension)) {
+                    console.log(`Converting "${filename}"...`)
+                    ContentTypes[extension].Convert(filename, TakeNext)
+                }
+            }
+        }
+    }
 }
 
 function Pack() {
