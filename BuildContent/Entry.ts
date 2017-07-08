@@ -26,7 +26,7 @@ class ContentType {
 new ContentType(".sprite.ase", then => then(), (filename, then) => {
     mkdirp(`Temp/${filename}`, err => {
         Error(err)
-        child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--save-as", `Temp/${filename}/Frame.png`]).on("exit", status => {
+        child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--sheet", `Temp/${filename}/Sheet.png`, "--trim", "--sheet-pack"]).on("exit", status => {
             if (status != 0) Error(`Failed to invoke Aseprite to convert sprite "${filename}"`)
             then()
         })
