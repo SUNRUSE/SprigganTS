@@ -16,9 +16,12 @@
     "@types/node": "^8.0.7",
     "cpr": "^2.2.0",
     "http-static": "0.0.8",
+    "imagemin": "^5.3.1",
+    "imagemin-pngcrush": "^5.1.0",
     "mkdirp": "^0.5.1",
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
+    "pngjs": "^3.2.0",
     "ts-node": "^3.1.0",
     "typescript": "^2.4.1",
     "uglify-js": "^3.0.23"
