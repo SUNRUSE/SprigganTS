@@ -18,12 +18,12 @@ function EndsWith(str: string, endsWith: string): boolean {
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string, public readonly Pack: (then: () => void) => void, public readonly Convert: (filename: string, then: () => void) => void) {
+    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: () => void) => void) {
         ContentTypes[Extension] = this
     }
 }
 
-new ContentType(".sprite.ase", then => then(), (filename, then) => {
+new ContentType(".sprite.ase", (filename, then) => {
     mkdirp(`Temp/${filename}`, err => {
         Error(err)
         child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--sheet", `Temp/${filename}/Sheet.png`, "--trim", "--sheet-pack"]).on("exit", status => {
@@ -31,10 +31,10 @@ new ContentType(".sprite.ase", then => then(), (filename, then) => {
             then()
         })
     })
-})
-new ContentType(".background.ase", then => then(), (filename, then) => then())
-new ContentType(".sound.flp", then => then(), (filename, then) => then())
-new ContentType(".music.flp", then => then(), (filename, then) => then())
+}, then => then())
+new ContentType(".background.ase", (filename, then) => then(), then => then())
+new ContentType(".sound.flp", (filename, then) => then(), then => then())
+new ContentType(".music.flp", (filename, then) => then(), then => then())
 
 function RemoveExtension(filename: string): string {
     filename = filename.slice(0, filename.lastIndexOf("."))
