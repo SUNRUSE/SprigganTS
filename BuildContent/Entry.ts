@@ -147,20 +147,24 @@ new ContentType(".sprite.ase", (filename, then) => {
                                 unpackedFrames.push(match)
                             }
 
-                            const frameId = data.frames.indexOf(frame)
-                            switch (animation.direction) {
-                                case "forward":
-                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
-                                    break
+                            if (animation.from == animation.to) {
+                                match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}`)
+                            } else {
+                                const frameId = data.frames.indexOf(frame)
+                                switch (animation.direction) {
+                                    case "forward":
+                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
+                                        break
 
-                                case "reverse":
-                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`)
-                                    break
+                                    case "reverse":
+                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`)
+                                        break
 
-                                case "pingpong":
-                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
-                                    if (frameId > animation.from && frameId < animation.to) match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`)
-                                    break
+                                    case "pingpong":
+                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
+                                        if (frameId > animation.from && frameId < animation.to) match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`)
+                                        break
+                                }
                             }
                         }
                     }
