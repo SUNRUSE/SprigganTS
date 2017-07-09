@@ -5,6 +5,7 @@ import child_process = require("child_process")
 const pngjs = require("pngjs")
 const imagemin = require("imagemin")
 const pngcrush = require("imagemin-pngcrush")
+const rimraf = require("rimraf")
 
 function Error(message: any) {
     if (!message) return
@@ -474,10 +475,8 @@ function CheckForPreviousBuild() {
     fs.readFile("Temp/LastBuild.json", "utf8", (err, data) => {
         if (err && err.code == "ENOENT") {
             console.info("Previous build not completed, deleting the Temp directory...")
-            fs.rmdir("Temp", (err) => {
-                if (err && err.code == "ENOENT") {
-                    console.info("There was no Temp directory to delete.")
-                } else Error(err)
+            rimraf("Temp", (err: any) => {
+                Error(err)
                 EnsureTempFolderExists()
             })
         }
@@ -549,7 +548,7 @@ function DeleteTempFoldersForDeletedOrModifiedContent() {
         } else {
             const directory = `Temp/${filename}`
             console.log(`Deleting "${directory}"...`)
-            fs.rmdir(directory, (err) => {
+            rimraf(directory, (err: any) => {
                 Error(err)
                 TakeNext()
             })
