@@ -2,3 +2,4 @@ node_modules
 Build/*
 !Build/Index.html
 Temp
+Source/Generated
