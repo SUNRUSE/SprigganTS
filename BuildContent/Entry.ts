@@ -18,10 +18,15 @@ function EndsWith(str: string, endsWith: string): boolean {
     return true
 }
 
+type PackedContent = {
+    readonly Path: string
+    readonly GeneratedCode: string
+}
+
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: () => void) => void) {
+    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: (packedContent: PackedContent[]) => void) => void) {
         ContentTypes[Extension] = this
     }
 }
@@ -95,42 +100,68 @@ new ContentType(".sprite.ase", (filename, then) => {
                         }
                         readonly duration: number
                     }[]
+                    readonly meta: {
+                        frameTags: {
+                            readonly name: string
+                            readonly from: number
+                            readonly to: number
+                            readonly direction: "forward" | "reverse" | "pingpong"
+                        }[]
+                    }
                 } = JSON.parse(dataJson)
                 const sheetPath = `Temp/${filename}/Sheet.png`
                 console.log(`Loading "${sheetPath}"...`)
                 var png = new pngjs.PNG()
                 fs.createReadStream(sheetPath).pipe(png).on("parsed", () => {
-                    for (const frame of data.frames) {
-                        let match = false
-                        for (const otherFrame of unpackedFrames) {
-                            if (frame.frame.w != otherFrame.Width - 2) continue
-                            if (frame.frame.h != otherFrame.Height - 2) continue
-                            match = true
-                            for (let y = 0; y < frame.frame.h; y++) {
-                                for (let x = 0; x < frame.frame.w; x++) {
-                                    for (let channel = 0; channel < 4; channel++) {
-                                        if (png.data[4 * png.width * (y + frame.frame.y) + 4 * (x + frame.frame.x) + channel] == otherFrame.Png.data[4 * otherFrame.Png.width * (y + otherFrame.SourceTop) + 4 * (x + otherFrame.SourceLeft) + channel]) continue
-                                        match = false
-                                        break
+                    for (const animation of data.meta.frameTags) {
+                        for (const frame of data.frames.slice(animation.from, animation.to + 1)) {
+                            let match: UnpackedFrame | undefined = undefined
+                            for (const otherFrame of unpackedFrames) {
+                                if (frame.frame.w != otherFrame.Width - 2) continue
+                                if (frame.frame.h != otherFrame.Height - 2) continue
+                                match = otherFrame
+                                for (let y = 0; y < frame.frame.h; y++) {
+                                    for (let x = 0; x < frame.frame.w; x++) {
+                                        for (let channel = 0; channel < 4; channel++) {
+                                            if (png.data[4 * png.width * (y + frame.frame.y) + 4 * (x + frame.frame.x) + channel] == otherFrame.Png.data[4 * otherFrame.Png.width * (y + otherFrame.SourceTop) + 4 * (x + otherFrame.SourceLeft) + channel]) continue
+                                            match = undefined
+                                            break
+                                        }
+                                        if (!match) break
                                     }
                                     if (!match) break
                                 }
-                                if (!match) break
+                                if (match) break
                             }
-                            if (match) {
-                                otherFrame.Filenames.push(`${filename}/${data.frames.indexOf(frame)}`)
-                                break
+
+                            if (!match) {
+                                match = {
+                                    Filenames: [],
+                                    Width: frame.frame.w + 2,
+                                    Height: frame.frame.h + 2,
+                                    Png: png,
+                                    SourceLeft: frame.frame.x,
+                                    SourceTop: frame.frame.y
+                                }
+                                unpackedFrames.push(match)
+                            }
+
+                            const frameId = data.frames.indexOf(frame)
+                            switch (animation.direction) {
+                                case "forward":
+                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
+                                    break
+
+                                case "reverse":
+                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`)
+                                    break
+
+                                case "pingpong":
+                                    match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
+                                    if (frameId > animation.from && frameId < animation.to) match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`)
+                                    break
                             }
                         }
-
-                        if (!match) unpackedFrames.push({
-                            Filenames: [`${filename}/${data.frames.indexOf(frame)}`],
-                            Width: frame.frame.w + 2,
-                            Height: frame.frame.h + 2,
-                            Png: png,
-                            SourceLeft: frame.frame.x,
-                            SourceTop: frame.frame.y
-                        })
                     }
                     LoadNextExport()
                 })
@@ -382,13 +413,19 @@ new ContentType(".sprite.ase", (filename, then) => {
                 plugins: [pngcrush({
                     reduce: true
                 })]
-            }).then(then)
+            }).then(() => {
+                const packedContent: PackedContent[] = []
+                for (const frame of packedFrames)
+                    for (const filename of frame.Unpacked.Filenames)
+                        packedContent.push({ Path: filename, GeneratedCode: `new SpriteFrame(${frame.Left}, ${frame.Top}, ${frame.Width}, ${frame.Height})` })
+                then(packedContent)
+            })
         })
     }
 })
-new ContentType(".background.ase", (filename, then) => then(), then => then())
-new ContentType(".sound.flp", (filename, then) => then(), then => then())
-new ContentType(".music.flp", (filename, then) => then(), then => then())
+new ContentType(".background.ase", (filename, then) => then(), then => then([]))
+new ContentType(".sound.flp", (filename, then) => then(), then => then([]))
+new ContentType(".music.flp", (filename, then) => then(), then => then([]))
 
 function RemoveExtension(filename: string): string {
     filename = filename.slice(0, filename.lastIndexOf("."))
