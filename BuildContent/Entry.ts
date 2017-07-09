@@ -629,8 +629,150 @@ function Pack() {
                     TakeNext()
                 })
             }
-        } else GenerateBuild()
+        } else GenerateTypeScriptTree()
     }
+}
+
+type ContentTreeDirectory = {
+    readonly Type: "Directory"
+    readonly Children: { [name: string]: ContentTree }
+}
+type ContentTree = ContentTreeDirectory | {
+    readonly Type: "Content"
+    readonly GeneratedCode: string
+}
+const root: ContentTreeDirectory = { Type: "Directory", Children: {} }
+
+function GenerateTypeScriptTree() {
+    console.info("Generating TypeScript tree...")
+    for (const extension in Build.PackedContent) for (const content of Build.PackedContent[extension]) {
+        const fragments: string[] = []
+        let remaining = content.Path
+        let currentFragment = ""
+        while (remaining) {
+            const character = remaining.slice(0, 1)
+            remaining = remaining.slice(1)
+            if (character == "/" || character == "\\") {
+                // Fonts can sometimes have a "/" or "\" character, which should be kept as a path (a///b == a / b).
+                if (currentFragment) {
+                    fragments.push(currentFragment)
+                    currentFragment = ""
+                } else {
+                    // This handles:
+                    // a/ = a /
+                    // a// = a //
+                    // a/// = a ///
+                    // a//// = a ////
+                    // a/b = a b
+                    // a//b = a b
+                    // a///b = a / b
+                    // a////b = a // b
+                    // a/////b = a /// b
+                    currentFragment = character
+                    while (remaining.slice(0, 1) == "/" || remaining.slice(0, 1) == "\\") {
+                        currentFragment += remaining.slice(0, 1)
+                        remaining = remaining.slice(1)
+                    }
+                    if (remaining) {
+                        if (currentFragment.length > 1) fragments.push(currentFragment.slice(0, -1))
+                    } else
+                        fragments.push(currentFragment)
+                    currentFragment = ""
+                }
+            } else currentFragment += character
+        }
+        if (currentFragment) fragments.push(currentFragment)
+
+        // Skip "Source".
+        let directory = root
+        for (const fragment of fragments.slice(1, -1)) {
+            const next = directory.Children[fragment]
+            if (next) {
+                if (next.Type != "Directory")
+                    Error(`Part of "${content.Path}" exists as both a directory and content; do you have directories which clash with file contents?`)
+                else
+                    directory = next
+            } else {
+                const next: ContentTreeDirectory = {
+                    Type: "Directory",
+                    Children: {}
+                }
+                directory.Children[fragment] = next
+                directory = next
+            }
+        }
+
+        if (directory.Children[fragments[fragments.length - 1]]) Error(`"${content.Path}" is defined more than once; do you have overlapping names?`)
+
+        directory.Children[fragments[fragments.length - 1]] = {
+            Type: "Content",
+            GeneratedCode: content.GeneratedCode
+        }
+    }
+    GenerateTypeScriptSource()
+}
+
+let GeneratedTypeScriptSource = ""
+
+function GenerateTypeScriptSource() {
+    console.info("Generating TypeScript source...")
+    GeneratedTypeScriptSource = `const Content = ${RecurseDirectory(root, "")}`
+
+    function RecurseChild(child: ContentTree, tabs: string) {
+        if (child.Type == "Directory")
+            return RecurseDirectory(child, tabs)
+        else
+            return child.GeneratedCode
+    }
+
+    function RecurseDirectory(directory: ContentTreeDirectory, tabs: string) {
+        const sequentialNumbers: ContentTree[] = []
+        while (directory.Children[sequentialNumbers.length]) sequentialNumbers.push(directory.Children[sequentialNumbers.length])
+        let output = ""
+        if (Object.keys(directory.Children).length == sequentialNumbers.length) {
+            output += "[\n"
+            for (const child of sequentialNumbers) {
+                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)},\n`
+            }
+            output += `${tabs}]`
+        } else {
+            output += "{\n"
+            for (const child in directory.Children) {
+                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]*$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)},\n`
+            }
+            output += `${tabs}}`
+        }
+        return output
+    }
+    DeleteExistingTypeScriptFile()
+}
+
+function DeleteExistingTypeScriptFile() {
+    console.info("Checking whether a TypeScript file already exists...")
+    fs.stat("Source/GeneratedContent.ts", (err) => {
+        if (err && err.code == "ENOENT") {
+            console.info("No TypeScript file exists.")
+            WriteTypeScriptFile()
+        } else {
+            Error(err)
+            fs.unlink("Source/Generated/Content.ts", (err) => {
+                Error(err)
+                WriteTypeScriptFile()
+            })
+        }
+    })
+}
+
+function WriteTypeScriptFile() {
+    console.info("Ensuring that Source/Generated exists...")
+    mkdirp("Source/Generated", (err) => {
+        Error(err)
+        console.info("Writing TypeScript...")
+        fs.writeFile("Source/Generated/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
+            Error(err)
+            GenerateBuild()
+        })
+    })
 }
 
 function GenerateBuild() {
