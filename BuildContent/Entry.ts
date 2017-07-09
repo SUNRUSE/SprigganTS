@@ -547,9 +547,12 @@ function DeleteTempFoldersForDeletedOrModifiedContent() {
         if (!filename) {
             RunConversions()
         } else {
-            const directory = RemoveExtension(filename)
+            const directory = `Temp/${filename}`
             console.log(`Deleting "${directory}"...`)
-            TakeNext()
+            fs.rmdir(directory, (err) => {
+                Error(err)
+                TakeNext()
+            })
         }
     }
 }
