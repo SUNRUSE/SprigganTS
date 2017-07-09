@@ -41,7 +41,7 @@ new ContentType(".sprite.ase", (filename, then) => {
         })
     })
 }, then => {
-    const remaining = Object.keys(Build)
+    const remaining = Object.keys(Build.LastModified)
     console.info("Loading sheets/data...")
 
     type UnpackedFrame = {
@@ -433,7 +433,17 @@ function RemoveExtension(filename: string): string {
     return filename.slice(0, filename.lastIndexOf("."))
 }
 
-const Build: { [filename: string]: number } = {}
+type Build = {
+    LastModified: { [filename: string]: number }
+    PackedContent: {
+        [extension: string]: PackedContent[]
+    }
+}
+
+const Build: Build = {
+    LastModified: {},
+    PackedContent: {}
+}
 
 FindFiles()
 
@@ -454,7 +464,7 @@ function FindFiles() {
                         if (stats.isFile()) {
                             for (const extension in ContentTypes) {
                                 if (EndsWith(fullPath, extension)) {
-                                    Build[fullPath] = stats.mtime.getTime()
+                                    Build.LastModified[fullPath] = stats.mtime.getTime()
                                 }
                             }
                             CheckNextFileOrDirectory()
@@ -468,7 +478,10 @@ function FindFiles() {
     }
 }
 
-let PreviousBuild: { [filename: string]: number } = {}
+let PreviousBuild: Build = {
+    LastModified: {},
+    PackedContent: {}
+}
 
 function CheckForPreviousBuild() {
     console.info("Checking for a previous build (Temp/LastBuild.json)...")
@@ -515,22 +528,22 @@ let FilesDeleted: string[] = []
 
 function CompareBuilds() {
     console.info("Comparing builds...")
-    for (const filename in PreviousBuild) if (!Build[filename]) {
+    for (const filename in PreviousBuild.LastModified) if (!Build.LastModified[filename]) {
         console.log(`"${filename}" has been deleted.`)
         FilesDeleted.push(filename)
     }
 
-    for (const filename in PreviousBuild) if (Build[filename]) {
-        if (PreviousBuild[filename] == Build[filename])
-            console.log(`"${filename}" has NOT been modified between ${PreviousBuild[filename]} and ${Build[filename]}.`)
+    for (const filename in PreviousBuild.LastModified) if (Build.LastModified[filename]) {
+        if (PreviousBuild.LastModified[filename] == Build.LastModified[filename])
+            console.log(`"${filename}" has NOT been modified between ${PreviousBuild.LastModified[filename]} and ${Build.LastModified[filename]}.`)
         else {
-            console.log(`"${filename}" has been modified between ${PreviousBuild[filename]} and ${Build[filename]}.`)
+            console.log(`"${filename}" has been modified between ${PreviousBuild.LastModified[filename]} and ${Build.LastModified[filename]}.`)
             FilesModified.push(filename)
         }
     }
 
-    for (const filename in Build) if (!PreviousBuild[filename]) {
-        console.log(`"${filename}" was created at ${Build[filename]}.`)
+    for (const filename in Build.LastModified) if (!PreviousBuild.LastModified[filename]) {
+        console.log(`"${filename}" was created at ${Build.LastModified[filename]}.`)
         FilesCreated.push(filename)
     }
 
@@ -580,7 +593,7 @@ function Pack() {
     const remaining = Object.keys(ContentTypes)
     TakeNext()
     function TakeNext() {
-        var extension = remaining.pop()
+        const extension = remaining.pop()
         if (extension) {
             var requiresPacking = false
             for (const filename of FilesCreated.concat(FilesModified).concat(FilesDeleted)) {
@@ -590,10 +603,14 @@ function Pack() {
             }
             if (!requiresPacking) {
                 console.info(`No content with extension ${extension} has changed, no packing required`)
+                Build.PackedContent[extension] = PreviousBuild.PackedContent[extension] || []
                 TakeNext()
             } else {
                 console.info(`Content with extension ${extension} has changed, packing...`)
-                ContentTypes[extension].Pack(TakeNext)
+                ContentTypes[extension].Pack((packedContent) => {
+                    Build.PackedContent[extension] = packedContent
+                    TakeNext()
+                })
             }
         } else GenerateBuild()
     }
