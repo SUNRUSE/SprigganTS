@@ -73,7 +73,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                 greatestWidth = Math.max(greatestWidth, frame.Width)
                 greatestHeight = Math.max(greatestHeight, frame.Height)
             }
-            PackAtlas(greatestWidth, greatestHeight)
+            PackAtlas(greatestWidth, greatestHeight, 1)
         } else if (!EndsWith(filename, ".sprite.ase")) {
             LoadNextExport()
         } else {
@@ -174,9 +174,7 @@ new ContentType(".sprite.ase", (filename, then) => {
         }
     }
 
-    function PackAtlas(atlasWidth: number, atlasHeight: number) {
-        console.log(`Trying to pack frames into ${atlasWidth}x${atlasHeight}...`)
-
+    function PackAtlas(atlasWidth: number, atlasHeight: number, packingAttempts: number) {
         type Space = {
             readonly Left: number
             readonly Top: number
@@ -322,7 +320,6 @@ new ContentType(".sprite.ase", (filename, then) => {
                     bestSpace = space
                 }
                 if (!bestSpace) {
-                    console.log(`This did not fit, at ${unpackedFrames.indexOf(frame)}/${unpackedFrames.length} frames`)
                     // We can increase efficiency by widening when we were too wide, etc. but this tends to make very narrow "strips".
                     // Ideally we want a square as this is less likely to hit any driver constraints.
                     if (atlasWidth <= atlasHeight) {
@@ -330,7 +327,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                     } else {
                         atlasHeight += 1
                     }
-                    PackAtlas(atlasWidth, atlasHeight)
+                    PackAtlas(atlasWidth, atlasHeight, packingAttempts + 1)
                     return
                 }
                 packedFrames.push({
@@ -373,7 +370,7 @@ new ContentType(".sprite.ase", (filename, then) => {
 
         let totalPixels = 0
         for (const frame of unpackedFrames) totalPixels += frame.Width * frame.Height
-        console.info(`Packed with ${Math.floor(10000 * totalPixels / (atlasWidth * atlasHeight)) / 100}% efficiency; generating atlas...`)
+        console.info(`Packed into ${atlasWidth}x${atlasHeight} in ${packingAttempts} attempts with ${Math.floor(10000 * totalPixels / (atlasWidth * atlasHeight)) / 100}% efficiency; generating atlas...`)
 
         const atlas = new pngjs.PNG({
             width: atlasWidth,
