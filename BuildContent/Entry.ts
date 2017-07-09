@@ -498,12 +498,24 @@ function CheckForPreviousBuild() {
             })
         }
         else {
-            PreviousBuild = JSON.parse(data)
-            console.info("Deleting Temp/LastBuild.json to mark build as incomplete...")
-            fs.unlink("Temp/LastBuild.json", (err) => {
-                Error(err)
-                EnsureTempFolderExists()
-            })
+            let failed = true
+            try {
+                PreviousBuild = JSON.parse(data)
+                failed = false
+            } catch (e) { }
+            if (failed) {
+                console.info("JSON file from previous build corrupted, deleting the Temp directory...")
+                rimraf("Temp", (err: any) => {
+                    Error(err)
+                    EnsureTempFolderExists()
+                })
+            } else {
+                console.info("Deleting Temp/LastBuild.json to mark build as incomplete...")
+                fs.unlink("Temp/LastBuild.json", (err) => {
+                    Error(err)
+                    EnsureTempFolderExists()
+                })
+            }
         }
     })
 }
