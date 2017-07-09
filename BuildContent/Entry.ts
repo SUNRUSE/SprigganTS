@@ -250,6 +250,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                     Unpacked: frame
                 })
                 spaces.splice(spaces.indexOf(space), 1)
+                break
             }
             if (found) continue
 
