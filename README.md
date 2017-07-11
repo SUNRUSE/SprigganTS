@@ -445,15 +445,15 @@ These types use this event queue, so it is recommended to use them over setTimeo
     
     const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), () => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
 
-    const once = new TimerOnce(0.4, undefined, () => console.log("Called if cancelled before completing"))
+    const once = new TimerOnce(0.4, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"))
     
-    const once = new TimerOnce(0.4, undefined, () => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const once = new TimerOnce(0.4, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"))
 
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), () => console.log("Called if cancelled before completing"))
+    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"))
     
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), () => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     const once = new TimerOnce(0.4, undefined, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
     
@@ -463,19 +463,19 @@ These types use this event queue, so it is recommended to use them over setTimeo
     
     const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"))
 
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), () => console.log("Called when stopped"))
+    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
     
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), () => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
 
-    const recurring = new TimerRecurring(0.4, undefined, () => console.log("Called when stopped"))
+    const recurring = new TimerRecurring(0.4, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
     
-    const recurring = new TimerRecurring(0.4, undefined, () => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const recurring = new TimerRecurring(0.4, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"))
 
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), () => console.log("Called when stopped"))
+    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
     
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), () => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
     
     const recurring = new TimerRecurring(0.4, undefined, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
     
