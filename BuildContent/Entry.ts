@@ -735,7 +735,10 @@ function GenerateTypeScriptSource() {
         } else {
             output += "{\n"
             for (const child in directory.Children) {
-                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]*$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)},\n`
+                // Invalid property names are quoted.
+                // Additionally, as Uglify will not mangle quoted named, single character names are quoted too.
+                // This should not make any difference to its compression efforts as it's just one charatcer, but means font characters will be preserved.
+                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)},\n`
             }
             output += `${tabs}}`
         }
