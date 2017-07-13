@@ -1,8 +1,8 @@
 /// <reference path="Engine/Entry.ts" />
 
 
-onload = () => {
-    RemoveLoadingMessage()
+function StartGame() {
+
 }
 
 SetLoadingMessage("Starting scripts, please wait...")
