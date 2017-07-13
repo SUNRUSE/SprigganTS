@@ -189,6 +189,14 @@ All methods in the API are "bound", meaning that it is safe to directly call the
     // No wrapping function required here.
     Content.Battle.Sky.Day.Play(Content.Battle.Sky.Sunset[0].Play)
 
+Additionally, the minification pass has been configured to compress property names.  As such:
+
+    { a: 3, b: 4, c: 5 }["b"]
+
+May not work.  However, quoted property names will be preserved, so the following will work:
+
+    { "a": 3, "b": 4, "c": 5 }["b"]
+
 #### Configuration
 
 At the top of Source/Entry.ts is a reference to Source/Configuration.ts.  This file is shared between the runtime engine and build process, and defines:
