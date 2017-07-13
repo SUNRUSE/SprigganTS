@@ -5,7 +5,10 @@ function ModifyLoadingMessage(callback: (element: HTMLElement) => void) {
 }
 
 function SetLoadingMessage(message: string) {
-    ModifyLoadingMessage(element => element.textContent = message)
+    ModifyLoadingMessage(element => {
+        element.innerText = message
+        element.textContent = message
+    })
 }
 
 function RemoveLoadingMessage() {
