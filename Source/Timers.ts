@@ -124,22 +124,22 @@ namespace Timers {
             }
         }
 
-        Cancelled() { return this._CancelledElapsed !== undefined }
-        Completed() { return this._Completed }
-        Paused() { return this._PausedElapsed !== undefined }
+        Cancelled = () => this._CancelledElapsed !== undefined
+        Completed = () => this._Completed
+        Paused = () => this._PausedElapsed !== undefined
 
-        ElapsedSeconds(): number {
+        ElapsedSeconds = () => {
             if (this._PausedElapsed !== undefined) return this._PausedElapsed
             if (this._CancelledElapsed !== undefined) return this._CancelledElapsed
             return Math.min(this.DurationSeconds, CurrentTime - this._StartedAt)
         }
 
-        ElapsedUnitInterval(): number {
+        ElapsedUnitInterval = () => {
             if (this.DurationSeconds == 0) return 1
             return this.ElapsedSeconds() / this.DurationSeconds
         }
 
-        Cancel() {
+        Cancel = () => {
             if (this.Cancelled() || this.Completed()) return
             this._CancelledElapsed = this.ElapsedSeconds()
             if (!this.Paused()) {
@@ -149,7 +149,7 @@ namespace Timers {
             }
         }
 
-        Pause() {
+        Pause = () => {
             if (this.Paused() || this.Cancelled() || this.Completed()) return
             this._PausedElapsed = this.ElapsedSeconds()
             Remove(CallbackQueue, this._CallbackQueueItem)
@@ -157,7 +157,7 @@ namespace Timers {
             if (this._OnPause) this._OnPause(this.ElapsedSeconds(), this.ElapsedUnitInterval())
         }
 
-        Resume() {
+        Resume = () => {
             if (this.Cancelled() || this.Completed()) return
             if (this._PausedElapsed === undefined) return
             this._StartedAt = CurrentTime - this._PausedElapsed
