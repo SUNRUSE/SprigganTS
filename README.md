@@ -439,25 +439,28 @@ These types use this event queue, so it is recommended to use them over setTimeo
 
 ##### Once
 
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"))
+    const once = new Timers.Once(
+        0.4, 
+        // The following arguments are optional; specify undefined to not include them.
+        () => console.log("Called after 0.4 seconds if not cancelled or paused"),
+        (elapsedSeconds, elapsedUnitInterval) => console.log("Called when cancelled before completing"),
+        (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"),
+        (elapsedSeconds, elapsedUnitInterval) => console.log("Called when paused"),
+        (elapsedSeconds, elapsedUnitInterval) => console.log("Called when resumed")
+    )
 
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), () => console.log("Called if cancelled before completing"))
-    
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), () => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
-
-    const once = new TimerOnce(0.4, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"))
-    
-    const once = new TimerOnce(0.4, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"))
-
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"))
-    
-    const once = new TimerOnce(0.4, () => console.log("Called after 0.4 seconds"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called if cancelled before completing"), (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
-    const once = new TimerOnce(0.4, undefined, undefined, (elapsedSeconds, elapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
     once.Cancel()
+
+    once.Pause()
+
+    once.Resume()
+
+    once.DurationSeconds
+    once.Paused()
+    once.Completed()
+    once.Cancelled()
+    once.ElapsedSeconds()
+    once.ElapsedUnitInterval() // Returns 0 at the start, and 1 at the end.
 
 ##### Recurring
     
