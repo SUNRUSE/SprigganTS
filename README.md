@@ -199,7 +199,7 @@ May not work.  However, quoted property names will be preserved, so the followin
 
 #### Configuration
 
-At the top of Source/Entry.ts is a reference to Source/Configuration.ts.  This file is shared between the runtime engine and build process, and defines:
+At the top of Source/Engine/Entry.ts is a reference to Source/Engine/Configuration.ts.  This file is shared between the runtime engine and build process, and defines:
 
 ##### ResolutionX
 
