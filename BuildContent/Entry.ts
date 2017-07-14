@@ -45,7 +45,11 @@ new ContentType(".sprite.ase", (filename, then) => {
     console.info("Loading sheets/data...")
 
     type UnpackedFrame = {
-        readonly Filenames: string[]
+        readonly References: {
+            readonly Filename: string
+            readonly MarginLeft: number
+            readonly MarginTop: number
+        }[]
         readonly Width: number
         readonly Height: number
         readonly Png: any
@@ -58,7 +62,7 @@ new ContentType(".sprite.ase", (filename, then) => {
     function LoadNextExport() {
         const filename = remaining.pop()
         if (!filename) {
-            for (const frame of unpackedFrames) if (frame.Filenames.length > 1) console.log(`The following frames were duplicates: ${frame.Filenames.join(", ")}`)
+            for (const frame of unpackedFrames) if (frame.References.length > 1) console.log(`The following frames were duplicates: ${frame.References.map(r => r.Filename).join(", ")}`)
             console.info("All frames loaded, sorting by difficulty to pack...")
             unpackedFrames.sort((a, b) => {
                 if (Math.max(a.Width, a.Height) > Math.max(b.Width, b.Height)) return -1
@@ -89,7 +93,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                             readonly w: number
                             readonly h: number
                         }
-                        readonly sourceSpriteSize: {
+                        readonly spriteSourceSize: {
                             readonly x: number
                             readonly y: number
                             readonly w: number
@@ -137,32 +141,55 @@ new ContentType(".sprite.ase", (filename, then) => {
 
                             if (!match) {
                                 match = {
-                                    Filenames: [],
+                                    References: [],
                                     Width: frame.frame.w + 2,
                                     Height: frame.frame.h + 2,
                                     Png: png,
                                     SourceLeft: frame.frame.x,
-                                    SourceTop: frame.frame.y
+                                    SourceTop: frame.frame.y,
                                 }
                                 unpackedFrames.push(match)
                             }
 
+                            const marginLeft = frame.spriteSourceSize.x - (frame.sourceSize.w / 2)
+                            const marginTop = frame.spriteSourceSize.y - (frame.sourceSize.h / 2)
+
                             if (animation.from == animation.to) {
-                                match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}`)
+                                match.References.push({
+                                    Filename: `${RemoveExtension(filename)}/${animation.name}`,
+                                    MarginLeft: marginLeft,
+                                    MarginTop: marginTop
+                                })
                             } else {
                                 const frameId = data.frames.indexOf(frame)
                                 switch (animation.direction) {
                                     case "forward":
-                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
+                                        match.References.push({
+                                            Filename: `${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`,
+                                            MarginLeft: marginLeft,
+                                            MarginTop: marginTop
+                                        })
                                         break
 
                                     case "reverse":
-                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`)
+                                        match.References.push({
+                                            Filename: `${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`,
+                                            MarginLeft: marginLeft,
+                                            MarginTop: marginTop
+                                        })
                                         break
 
                                     case "pingpong":
-                                        match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`)
-                                        if (frameId > animation.from && frameId < animation.to) match.Filenames.push(`${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`)
+                                        match.References.push({
+                                            Filename: `${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`,
+                                            MarginLeft: marginLeft,
+                                            MarginTop: marginTop
+                                        })
+                                        if (frameId > animation.from && frameId < animation.to) match.References.push({
+                                            Filename: `${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`,
+                                            MarginLeft: marginLeft,
+                                            MarginTop: marginTop
+                                        })
                                         break
                                 }
                             }
@@ -419,8 +446,8 @@ new ContentType(".sprite.ase", (filename, then) => {
             }).then(() => {
                 const packedContent: PackedContent[] = []
                 for (const frame of packedFrames)
-                    for (const filename of frame.Unpacked.Filenames)
-                        packedContent.push({ Path: filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2})` })
+                    for (const reference of frame.Unpacked.References)
+                        packedContent.push({ Path: reference.Filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2}, ${reference.MarginLeft}, ${reference.MarginTop})` })
                 then(packedContent)
             })
         })
