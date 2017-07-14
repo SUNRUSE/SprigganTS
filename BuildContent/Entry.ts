@@ -420,7 +420,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                 const packedContent: PackedContent[] = []
                 for (const frame of packedFrames)
                     for (const filename of frame.Unpacked.Filenames)
-                        packedContent.push({ Path: filename, GeneratedCode: `new SpriteFrame(${frame.Left}, ${frame.Top}, ${frame.Width}, ${frame.Height})` })
+                        packedContent.push({ Path: filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2})` })
                 then(packedContent)
             })
         })
