@@ -10,3 +10,6 @@ function Remove<T>(list: T[], item: T) {
         list.splice(index, 1)
     }
 }
+
+type HorizontalAlignment = "Left" | "Middle" | "Right"
+type VerticalAlignment = "Top" | "Middle" | "Bottom"
