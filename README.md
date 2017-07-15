@@ -379,6 +379,8 @@ The following methods exist on most scene graph objects:
     
     // Moves from the current position to 25 emulated pixels right of the origin of our container, 34 down of the origin of our container, at 250 emulated pixels/second.
     groupOrSprite.MoveAt(25, 34, 250) 
+
+    groupOrSprite.MoveAt(25, 34, 250, () => console.log("Called when finished, but not if interrupted.")
     
     // Temporarily removes the scene graph object and its children from the scene graph, hiding them and ignoring clicks/taps (what lies underneath will accept them instead).
     // Animations may continue while hidden, and trigger events.
