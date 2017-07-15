@@ -305,34 +305,48 @@ SprigganTS uses a scene graph when rendering.  This runs at a fixed "emulated" r
 
 All objects are drawn by walking the tree depth first, nodes ordered by when they were added to the parent.  That is:
 
-    |'-Group A
+    |'-Viewport A
     | |'-Group AA
     | | |'-Drawn behind everything else.  Added before the below.
     | |  '-Drawn behind group AB.  Added after the above.
     |  '-Group AB
     |    '-Drawn on top of group AA, but behind group B.
-     '-Group B
+     '-Viewport B
        '-Drawn on top of everything else.
       
 By default, scene graph objects are added to the root of the scene graph.
 
-The origin of the screen is the top left corner.
+The origin of a viewport is its top left corner.
+
+##### Viewport
+
+A scene root, which is positioned relative to the screen's actual borders.
+
+    // "Left", "Middle", "Right"; default is "Middle" when not given.
+    const horizontalAlignment = "Left"
+
+    // "Top", "Middle", "Bottom"; default is "Middle" when not given.
+    const verticalAlignment = "Top"
+
+    new Viewport(horizontalAlignment, verticalAlignment)
+
+    new Viewport(horizontalAlignment, verticalAlignment, () => console.log("Called when any child of the viewport or their children are clicked or tapped"))
 
 ##### Sprite
 
 A visible object, which displays a SpriteFrame.
 
-    new Sprite()
+    new Sprite(parentViewportOrGroup)
 
-    new Sprite(() => console.log("Called when the sprite is clicked or tapped"))
+    new Sprite(parentViewportOrGroup, () => console.log("Called when the sprite is clicked or tapped"))
 
     // The following methods interrupt the previously playing animation.
     
-    new Sprite().Play(Content.Character.Idle)
+    new Sprite(...).Play(Content.Character.Idle)
     
-    new Sprite().Play(Content.Character.Idle, () => console.log("Called when finished, but not if interrupted"))
+    new Sprite(...).Play(Content.Character.Idle, () => console.log("Called when finished, but not if interrupted"))
     
-    new Sprite().Loop(Content.Character.Idle)
+    new Sprite(...).Loop(Content.Character.Idle)
     
 ##### Group
 
@@ -342,20 +356,13 @@ An invisible object, which can contain other scene graph objects. These can be u
 - Grouping scene graph objects into layers, for z-ordering.
 - Grouping objects which should be paused together.
 
-    new Group()
+    new Group(parentViewportOrGroup)
 
-    new Group(() => console.log("Called when any child in the group or their children are clicked or tapped"))
-    
-    // Moves the referenced scene graph object under this group.
-    // Pause/resume/hide/show state and animations/movements will be retained.
-    // However, the location/movement will be retained relative to the parent, not the scene as a whole.
-    new Group()
-        .Add(new Group(...))
-        .Add(new Sprite(...))
+    new Group(parentViewportOrGroup, () => console.log("Called when any child of the group or their children are clicked or tapped"))
 
 ##### Common Methods
 
-The following methods exist on all scene graph objects:
+The following methods exist on most scene graph objects:
 
     // Movement functions interrupt any previous motion.
     // Child scene objects, and their scene objects, will move with ours.
@@ -375,37 +382,31 @@ The following methods exist on all scene graph objects:
     // Temporarily removes the scene graph object and its children from the scene graph, hiding them and ignoring clicks/taps (what lies underneath will accept them instead).
     // Animations may continue while hidden, and trigger events.
     // No effect if already hidden.
-    groupOrSprite.Hide()
+    viewportGroupOrSprite.Hide()
     
     // Undoes .Hide().
     // No effect if not hidden.
-    groupOrSprite.Show()
+    viewportGroupOrSprite.Show()
     
     // Temporarily freezes all animation and motion in the scene graph object and its children.
     // Does not count as an interruption.
     // Clicks will still be accepted.
     // No effect if already paused.
-    groupOrSprite.Pause()
+    viewportGroupOrSprite.Pause()
     
     // Undoes .Pause().
     // No effect if not paused.
-    groupOrSprite.Resume()
+    viewportGroupOrSprite.Resume()
     
     // Permanently removes the scene graph object and its children from the scene graph, hiding them and ignoring clicks/taps (what lies underneath will accept them instead).
     // Animations will not continue, and events will not be triggered.
-    groupOrSprite.Delete()
+    viewportGroupOrSprite.Delete()
     
     // Gets the (possibly non-integer) number of emulated pixels the scene graph object is right of its parent's origin.
     groupOrSprite.X()
     
-    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is right of otherGroupOrSprite's origin.
-    groupOrSprite.X(otherGroupOrSprite)
-    
     // Gets the (possibly non-integer) number of emulated pixels the scene graph object is below its parent's origin.
     groupOrSprite.Y()
-    
-    // Gets the (possibly non-integer) number of emulated pixels the scene graph object is below otherGroupOrSprite's origin.
-    groupOrSprite.Y(otherGroupOrSprite)
     
 #### Events
 
