@@ -209,10 +209,6 @@ The number of horizontal pixels in the "emulated" screen.
 
 The number of vertical pixels in the "emulated" screen.
 
-##### Crop
-
-When true, the display is cropped to the "emulated" screen.  When false, it may overflow to fill the entire display or window.  This needs to be used with care.
-
 #### Content
 
 The build process will generate the file Source/Content.ts.  This contains an object hierarchy mimicking your directory structure (and often the records inside the content files), with objects containing the associated metadata.
@@ -328,9 +324,14 @@ A scene root, which is positioned relative to the screen's actual borders.
     // "Top", "Middle", "Bottom"; default is "Middle" when not given.
     const verticalAlignment = "Top"
 
-    new Viewport(horizontalAlignment, verticalAlignment)
+    // When true, the viewport is cropped; anything which leaves the "emulated screen" is trimmed to the "emulated screen".
+    // Otherwise, sprites/etc. may be seen outside of the ResolutionX/ResolutionY box; this may be desirable, but may mean things which leave the scene do not.
+    // Defaults to true when not set.
+    const crop = false
 
-    new Viewport(horizontalAlignment, verticalAlignment, () => console.log("Called when any child of the viewport or their children are clicked or tapped"))
+    new Viewport(horizontalAlignment, verticalAlignment, crop)
+
+    new Viewport(horizontalAlignment, verticalAlignment, crop, () => console.log("Called when any child of the viewport or their children are clicked or tapped"))
 
 ##### Sprite
 
