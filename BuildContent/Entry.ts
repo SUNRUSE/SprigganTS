@@ -49,6 +49,7 @@ new ContentType(".sprite.ase", (filename, then) => {
             readonly Filename: string
             readonly MarginLeft: number
             readonly MarginTop: number
+            readonly DurationSeconds: number
         }[]
         readonly Width: number
         readonly Height: number
@@ -158,7 +159,8 @@ new ContentType(".sprite.ase", (filename, then) => {
                                 match.References.push({
                                     Filename: `${RemoveExtension(filename)}/${animation.name}`,
                                     MarginLeft: marginLeft,
-                                    MarginTop: marginTop
+                                    MarginTop: marginTop,
+                                    DurationSeconds: frame.duration / 1000
                                 })
                             } else {
                                 const frameId = data.frames.indexOf(frame)
@@ -167,7 +169,8 @@ new ContentType(".sprite.ase", (filename, then) => {
                                         match.References.push({
                                             Filename: `${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`,
                                             MarginLeft: marginLeft,
-                                            MarginTop: marginTop
+                                            MarginTop: marginTop,
+                                            DurationSeconds: frame.duration / 1000
                                         })
                                         break
 
@@ -175,7 +178,8 @@ new ContentType(".sprite.ase", (filename, then) => {
                                         match.References.push({
                                             Filename: `${RemoveExtension(filename)}/${animation.name}/${animation.to - frameId}`,
                                             MarginLeft: marginLeft,
-                                            MarginTop: marginTop
+                                            MarginTop: marginTop,
+                                            DurationSeconds: frame.duration / 1000
                                         })
                                         break
 
@@ -183,12 +187,14 @@ new ContentType(".sprite.ase", (filename, then) => {
                                         match.References.push({
                                             Filename: `${RemoveExtension(filename)}/${animation.name}/${frameId - animation.from}`,
                                             MarginLeft: marginLeft,
-                                            MarginTop: marginTop
+                                            MarginTop: marginTop,
+                                            DurationSeconds: frame.duration / 1000
                                         })
                                         if (frameId > animation.from && frameId < animation.to) match.References.push({
                                             Filename: `${RemoveExtension(filename)}/${animation.name}/${animation.to + (animation.to - animation.from) - frameId}`,
                                             MarginLeft: marginLeft,
-                                            MarginTop: marginTop
+                                            MarginTop: marginTop,
+                                            DurationSeconds: frame.duration / 1000
                                         })
                                         break
                                 }
@@ -447,7 +453,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                 const packedContent: PackedContent[] = []
                 for (const frame of packedFrames)
                     for (const reference of frame.Unpacked.References)
-                        packedContent.push({ Path: reference.Filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2}, ${reference.MarginLeft}, ${reference.MarginTop})` })
+                        packedContent.push({ Path: reference.Filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2}, ${reference.MarginLeft}, ${reference.MarginTop}, ${reference.DurationSeconds})` })
                 then(`const ContentSpritesWidth = ${atlasWidth}\nconst ContentSpritesHeight = ${atlasHeight}\n`, packedContent)
             })
         })
