@@ -13,3 +13,15 @@ function Remove<T>(list: T[], item: T) {
 
 type HorizontalAlignment = "Left" | "Middle" | "Right"
 type VerticalAlignment = "Top" | "Middle" | "Bottom"
+
+function Mix(from: number, to: number, byUnitInterval: number) {
+    return from + (to - from) * byUnitInterval
+}
+
+function DistanceSquared(x1: number, y1: number, x2: number, y2: number) {
+    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
+}
+
+function Distance(x1: number, y1: number, x2: number, y2: number) {
+    return Math.sqrt(DistanceSquared(x1, y1, x2, y2))
+}
