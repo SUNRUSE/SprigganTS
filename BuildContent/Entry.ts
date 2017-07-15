@@ -27,7 +27,7 @@ type PackedContent = {
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: (packedContent: PackedContent[]) => void) => void) {
+    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: (additionalGeneratedCode: string, packedContent: PackedContent[]) => void) => void) {
         ContentTypes[Extension] = this
     }
 }
@@ -448,14 +448,14 @@ new ContentType(".sprite.ase", (filename, then) => {
                 for (const frame of packedFrames)
                     for (const reference of frame.Unpacked.References)
                         packedContent.push({ Path: reference.Filename, GeneratedCode: `new SpriteFrame(${frame.Left + 1}, ${frame.Top + 1}, ${frame.Width - 2}, ${frame.Height - 2}, ${reference.MarginLeft}, ${reference.MarginTop})` })
-                then(packedContent)
+                then(`const ContentSpritesWidth = ${atlasWidth}\nconst ContentSpritesHeight = ${atlasHeight}\n`, packedContent)
             })
         })
     }
 })
-new ContentType(".background.ase", (filename, then) => then(), then => then([]))
-new ContentType(".sound.flp", (filename, then) => then(), then => then([]))
-new ContentType(".music.flp", (filename, then) => then(), then => then([]))
+new ContentType(".background.ase", (filename, then) => then(), then => then("", []))
+new ContentType(".sound.flp", (filename, then) => then(), then => then("", []))
+new ContentType(".music.flp", (filename, then) => then(), then => then("", []))
 
 function RemoveExtension(filename: string): string {
     filename = filename.slice(0, filename.lastIndexOf("."))
@@ -464,6 +464,9 @@ function RemoveExtension(filename: string): string {
 
 type Build = {
     LastModified: { [filename: string]: number }
+    AdditionalGeneratedCode: {
+        [extension: string]: string
+    }
     PackedContent: {
         [extension: string]: PackedContent[]
     }
@@ -471,6 +474,7 @@ type Build = {
 
 const Build: Build = {
     LastModified: {},
+    AdditionalGeneratedCode: {},
     PackedContent: {}
 }
 
@@ -509,6 +513,7 @@ function FindFiles() {
 
 let PreviousBuild: Build = {
     LastModified: {},
+    AdditionalGeneratedCode: {},
     PackedContent: {}
 }
 
@@ -644,11 +649,13 @@ function Pack() {
             }
             if (!requiresPacking) {
                 console.info(`No content with extension ${extension} has changed, no packing required`)
+                Build.AdditionalGeneratedCode[extension] = PreviousBuild.AdditionalGeneratedCode[extension] || ""
                 Build.PackedContent[extension] = PreviousBuild.PackedContent[extension] || []
                 TakeNext()
             } else {
                 console.info(`Content with extension ${extension} has changed, packing...`)
-                ContentTypes[extension].Pack((packedContent) => {
+                ContentTypes[extension].Pack((additionalGeneratedCode, packedContent) => {
+                    Build.AdditionalGeneratedCode[extension] = additionalGeneratedCode
                     Build.PackedContent[extension] = packedContent
                     TakeNext()
                 })
@@ -740,7 +747,10 @@ let GeneratedTypeScriptSource = ""
 
 function GenerateTypeScriptSource() {
     console.info("Generating TypeScript source...")
-    GeneratedTypeScriptSource = `const Content = ${RecurseDirectory(root, "")}`
+
+    for (const extension in Build.AdditionalGeneratedCode) GeneratedTypeScriptSource += Build.AdditionalGeneratedCode[extension]
+
+    GeneratedTypeScriptSource += `\nconst Content = ${RecurseDirectory(root, "")}`
 
     function RecurseChild(child: ContentTree, tabs: string) {
         if (child.Type == "Directory")
@@ -776,13 +786,13 @@ function GenerateTypeScriptSource() {
 
 function DeleteExistingTypeScriptFile() {
     console.info("Checking whether a TypeScript file already exists...")
-    fs.stat("Source/GeneratedContent.ts", (err) => {
+    fs.stat("Source/Engine/Generated/Content.ts", (err) => {
         if (err && err.code == "ENOENT") {
             console.info("No TypeScript file exists.")
             WriteTypeScriptFile()
         } else {
             Error(err)
-            fs.unlink("Source/Generated/Content.ts", (err) => {
+            fs.unlink("Source/Engine/Generated/Content.ts", (err) => {
                 Error(err)
                 WriteTypeScriptFile()
             })
@@ -791,11 +801,11 @@ function DeleteExistingTypeScriptFile() {
 }
 
 function WriteTypeScriptFile() {
-    console.info("Ensuring that Source/Generated exists...")
-    mkdirp("Source/Generated", (err) => {
+    console.info("Ensuring that Source/Engine/Generated exists...")
+    mkdirp("Source/Engine/Generated", (err) => {
         Error(err)
         console.info("Writing TypeScript...")
-        fs.writeFile("Source/Generated/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
+        fs.writeFile("Source/Engine/Generated/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
             Error(err)
             GenerateBuild()
         })
