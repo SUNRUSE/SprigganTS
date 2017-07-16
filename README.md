@@ -229,7 +229,7 @@ Will produce the following object:
     const Content = {
         Battle: {
             Sky: {
-                Day: new BackgroundAnimation(new BackgroundFrame(...), new BackgroundFrame(...)),
+                Day: [new BackgroundFrame(...), new BackgroundFrame(...)],
                 Sunset: [new BackgroundFrame(...), new BackgroundFrame(...)]
             },
             Character: {
@@ -272,11 +272,7 @@ A single still image which is shown behind all sprites, filling the virtual scre
     Content.Battle.Sky.Day.Play(() => console.log("Called when finished"))
     
     Content.Battle.Sky.Day.Loop()
-
-###### SpriteAnimation, BackgroundAnimation
-
-A collection of SpriteFrame/BackgroundFrame objects representing an animation.  May be used in the exact same ways as SpriteFrame/BackgroundFrame.
-
+    
 ###### Sound
 
 A "fire-and-forget" sound.
