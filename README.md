@@ -517,7 +517,15 @@ A simplistic bitmap font system is included, which generates sets of Sprites.
     // "Top", "Middle", "Bottom"; default is "Top" when not given.
     const verticalAlignment = "Top"
 
-    font.Write(group, "Hello World!\nThis is on a subsequent line.\n\tThis is indented.", horizontalAlignment, verticalAlignment)
+    // Pixels between the left of the container and the anchor of the written text.
+    // Default is 0 when not given.
+    const leftPixels = 320
+
+    // Pixels between the top of the container and the anchor of the written text.
+    // Default is 0 when not given.
+    const topPixels = 240
+
+    font.Write(group, "Hello World!\nThis is on a subsequent line.\n\tThis is indented.", horizontalAlignment, verticalAlignment, leftPixels, topPixels)
 
     // Returns the number of emulated pixels needed to write the string horizontally.
     font.CalculateWidth("Hello World!\nThis is on a subsequent line.\n\tThis is indented.")
