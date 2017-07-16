@@ -272,7 +272,7 @@ A single still image which is shown behind all sprites, filling the virtual scre
     Content.Battle.Sky.Day.Play(() => console.log("Called when finished"))
     
     Content.Battle.Sky.Day.Loop()
-    
+
 ###### Sound
 
 A "fire-and-forget" sound.
