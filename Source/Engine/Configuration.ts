@@ -1,2 +1,2 @@
-const ResolutionX = 428
-const ResolutionY = 240
+const ResolutionX = 320
+const ResolutionY = 212
