@@ -117,7 +117,7 @@ new ContentType(".sprite.ase", (filename, then) => {
                 } = JSON.parse(dataJson)
                 const sheetPath = `Temp/${filename}/Sheet.png`
                 console.log(`Loading "${sheetPath}"...`)
-                var png = new pngjs.PNG()
+                const png = new pngjs.PNG()
                 fs.createReadStream(sheetPath).pipe(png).on("parsed", () => {
                     for (const animation of data.meta.frameTags) {
                         for (const frame of data.frames.slice(animation.from, animation.to + 1)) {
@@ -647,7 +647,7 @@ function Pack() {
     function TakeNext() {
         const extension = remaining.pop()
         if (extension) {
-            var requiresPacking = false
+            let requiresPacking = false
             for (const filename of FilesCreated.concat(FilesModified).concat(FilesDeleted)) {
                 if (!EndsWith(filename, extension)) continue
                 requiresPacking = true
