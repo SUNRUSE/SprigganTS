@@ -472,25 +472,31 @@ These types use this event queue, so it is recommended to use them over setTimeo
 
 ##### Recurring
     
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"))
+    const recurring = new Timers.Recurring(0.4, () => console.log("Called every 0.4 seconds"))
 
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
-    
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
+    const recurring = new Timers.Recurring(
+        0.4, 
+        // The following arguments are optional; specify undefined to not include them.
+        (completedLoopsInclusive, totalElapsedSeconds) => console.log("Called every 0.4 seconds until stopped when not paused"),
+        (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, completedLoopsInclusive, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"),
+        (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, completedLoopsInclusive, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when paused"),
+        (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, completedLoopsInclusive, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when resumed")
+    )
 
-    const recurring = new TimerRecurring(0.4, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
-    
-    const recurring = new TimerRecurring(0.4, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"))
-
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"))
-    
-    const recurring = new TimerRecurring(0.4, () => console.log("Called every 0.4 seconds"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called when stopped"), (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
-    const recurring = new TimerRecurring(0.4, undefined, undefined, (elapsedSecondsThisLoop, elapsedUnitIntervalThisLoop, totalElapsedSeconds, totalElapsedUnitInterval) => console.log("Called periodically during the timer"))
-    
     recurring.Stop()
+
+    recurring.Pause()
+
+    recurring.Resume()
+
+    recurring.IntervalSeconds
+    recurring.Paused()
+    recurring.Stopped()
+    recurring.CompletedLoops()
+    recurring.ElapsedSecondsThisLoop()
+    recurring.ElapsedUnitIntervalThisLoop() // Returns 0 at the start, and 1 at the end.
+    recurring.TotalElapsedSeconds()
+    recurring.TotalElapsedUnitInterval() // Effectively .CompletedLoops() + .ElapsedUnitIntervalThisLoop().
 
 #### Font
 
