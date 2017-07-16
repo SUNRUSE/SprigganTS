@@ -772,16 +772,21 @@ function GenerateTypeScriptSource() {
         if (Object.keys(directory.Children).length == sequentialNumbers.length) {
             output += "[\n"
             for (const child of sequentialNumbers) {
-                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)},\n`
+                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)}`
+                if (child != sequentialNumbers[sequentialNumbers.length - 1]) output += ","
+                output += "\n"
             }
             output += `${tabs}]`
         } else {
             output += "{\n"
+            let remaining = Object.keys(directory.Children).length
             for (const child in directory.Children) {
                 // Invalid property names are quoted.
                 // Additionally, as Uglify will not mangle quoted named, single character names are quoted too.
                 // This should not make any difference to its compression efforts as it's just one charatcer, but means font characters will be preserved.
-                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)},\n`
+                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
+                if (--remaining) output += ","
+                output += "\n"
             }
             output += `${tabs}}`
         }
