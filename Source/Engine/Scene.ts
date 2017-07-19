@@ -8,6 +8,48 @@ namespace Scene {
     Sprites.style.position = "absolute"
     Sprites.style.pointerEvents = "all"
 
+    type CachedSprite = [HTMLDivElement, HTMLImageElement]
+    const CachedSprites: CachedSprite[] = []
+    const CachedGroups: HTMLDivElement[] = []
+
+    function CreateSprite(): CachedSprite {
+        const container = CreateGroup()
+        const image = Sprites.cloneNode(true) as HTMLImageElement
+        container.appendChild(image)
+        return [container, image]
+    }
+
+    function CacheSprite(sprite: CachedSprite) {
+        const parent = sprite[0].parentElement
+        if (parent) parent.removeChild(sprite[0])
+        CachedSprites.push(sprite)
+    }
+
+    function UncacheSprite(): CachedSprite {
+        const output = CachedSprites.pop() || CreateSprite()
+        output[0].style.left = "0px"
+        output[0].style.top = "0px"
+        return output
+    }
+
+    function CreateGroup() {
+        const element = document.createElement("div")
+        element.style.position = "absolute"
+        element.style.pointerEvents = "none"
+        return element
+    }
+
+    function CacheGroup(group: HTMLDivElement) {
+        CachedGroups.push(group)
+    }
+
+    function UncacheGroup(): HTMLDivElement {
+        const output = CachedGroups.pop() || CreateGroup()
+        output.style.top = "0px"
+        output.style.left = "0px"
+        return output
+    }
+
     // Called by the engine to load the sprite sheet and perform any "massaging" required to get them to draw as pixelated sprites.
     // You should not need to call this yourself.
     export function LoadSprites(then: () => void) {
@@ -50,7 +92,16 @@ namespace Scene {
                     }
                 }
             }
-            then()
+
+            SetLoadingMessage("Caching sprites...")
+            setTimeout(() => {
+                while (CachedSprites.length < 500) CachedSprites.push(CreateSprite())
+                SetLoadingMessage("Caching groups...")
+                setTimeout(() => {
+                    while (CachedGroups.length < 100) CachedGroups.push(CreateGroup())
+                    then()
+                }, 0)
+            }, 0)
         }
         Sprites.onerror = () => SetLoadingMessage("Failed to load sprites.  Please try refreshing this page.")
         Sprites.src = "Sprites.png"
@@ -115,13 +166,9 @@ namespace Scene {
         private ToX = 0
         private ToY = 0
 
-        constructor(partOf: SceneGraphBase, onClick?: () => void) {
+        constructor(partOf: SceneGraphBase, element: HTMLDivElement, onClick?: () => void) {
             this.PartOf = partOf
-            this.Element = document.createElement("div")
-            this.Element.style.position = "absolute"
-            this.Element.style.left = "0px"
-            this.Element.style.top = "0px"
-            this.Element.style.pointerEvents = "none"
+            this.Element = element
             if (onClick) this.Element.onclick = () => Timers.Invoke(onClick)
         }
 
@@ -212,8 +259,11 @@ namespace Scene {
         }
 
         readonly Delete = () => {
-            for (const child of this.Children) child.Reference.Delete()
-            this.Children.length = 0
+            while (true) {
+                const child = this.Children.pop()
+                if (!child) break
+                child.Reference.Delete()
+            }
         }
 
         readonly Rescale = () => {
@@ -323,7 +373,7 @@ namespace Scene {
 
             this.Parent = parent
 
-            this.MoveableElement = new MoveableElement(this, onClick)
+            this.MoveableElement = new MoveableElement(this, UncacheGroup(), onClick)
             this.X = this.MoveableElement.X
             this.Y = this.MoveableElement.Y
             this.Move = this.MoveableElement.Move
@@ -348,6 +398,7 @@ namespace Scene {
             this.RemoveFromParent()
             this.MoveableElement.Delete()
             this.Children.Delete()
+            CacheGroup(this.MoveableElement.Element)
         }
 
         protected readonly OnPause = () => {
@@ -372,7 +423,7 @@ namespace Scene {
         readonly MoveOver: (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => void
         readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
 
-        private readonly ImageElement: HTMLImageElement
+        private readonly ImageElement: CachedSprite
         private CurrentFrame: SpriteFrame
 
         constructor(parent: Viewport | Group, onClick?: () => void) {
@@ -380,16 +431,14 @@ namespace Scene {
 
             this.Parent = parent
 
-            this.MoveableElement = new MoveableElement(this, onClick)
+            this.ImageElement = UncacheSprite()
+            this.MoveableElement = new MoveableElement(this, this.ImageElement[0], onClick)
             this.X = this.MoveableElement.X
             this.Y = this.MoveableElement.Y
             this.Move = this.MoveableElement.Move
             this.MoveOver = this.MoveableElement.MoveOver
             this.MoveAt = this.MoveableElement.MoveAt
             this.MoveableElement.Element.style.overflow = "hidden"
-
-            this.ImageElement = Sprites.cloneNode(true) as HTMLImageElement
-            this.MoveableElement.Element.appendChild(this.ImageElement)
 
             this.SetFrame(new SpriteFrame(0, 0, 0, 0, 0, 0, 0))
 
@@ -407,6 +456,7 @@ namespace Scene {
         protected readonly OnDeletion = () => {
             this.RemoveFromParent()
             this.MoveableElement.Delete()
+            CacheSprite(this.ImageElement)
             if (this.AnimationTimer) this.AnimationTimer.Cancel()
         }
 
@@ -469,10 +519,10 @@ namespace Scene {
             this.MoveableElement.Element.style.height = `${frame.HeightPixels * ScaleFactor}px`
             this.MoveableElement.Element.style.marginLeft = `${frame.MarginLeft * ScaleFactor}px`
             this.MoveableElement.Element.style.marginTop = `${frame.MarginTop * ScaleFactor}px`
-            this.ImageElement.style.left = `-${frame.LeftPixels * ScaleFactor}px`
-            this.ImageElement.style.width = `${ContentSpritesWidth * ScaleFactor}px`
-            this.ImageElement.style.top = `-${frame.TopPixels * ScaleFactor}px`
-            this.ImageElement.style.height = `${ContentSpritesHeight * ScaleFactor}px`
+            this.ImageElement[1].style.left = `-${frame.LeftPixels * ScaleFactor}px`
+            this.ImageElement[1].style.width = `${ContentSpritesWidth * ScaleFactor}px`
+            this.ImageElement[1].style.top = `-${frame.TopPixels * ScaleFactor}px`
+            this.ImageElement[1].style.height = `${ContentSpritesHeight * ScaleFactor}px`
         }
     }
 
