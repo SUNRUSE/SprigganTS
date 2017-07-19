@@ -1,5 +1,6 @@
 namespace Timers {
-    let CurrentTime = (+new Date()) / 1000
+    let TimeAtLastInvoke: number | undefined = undefined
+    let CurrentTime = 0
 
     const TickCallbacks: (() => void)[] = []
 
@@ -27,7 +28,9 @@ namespace Timers {
     export function Invoke(callback?: () => void) {
         if (Recursing) throw new Error("Timers.Update should not be called recursively")
         Recursing = true
-        const newCurrentTime = (+new Date()) / 1000
+        const time = (+new Date()) / 1000
+        const newCurrentTime = CurrentTime + (TimeAtLastInvoke === undefined ? 0 : Math.min(0.125, time - TimeAtLastInvoke))
+        TimeAtLastInvoke = time
 
         if (callback) {
             CurrentTime = newCurrentTime
@@ -77,7 +80,10 @@ namespace Timers {
                 Timeout = setTimeout(() => {
                     Timeout = undefined
                     Invoke()
-                }, (1000 * CallbackQueue[0].At) - (+new Date())) as any // todo
+                },
+                    CallbackQueue[0].At - CurrentTime
+                    - (((+new Date()) / 1000) - TimeAtLastInvoke) // If processing the above loop took significant time, skip that much of the delay.
+                ) as any // todo
             }
         }
 
