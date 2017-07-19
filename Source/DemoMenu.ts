@@ -1,10 +1,7 @@
 function DemoMenu() {
-    const demoViewport = new Scene.Viewport("Middle", "Middle")
-    const titleViewport = new Scene.Viewport("Middle", "Top", false)
-    const homeButtonViewport = new Scene.Viewport("Left", "Top")
-
     const spacing = 2
 
+    const titleViewport = new Scene.Viewport("Middle", "Top", false)
     let titleGroup = new Scene.Group(titleViewport)
     titleGroup.Move(ResolutionX / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
     FontBig.Write(titleGroup, "SprigganTS Sample", "Middle", "Middle")
@@ -38,12 +35,14 @@ function DemoMenu() {
         function Select() {
             buttonSprite.Play(Content.Buttons.Wide.Pressed)
 
+            const demoViewport = new Scene.Viewport("Middle", "Middle")
             const demoScrollingGroup = new Scene.Group(demoViewport)
             demoScrollingGroup.Move(0, ResolutionY)
             demoScrollingGroup.MoveAt(0, 0, 500)
             const demoGroup = new Scene.Group(demoScrollingGroup)
             const stopDemo = demoReference.Setup(demoGroup)
 
+            const homeButtonViewport = new Scene.Viewport("Left", "Top")
             const homeButtonGroup = new Scene.Group(homeButtonViewport, ReturnHome)
             homeButtonGroup.Move(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
             const homeButtonSprite = new Scene.Sprite(homeButtonGroup)
@@ -53,12 +52,10 @@ function DemoMenu() {
 
             function ReturnHome() {
                 stopDemo()
-                demoScrollingGroup.MoveAt(0, ResolutionY, 500, () => demoScrollingGroup.Delete())
+                demoScrollingGroup.MoveAt(0, ResolutionY, 500, demoViewport.Delete)
                 homeButtonSprite.Play(Content.Buttons.Narrow.Pressed)
-                titleGroup.MoveAt(ResolutionX / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2, 125, titleGroup.Delete)
-                homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125, () => {
-                    homeButtonGroup.Delete()
-                })
+                titleGroup.MoveAt(ResolutionX / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2, 125, titleViewport.Delete)
+                homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125, homeButtonViewport.Delete)
                 DemoMenu()
             }
 
