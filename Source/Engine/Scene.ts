@@ -27,8 +27,12 @@ namespace Scene {
 
     function UncacheSprite(): CachedSprite {
         const output = CachedSprites.pop() || CreateSprite()
-        output[0].style.left = "0px"
-        output[0].style.top = "0px"
+        if ("transform" in output[0].style) {
+            output[0].style.transform = "initial"
+        } else {
+            output[0].style.left = "0px"
+            output[0].style.top = "0px"
+        }
         return output
     }
 
@@ -45,8 +49,12 @@ namespace Scene {
 
     function UncacheGroup(): HTMLDivElement {
         const output = CachedGroups.pop() || CreateGroup()
-        output.style.top = "0px"
-        output.style.left = "0px"
+        if ("transform" in output.style) {
+            output.style.transform = "initial"
+        } else {
+            output.style.top = "0px"
+            output.style.left = "0px"
+        }
         return output
     }
 
@@ -183,8 +191,12 @@ namespace Scene {
         }
 
         private readonly SetElementLocation = (leftPixels: number, topPixels: number) => {
-            this.Element.style.left = `${leftPixels * ScaleFactor}px`
-            this.Element.style.top = `${topPixels * ScaleFactor}px`
+            if ("transform" in this.Element.style) {
+                this.Element.style.transform = `translate(${leftPixels * ScaleFactor}px, ${topPixels * ScaleFactor}px)`
+            } else {
+                this.Element.style.left = `${leftPixels * ScaleFactor}px`
+                this.Element.style.top = `${topPixels * ScaleFactor}px`
+            }
         }
 
         readonly Delete = () => {
@@ -208,7 +220,11 @@ namespace Scene {
                 this.Element.offsetHeight // Forces a reflow; required for transitions to work.
                 if (this.Timer && !this.Timer.Paused()) {
                     const remainingSeconds = this.Timer.DurationSeconds - this.Timer.ElapsedSeconds()
-                    this.Element.style.transition = `top ${remainingSeconds}s linear, left ${remainingSeconds}s linear`
+                    if ("transform" in this.Element.style) {
+                        this.Element.style.transition = `transform ${remainingSeconds}s linear`
+                    } else {
+                        this.Element.style.transition = `top ${remainingSeconds}s linear, left ${remainingSeconds}s linear`
+                    }
                     this.SetElementLocation(this.ToX, this.ToY)
                 }
             } else {
