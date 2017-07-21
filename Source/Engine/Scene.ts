@@ -200,7 +200,20 @@ namespace Scene {
         }
 
         readonly Rescale = () => {
-            this.SetElementLocation(this.X(), this.Y())
+            if ("transition" in this.Element.style) {
+                // IE10+, Edge, Firefox, Chrome.
+                this.Element.offsetHeight // Forces a reflow; required for transitions to work.
+                this.Element.style.transition = "initial"
+                this.SetElementLocation(this.X(), this.Y())
+                this.Element.offsetHeight // Forces a reflow; required for transitions to work.
+                if (this.Timer && !this.Timer.Paused()) {
+                    const remainingSeconds = this.Timer.DurationSeconds - this.Timer.ElapsedSeconds()
+                    this.Element.style.transition = `top ${remainingSeconds}s linear, left ${remainingSeconds}s linear`
+                    this.SetElementLocation(this.ToX, this.ToY)
+                }
+            } else {
+                this.SetElementLocation(this.X(), this.Y())
+            }
         }
 
         readonly Move = (leftPixels: number, topPixels: number) => {
@@ -208,24 +221,39 @@ namespace Scene {
                 this.Timer.Cancel()
                 this.Timer = undefined
             }
+
             this.FromX = this.ToX = Math.round(leftPixels)
             this.FromY = this.ToY = Math.round(topPixels)
-            this.SetElementLocation(leftPixels, topPixels)
+            this.Rescale()
         }
 
         readonly MoveOver = (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => {
             this.Move(this.X(), this.Y())
             this.ToX = Math.round(leftPixels)
             this.ToY = Math.round(topPixels)
-            this.Timer = new Timers.Once(seconds, () => {
-                this.Move(this.X(), this.Y())
-                this.Timer = undefined
-                if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
-            }, () => {
-                this.Move(this.X(), this.Y())
-                this.Timer = undefined
-            }, this.Rescale, this.Rescale, this.Rescale)
-            if (this.PartOf.Paused()) this.Timer.Pause()
+            if ("transition" in this.Element.style) {
+                // IE10+, Edge, Firefox, Chrome.
+                this.Timer = new Timers.Once(seconds, () => {
+                    this.Move(this.X(), this.Y())
+                    if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
+                }, () => {
+                    this.Move(this.X(), this.Y())
+                }, undefined, this.Rescale, this.Rescale)
+
+                if (this.PartOf.Paused())
+                    this.Timer.Pause()
+                else
+                    this.Rescale()
+            } else {
+                // IE9--.
+                this.Timer = new Timers.Once(seconds, () => {
+                    this.Move(this.X(), this.Y())
+                    if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
+                }, () => {
+                    this.Move(this.X(), this.Y())
+                }, this.Rescale, this.Rescale, this.Rescale)
+                if (this.PartOf.Paused()) this.Timer.Pause()
+            }
         }
 
         readonly MoveAt = (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => {
