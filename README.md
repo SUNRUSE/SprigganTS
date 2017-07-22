@@ -415,13 +415,23 @@ The following classes exist to help organize events in your game logic.
 
 Only calls listeners on the first call to Raise().
 Listeners added after Raise() are called immediately.
+Adding the same callback multiple times has no effect.
 
     const once = new EventOnce<() => void>()
     once.Listen(() => console.log("Logged second"))
     once.Listen(() => console.log("Logged third"))
+    const addedTwiceA = () => console.log("Added twice, appears once, A")
+    once.Listen(addedTwiceA)
+    once.Listen(addedTwiceA)
+    const neverLogged = () => console.log("Never logged")
+    once.Listen(neverLogged)
+    once.Unlisten(neverLogged)
     console.log("Logged first")
     once.Raise()
     once.Listen(() => console.log("Logged fourth"))
+    const addedTwiceB = () => console.log("Added twice, appears once, B")
+    once.Listen(addedTwiceB)
+    once.Listen(addedTwiceB)
     console.log("Logged last")
     once.Raise()
     
@@ -429,10 +439,14 @@ Listeners added after Raise() are called immediately.
 
 Calls listeners once on every call to Raise().
 Listeners added after calling Raise() are not called until the next call to Raise().
+Adding the same callback multiple times has no effect.
     
     const recurring = new EventRecurring<() => void>()
     recurring.Listen(() => console.log("Logged second and fifth"))
     recurring.Listen(() => console.log("Logged third and sixth"))
+    const neverLogged = () => console.log("Never logged")
+    once.Listen(neverLogged)
+    once.Unlisten(neverLogged)
     console.log("Logged first")
     recurring.Raise()
     console.log("Logged fourth")

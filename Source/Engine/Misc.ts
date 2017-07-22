@@ -11,6 +11,10 @@ function Remove<T>(list: T[], item: T) {
     }
 }
 
+function Contains<T>(list: T[], item: T) {
+    return IndexOf(list, item) != -1
+}
+
 type HorizontalAlignment = "Left" | "Middle" | "Right"
 type VerticalAlignment = "Top" | "Middle" | "Bottom"
 
