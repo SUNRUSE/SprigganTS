@@ -28,7 +28,7 @@ namespace Scene {
     function UncacheSprite(): CachedSprite {
         const output = CachedSprites.pop() || CreateSprite()
         if ("transform" in output[0].style) {
-            output[0].style.transform = "initial"
+            output[0].style.transform = "translate(0px, 0px)"
         } else {
             output[0].style.left = "0px"
             output[0].style.top = "0px"
@@ -50,7 +50,7 @@ namespace Scene {
     function UncacheGroup(): HTMLDivElement {
         const output = CachedGroups.pop() || CreateGroup()
         if ("transform" in output.style) {
-            output.style.transform = "initial"
+            output.style.transform = "translate(0px, 0px)"
         } else {
             output.style.top = "0px"
             output.style.left = "0px"
