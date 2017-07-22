@@ -22,6 +22,7 @@ namespace Scene {
     function CacheSprite(sprite: CachedSprite) {
         const parent = sprite[0].parentElement
         if (parent) parent.removeChild(sprite[0])
+        if (sprite[0].onclick) sprite[0].onclick = () => { }
         CachedSprites.push(sprite)
     }
 
@@ -44,6 +45,7 @@ namespace Scene {
     }
 
     function CacheGroup(group: HTMLDivElement) {
+        if (group.onclick) group.onclick = () => { }
         CachedGroups.push(group)
     }
 
