@@ -113,7 +113,18 @@ namespace Timers {
         if (Recursing) throw new Error("Timers.Update should not be called recursively")
         Recursing = true
         const time = (+new Date()) / 1000
-        const newCurrentTime = CurrentTime + (TimeAtLastInvoke === undefined ? 0 : Math.min(0.125, time - TimeAtLastInvoke))
+        let delta = 0
+        if (TimeAtLastInvoke !== undefined) {
+            delta = time - TimeAtLastInvoke
+            // We want to cap this delta to a sensible range, so devices asleep for an hour do not try and simulate an hours' gameplay before responding.
+            // However, if a long timer was set, then we shouldn't act like it hasn't elapsed!
+            if (CallbackQueue.length && CallbackQueue[0].At - CurrentTime > 0.125) {
+                delta = Math.min(CallbackQueue[0].At - CurrentTime, delta)
+            } else {
+                delta = Math.min(0.125, delta)
+            }
+        }
+        const newCurrentTime = CurrentTime + delta
         TimeAtLastInvoke = time
 
         if (callback) {
@@ -165,8 +176,10 @@ namespace Timers {
                     Timeout = undefined
                     InternalInvoke()
                 },
-                    CallbackQueue[0].At - CurrentTime
-                    - (((+new Date()) / 1000) - TimeAtLastInvoke) // If processing the above loop took significant time, skip that much of the delay.
+                    1000 * (
+                        CallbackQueue[0].At - CurrentTime
+                        - (((+new Date()) / 1000) - TimeAtLastInvoke) // If processing the above loop took significant time, skip that much of the delay.
+                    )
                 ) as any // todo
             }
         }
