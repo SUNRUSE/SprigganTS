@@ -103,6 +103,8 @@ new ContentType(".sprite.ase", (filename, then) => {
                                 match = otherFrame
                                 for (let y = 0; y < frame.frame.h; y++) {
                                     for (let x = 0; x < frame.frame.w; x++) {
+                                        // Skip transparent pixels.
+                                        if (png.data[4 * png.width * (y + frame.frame.y) + 4 * (x + frame.frame.x) + 3] == 0 && otherFrame.Png.data[4 * otherFrame.Png.width * (y + otherFrame.SourceTop) + 4 * (x + otherFrame.SourceLeft) + 3] == 0) continue
                                         for (let channel = 0; channel < 4; channel++) {
                                             if (png.data[4 * png.width * (y + frame.frame.y) + 4 * (x + frame.frame.x) + channel] == otherFrame.Png.data[4 * otherFrame.Png.width * (y + otherFrame.SourceTop) + 4 * (x + otherFrame.SourceLeft) + channel]) continue
                                             match = undefined
