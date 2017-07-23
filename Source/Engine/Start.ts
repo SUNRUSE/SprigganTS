@@ -6,6 +6,6 @@ onload = () => {
 
     Scene.LoadSprites(() => {
         RemoveLoadingMessage()
-        Timers.Invoke(StartGame)
+        Timers.InternalInvoke(StartGame)
     })
 }

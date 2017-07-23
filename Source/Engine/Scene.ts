@@ -179,7 +179,7 @@ namespace Scene {
         constructor(partOf: SceneGraphBase, element: HTMLDivElement, onClick?: () => void) {
             this.PartOf = partOf
             this.Element = element
-            if (onClick) this.Element.onclick = () => Timers.Invoke(onClick)
+            if (onClick) this.Element.onclick = () => Timers.InternalInvoke(onClick)
         }
 
         readonly X = () => {
@@ -342,7 +342,7 @@ namespace Scene {
             this.Element.style.position = "absolute"
             this.Element.style.overflow = crop ? "hidden" : "visible"
             this.Element.style.pointerEvents = "none"
-            if (onClick) this.Element.onclick = () => Timers.Invoke(onClick)
+            if (onClick) this.Element.onclick = () => Timers.InternalInvoke(onClick)
 
             this.HorizontalAlignment = horizontalAlignment
             this.VerticalAlignment = verticalAlignment

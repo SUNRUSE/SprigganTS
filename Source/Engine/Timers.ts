@@ -25,7 +25,7 @@ namespace Timers {
 
     // Called by the engine when an event needs to be handled, to update timers after.
     // You should not need to call this yourself.
-    export function Invoke(callback?: () => void) {
+    export function InternalInvoke(callback?: () => void) {
         if (Recursing) throw new Error("Timers.Update should not be called recursively")
         Recursing = true
         const time = (+new Date()) / 1000
@@ -59,12 +59,12 @@ namespace Timers {
                 if (AnimationFrame === undefined) {
                     AnimationFrame = requestAnimationFrame(() => {
                         AnimationFrame = undefined
-                        Invoke()
+                        InternalInvoke()
                     })
                 }
             } else {
                 if (Interval === undefined) {
-                    Interval = setInterval(Invoke, 50) as any // todo
+                    Interval = setInterval(InternalInvoke, 50) as any // todo
                 }
             }
         } else {
@@ -79,7 +79,7 @@ namespace Timers {
             if (CallbackQueue.length) {
                 Timeout = setTimeout(() => {
                     Timeout = undefined
-                    Invoke()
+                    InternalInvoke()
                 },
                     CallbackQueue[0].At - CurrentTime
                     - (((+new Date()) / 1000) - TimeAtLastInvoke) // If processing the above loop took significant time, skip that much of the delay.
