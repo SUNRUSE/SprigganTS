@@ -325,8 +325,6 @@ namespace Scene {
         }
     }
 
-    const ViewportRescaleCallbacks: (() => void)[] = []
-
     export class Viewport extends SceneGraphBase {
         private readonly Element: HTMLDivElement
 
@@ -379,7 +377,7 @@ namespace Scene {
             this.OnResume = this.Children.Resume
             document.body.appendChild(this.Element)
 
-            ViewportRescaleCallbacks.push(this.Rescale)
+            Resized.Listen(this.Rescale)
             this.Rescale()
         }
 
@@ -394,7 +392,7 @@ namespace Scene {
         }
 
         protected readonly OnDeletion = () => {
-            Remove(ViewportRescaleCallbacks, this.Rescale)
+            Resized.Unlisten(this.Rescale)
             document.body.removeChild(this.Element)
             this.Children.Delete()
         }
@@ -572,13 +570,13 @@ namespace Scene {
         }
     }
 
-    onresize = SetPixelDensity
-    SetPixelDensity()
+    export type ResizedCallback = (screenWidthPixels: number, screenHeightPixels: number, scaleFactor: number) => void
+    export const Resized = new Events.Recurring<ResizedCallback>()
 
-    function SetPixelDensity() {
-        const windowWidth = document.body.clientWidth
-        const windowHeight = document.body.clientHeight
-        ScaleFactor = Math.min(windowWidth / ResolutionX, windowHeight / ResolutionY)
-        for (const callback of ViewportRescaleCallbacks) callback()
+    onresize = () => {
+        ScaleFactor = Math.min(document.body.clientWidth / ResolutionX, document.body.clientHeight / ResolutionY)
+        Resized.Raise(document.body.clientWidth, document.body.clientHeight, ScaleFactor)
     }
+
+    ScaleFactor = Math.min(document.body.clientWidth / ResolutionX, document.body.clientHeight / ResolutionY)
 }
