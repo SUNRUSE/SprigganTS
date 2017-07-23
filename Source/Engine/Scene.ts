@@ -220,7 +220,7 @@ namespace Scene {
                 this.Element.style.transition = "initial"
                 this.SetElementLocation(this.X(), this.Y())
                 this.Element.offsetHeight // Forces a reflow; required for transitions to work.
-                if (this.Timer && !this.Timer.Paused()) {
+                if (this.Timer && !this.Timer.Paused() && Timers.InternalFocused()) {
                     const remainingSeconds = this.Timer.DurationSeconds - this.Timer.ElapsedSeconds()
                     if ("transform" in this.Element.style) {
                         this.Element.style.transition = `transform ${remainingSeconds}s linear`
@@ -377,6 +377,7 @@ namespace Scene {
             this.OnResume = this.Children.Resume
             document.body.appendChild(this.Element)
 
+            Timers.InternalFocusedChanged.Listen(this.Rescale)
             Resized.Listen(this.Rescale)
             this.Rescale()
         }
@@ -392,6 +393,7 @@ namespace Scene {
         }
 
         protected readonly OnDeletion = () => {
+            Timers.InternalFocusedChanged.Unlisten(this.Rescale)
             Resized.Unlisten(this.Rescale)
             document.body.removeChild(this.Element)
             this.Children.Delete()

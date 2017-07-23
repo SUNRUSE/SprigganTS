@@ -21,6 +21,90 @@ namespace Timers {
     let Timeout: number | undefined = undefined
     let Interval: number | undefined = undefined
 
+    if ("onfocusout" in document) {
+        // IE8.
+        (document as any).onfocusout = FocusLost
+    } else {
+        onblur = FocusLost
+    }
+
+    if ("onfocusin" in document) {
+        // IE8.
+        (document as any).onfocusin = FocusRegained
+    } else {
+        onfocus = FocusRegained
+    }
+
+    let shadeElement: HTMLDivElement | undefined
+
+    export function InternalFocused() { return !shadeElement }
+    export const InternalFocusedChanged = new Events.Recurring<() => void>()
+
+    function ResizeShade() {
+        if (!shadeElement) return
+        shadeElement.style.width = `${document.body.clientWidth}px`
+        shadeElement.style.height = `${document.body.clientHeight}px`
+    }
+
+    function FocusLost(localEvent: Event) {
+        // Some browsers only provide event as a global, and some only as an argument.
+        localEvent = localEvent || event
+        // On IE8, this is a bubbling event and can be triggered by clicking elements.
+        // We need to check that no element changes have occurred, otherwise the shade appears on every click.
+        if ((localEvent as any).toElement) return
+        if ((localEvent as any).fromElement) return
+        // IE9 uses this instead.
+        if ((localEvent as any).relatedTarget) return
+        if (!shadeElement) {
+            shadeElement = document.createElement("div")
+            shadeElement.style.position = "absolute"
+            shadeElement.style.left = "0"
+            shadeElement.style.top = "0"
+            ResizeShade()
+            Scene.Resized.Listen(ResizeShade)
+
+            shadeElement.style.background = "black"
+            if ("opacity" in shadeElement.style) {
+                shadeElement.style.opacity = "0.5"
+            } else {
+                ; (shadeElement.style as any).filter = "alpha(opacity=50)" // IE8.
+            }
+            document.body.appendChild(shadeElement)
+
+            InternalInvoke()
+            InternalFocusedChanged.Raise()
+
+            if (AnimationFrame !== undefined) {
+                window.cancelAnimationFrame(AnimationFrame)
+                AnimationFrame = undefined
+            }
+
+            if (Timeout !== undefined) {
+                clearTimeout(Timeout)
+                Timeout = undefined
+            }
+
+            if (Interval !== undefined) {
+                clearInterval(Interval)
+                Interval = undefined
+            }
+        }
+    }
+
+    function FocusRegained() {
+        if (shadeElement) {
+            // Keep the shade there to block the click.
+            const shadeElementReference = shadeElement
+            setTimeout(() => document.body.removeChild(shadeElementReference), 150)
+            shadeElement = undefined
+            Scene.Resized.Unlisten(ResizeShade)
+
+            InternalFocusedChanged.Raise()
+            TimeAtLastInvoke = undefined
+            InternalInvoke()
+        }
+    }
+
     let Recursing = false
 
     // Called by the engine when an event needs to be handled, to update timers after.
