@@ -93,51 +93,51 @@ namespace Timers {
     export type OnceCallback = (elapsedSeconds: number, elapsedUnitInterval: number) => void
 
     export class Once {
-        private _Completed = false
-        private _StartedAt: number
-        private _CancelledElapsed: number | undefined = undefined
-        private _PausedElapsed: number | undefined = undefined
-        private _CallbackQueueItem: CallbackQueueItem
-        private readonly _TickCallback: (() => void) | undefined
+        private CompletedValue = false
+        private StartedAt: number
+        private CancelledElapsed: number | undefined = undefined
+        private PausedElapsed: number | undefined = undefined
+        private CallbackQueueItem: CallbackQueueItem
+        private readonly TickCallback: (() => void) | undefined
 
         public readonly DurationSeconds: number
 
-        private readonly _OnCancellation?: OnceCallback
-        private readonly _OnPause?: OnceCallback
-        private readonly _OnResume?: OnceCallback
+        private readonly OnCancellation?: OnceCallback
+        private readonly OnPause?: OnceCallback
+        private readonly OnResume?: OnceCallback
 
         constructor(durationSeconds: number, onCompletion?: () => void, onCancellation?: OnceCallback, onTick?: OnceCallback, onPause?: OnceCallback, onResume?: OnceCallback) {
             this.DurationSeconds = durationSeconds
-            this._OnCancellation = onCancellation
-            this._OnPause = onPause
-            this._OnResume = onResume
+            this.OnCancellation = onCancellation
+            this.OnPause = onPause
+            this.OnResume = onResume
 
-            this._StartedAt = CurrentTime
+            this.StartedAt = CurrentTime
 
-            this._CallbackQueueItem = {
+            this.CallbackQueueItem = {
                 At: CurrentTime + durationSeconds,
                 Call: () => {
-                    this._Completed = true
+                    this.CompletedValue = true
                     if (onCompletion) onCompletion()
-                    if (this._TickCallback) Remove(TickCallbacks, this._TickCallback)
+                    if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
                 }
             }
-            AddToCallbackQueue(this._CallbackQueueItem)
+            AddToCallbackQueue(this.CallbackQueueItem)
 
             if (onTick) {
-                this._TickCallback = () => onTick(this.ElapsedSeconds(), this.ElapsedUnitInterval())
-                TickCallbacks.push(this._TickCallback)
+                this.TickCallback = () => onTick(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+                TickCallbacks.push(this.TickCallback)
             }
         }
 
-        readonly Cancelled = () => this._CancelledElapsed !== undefined
-        readonly Completed = () => this._Completed
-        readonly Paused = () => this._PausedElapsed !== undefined
+        readonly Cancelled = () => this.CancelledElapsed !== undefined
+        readonly Completed = () => this.CompletedValue
+        readonly Paused = () => this.PausedElapsed !== undefined
 
         readonly ElapsedSeconds = () => {
-            if (this._PausedElapsed !== undefined) return this._PausedElapsed
-            if (this._CancelledElapsed !== undefined) return this._CancelledElapsed
-            return Math.min(this.DurationSeconds, CurrentTime - this._StartedAt)
+            if (this.PausedElapsed !== undefined) return this.PausedElapsed
+            if (this.CancelledElapsed !== undefined) return this.CancelledElapsed
+            return Math.min(this.DurationSeconds, CurrentTime - this.StartedAt)
         }
 
         readonly ElapsedUnitInterval = () => {
@@ -147,34 +147,34 @@ namespace Timers {
 
         readonly Cancel = () => {
             if (this.Cancelled() || this.Completed()) return
-            this._CancelledElapsed = this.ElapsedSeconds()
+            this.CancelledElapsed = this.ElapsedSeconds()
             if (!this.Paused()) {
-                Remove(CallbackQueue, this._CallbackQueueItem)
-                if (this._OnCancellation) this._OnCancellation(this.ElapsedSeconds(), this.ElapsedUnitInterval())
-                if (this._TickCallback) Remove(TickCallbacks, this._TickCallback)
+                Remove(CallbackQueue, this.CallbackQueueItem)
+                if (this.OnCancellation) this.OnCancellation(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+                if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
             }
         }
 
         readonly Pause = () => {
             if (this.Paused() || this.Cancelled() || this.Completed()) return
-            this._PausedElapsed = this.ElapsedSeconds()
-            Remove(CallbackQueue, this._CallbackQueueItem)
-            if (this._TickCallback) Remove(TickCallbacks, this._TickCallback)
-            if (this._OnPause) this._OnPause(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+            this.PausedElapsed = this.ElapsedSeconds()
+            Remove(CallbackQueue, this.CallbackQueueItem)
+            if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
+            if (this.OnPause) this.OnPause(this.ElapsedSeconds(), this.ElapsedUnitInterval())
         }
 
         readonly Resume = () => {
             if (this.Cancelled() || this.Completed()) return
-            if (this._PausedElapsed === undefined) return
-            this._StartedAt = CurrentTime - this._PausedElapsed
-            this._CallbackQueueItem = {
-                At: CurrentTime + this.DurationSeconds - this._PausedElapsed,
-                Call: this._CallbackQueueItem.Call
+            if (this.PausedElapsed === undefined) return
+            this.StartedAt = CurrentTime - this.PausedElapsed
+            this.CallbackQueueItem = {
+                At: CurrentTime + this.DurationSeconds - this.PausedElapsed,
+                Call: this.CallbackQueueItem.Call
             }
-            AddToCallbackQueue(this._CallbackQueueItem)
-            if (this._TickCallback) TickCallbacks.push(this._TickCallback)
-            this._PausedElapsed = undefined
-            if (this._OnResume) this._OnResume(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+            AddToCallbackQueue(this.CallbackQueueItem)
+            if (this.TickCallback) TickCallbacks.push(this.TickCallback)
+            this.PausedElapsed = undefined
+            if (this.OnResume) this.OnResume(this.ElapsedSeconds(), this.ElapsedUnitInterval())
         }
     }
 
