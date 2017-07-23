@@ -17,3 +17,17 @@ class SpriteFrame {
         this.DurationSeconds = durationSeconds
     }
 }
+
+class BackgroundFrame {
+    readonly FileNumber: number
+    readonly Width: number
+    readonly Height: number
+    readonly DurationSeconds: number
+
+    constructor(fileNumber: number, width: number, height: number, durationSeconds: number) {
+        this.FileNumber = fileNumber
+        this.Width = width
+        this.Height = height
+        this.DurationSeconds = durationSeconds
+    }
+}
