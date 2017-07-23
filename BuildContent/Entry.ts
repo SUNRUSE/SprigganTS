@@ -1,12 +1,12 @@
 import { ContentType, Error, ContentTypes, EndsWith, Build } from "./Misc"
 import "./Sprite"
+import "./Background"
 
 import fs = require("fs")
 import mkdirp = require("mkdirp")
 import path = require("path")
 const rimraf = require("rimraf")
 
-new ContentType(".background.ase", (filename, then) => then(), then => then("", []))
 new ContentType(".sound.flp", (filename, then) => then(), then => then("", []))
 new ContentType(".music.flp", (filename, then) => then(), then => then("", []))
 
