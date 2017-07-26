@@ -61,7 +61,7 @@ namespace Timers {
             shadeElement.style.left = "0"
             shadeElement.style.top = "0"
             ResizeShade()
-            Scene.Resized.Listen(ResizeShade)
+            Display.Resized.Listen(ResizeShade)
 
             shadeElement.style.background = "black"
             if ("opacity" in shadeElement.style) {
@@ -97,7 +97,7 @@ namespace Timers {
             const shadeElementReference = shadeElement
             setTimeout(() => document.body.removeChild(shadeElementReference), 150)
             shadeElement = undefined
-            Scene.Resized.Unlisten(ResizeShade)
+            Display.Resized.Unlisten(ResizeShade)
 
             InternalFocusedChanged.Raise()
             TimeAtLastInvoke = undefined

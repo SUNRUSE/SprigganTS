@@ -1,7 +1,5 @@
 namespace Scene {
 
-    let ScaleFactor = 1
-
     const Sprites = document.createElement("img")
     Sprites.style.touchAction = "manipulation" // Improves responsiveness on IE/Edge on touchscreens.
     Sprites.style.webkitBackfaceVisibility = "hidden" // Prevents a "pop" on Chrome when all transitions have finished.
@@ -193,11 +191,12 @@ namespace Scene {
         }
 
         private readonly SetElementLocation = (leftPixels: number, topPixels: number) => {
+            const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
             if ("transform" in this.Element.style) {
-                this.Element.style.transform = `translate(${leftPixels * ScaleFactor}px, ${topPixels * ScaleFactor}px)`
+                this.Element.style.transform = `translate(${leftPixels * realPixelsPerVirtualPixel}px, ${topPixels * realPixelsPerVirtualPixel}px)`
             } else {
-                this.Element.style.left = `${leftPixels * ScaleFactor}px`
-                this.Element.style.top = `${topPixels * ScaleFactor}px`
+                this.Element.style.left = `${leftPixels * realPixelsPerVirtualPixel}px`
+                this.Element.style.top = `${topPixels * realPixelsPerVirtualPixel}px`
             }
         }
 
@@ -378,23 +377,25 @@ namespace Scene {
             document.body.appendChild(this.Element)
 
             Timers.InternalFocusedChanged.Listen(this.Rescale)
-            Resized.Listen(this.Rescale)
+            Display.Resized.Listen(this.Rescale)
             this.Rescale()
         }
 
         private readonly Rescale = () => {
-            this.Element.style.width = `${ResolutionX * ScaleFactor}px`
-            this.Element.style.height = `${ResolutionY * ScaleFactor}px`
+            const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
 
-            if (this.HorizontalAlignment == "Middle") this.Element.style.marginLeft = `-${ResolutionX * ScaleFactor / 2}px`
-            if (this.VerticalAlignment == "Middle") this.Element.style.marginTop = `-${ResolutionY * ScaleFactor / 2}px`
+            this.Element.style.width = `${ResolutionX * realPixelsPerVirtualPixel}px`
+            this.Element.style.height = `${ResolutionY * realPixelsPerVirtualPixel}px`
+
+            if (this.HorizontalAlignment == "Middle") this.Element.style.marginLeft = `-${ResolutionX * realPixelsPerVirtualPixel / 2}px`
+            if (this.VerticalAlignment == "Middle") this.Element.style.marginTop = `-${ResolutionY * realPixelsPerVirtualPixel / 2}px`
 
             this.Children.Rescale()
         }
 
         protected readonly OnDeletion = () => {
             Timers.InternalFocusedChanged.Unlisten(this.Rescale)
-            Resized.Unlisten(this.Rescale)
+            Display.Resized.Unlisten(this.Rescale)
             document.body.removeChild(this.Element)
             this.Children.Delete()
         }
@@ -561,24 +562,15 @@ namespace Scene {
 
         private readonly SetFrame = (frame: SpriteFrame) => {
             this.CurrentFrame = frame
-            this.MoveableElement.Element.style.width = `${frame.WidthPixels * ScaleFactor}px`
-            this.MoveableElement.Element.style.height = `${frame.HeightPixels * ScaleFactor}px`
-            this.MoveableElement.Element.style.marginLeft = `${frame.MarginLeft * ScaleFactor}px`
-            this.MoveableElement.Element.style.marginTop = `${frame.MarginTop * ScaleFactor}px`
-            this.ImageElement[1].style.left = `-${frame.LeftPixels * ScaleFactor}px`
-            this.ImageElement[1].style.width = `${ContentSpritesWidth * ScaleFactor}px`
-            this.ImageElement[1].style.top = `-${frame.TopPixels * ScaleFactor}px`
-            this.ImageElement[1].style.height = `${ContentSpritesHeight * ScaleFactor}px`
+            const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
+            this.MoveableElement.Element.style.width = `${frame.WidthPixels * realPixelsPerVirtualPixel}px`
+            this.MoveableElement.Element.style.height = `${frame.HeightPixels * realPixelsPerVirtualPixel}px`
+            this.MoveableElement.Element.style.marginLeft = `${frame.MarginLeft * realPixelsPerVirtualPixel}px`
+            this.MoveableElement.Element.style.marginTop = `${frame.MarginTop * realPixelsPerVirtualPixel}px`
+            this.ImageElement[1].style.left = `-${frame.LeftPixels * realPixelsPerVirtualPixel}px`
+            this.ImageElement[1].style.width = `${ContentSpritesWidth * realPixelsPerVirtualPixel}px`
+            this.ImageElement[1].style.top = `-${frame.TopPixels * realPixelsPerVirtualPixel}px`
+            this.ImageElement[1].style.height = `${ContentSpritesHeight * realPixelsPerVirtualPixel}px`
         }
     }
-
-    export type ResizedCallback = (screenWidthPixels: number, screenHeightPixels: number, scaleFactor: number) => void
-    export const Resized = new Events.Recurring<ResizedCallback>()
-
-    onresize = () => {
-        ScaleFactor = Math.min(document.body.clientWidth / ResolutionX, document.body.clientHeight / ResolutionY)
-        Resized.Raise(document.body.clientWidth, document.body.clientHeight, ScaleFactor)
-    }
-
-    ScaleFactor = Math.min(document.body.clientWidth / ResolutionX, document.body.clientHeight / ResolutionY)
 }

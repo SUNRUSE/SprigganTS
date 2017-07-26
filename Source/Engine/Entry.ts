@@ -2,6 +2,7 @@
 /// <reference path="Misc.ts" />
 /// <reference path="Events.ts" />
 /// <reference path="Configuration.ts" />
+/// <reference path="Display.ts" />
 /// <reference path="Timers.ts" />
 /// <reference path="Content.ts" />
 /// <reference path="Scene.ts" />
