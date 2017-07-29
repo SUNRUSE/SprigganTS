@@ -21,12 +21,14 @@ namespace Display {
     export type ResizedCallback = (screenWidthPixels: number, screenHeightPixels: number, scaleFactor: number) => void
     export const Resized = new Events.Recurring<ResizedCallback>()
 
+    let RealWidthPixelsValue = document.body.clientWidth
     export function RealWidthPixels() {
-        return document.body.clientWidth
+        return RealWidthPixelsValue
     }
 
+    let RealHeightPixelsValue = document.body.clientHeight
     export function RealHeightPixels() {
-        return document.body.clientHeight
+        return RealHeightPixelsValue
     }
 
     export function RealPixelsPerVirtualPixel() {
@@ -34,6 +36,8 @@ namespace Display {
     }
 
     onresize = () => {
+        RealWidthPixelsValue = document.body.clientWidth
+        RealHeightPixelsValue = document.body.clientHeight
         ResizeRootElement()
         Resized.Raise(RealWidthPixels(), RealHeightPixels(), RealPixelsPerVirtualPixel())
     }
