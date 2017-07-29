@@ -209,6 +209,16 @@ The number of horizontal pixels in the "emulated" screen.
 
 The number of vertical pixels in the "emulated" screen.
 
+##### NumberOfInitiallyCachedSprites
+
+The number of sprites to create at startup, while "Caching Sprites..." is shown.
+This should be set high enough that you never need to create any more; no error will be thrown, but creating a sprite is a fairly slow operation on many browsers.
+
+##### NumberOfInitiallyCachedGroups
+
+The number of groups to create at startup, while "Caching Groups..." is shown.
+This should be set high enough that you never need to create any more; no error will be thrown, but creating a group is a fairly slow operation on many browsers.
+
 #### Content
 
 The build process will generate the file Source/Content.ts.  This contains an object hierarchy mimicking your directory structure (and often the records inside the content files), with objects containing the associated metadata.

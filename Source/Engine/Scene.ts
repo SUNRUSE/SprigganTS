@@ -67,10 +67,10 @@ namespace Scene {
             Sprites = element
             SetLoadingMessage("Caching sprites...")
             setTimeout(() => {
-                while (CachedSprites.length < 500) CachedSprites.push(CreateSprite())
+                while (CachedSprites.length < NumberOfInitiallyCachedSprites) CachedSprites.push(CreateSprite())
                 SetLoadingMessage("Caching groups...")
                 setTimeout(() => {
-                    while (CachedGroups.length < 100) CachedGroups.push(CreateGroup())
+                    while (CachedGroups.length < NumberOfInitiallyCachedGroups) CachedGroups.push(CreateGroup())
                     then()
                 }, 0)
             }, 0)
