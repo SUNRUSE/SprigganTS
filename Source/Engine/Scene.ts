@@ -336,7 +336,7 @@ namespace Scene {
             this.InternalAddChild = this.Children.AddChild
             this.OnPause = this.Children.Pause
             this.OnResume = this.Children.Resume
-            document.body.appendChild(this.Element)
+            Display.RootElement.appendChild(this.Element)
 
             Timers.InternalFocusedChanged.Listen(this.Rescale)
             Display.Resized.Listen(this.Rescale)
@@ -358,7 +358,7 @@ namespace Scene {
         protected readonly OnDeletion = () => {
             Timers.InternalFocusedChanged.Unlisten(this.Rescale)
             Display.Resized.Unlisten(this.Rescale)
-            document.body.removeChild(this.Element)
+            Display.RootElement.removeChild(this.Element)
             this.Children.Delete()
         }
     }
