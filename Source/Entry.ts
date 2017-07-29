@@ -4,6 +4,7 @@
 /// <reference path="Demos/EventsOnce.ts" />
 /// <reference path="Demos/EventsRecurring.ts" />
 /// <reference path="Demos/SceneGraph.ts" />
+/// <reference path="Demos/Backgrounds.ts" />
 /// <reference path="Demos/Fonts.ts" />
 /// <reference path="Demos/Wrapping.ts" />
 /// <reference path="Demos/BouncingBalls.ts" />

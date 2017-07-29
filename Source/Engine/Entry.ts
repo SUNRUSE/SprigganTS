@@ -5,6 +5,7 @@
 /// <reference path="Display.ts" />
 /// <reference path="Timers.ts" />
 /// <reference path="Content.ts" />
+/// <reference path="Background.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Font.ts" />
 /// <reference path="Start.ts" />
