@@ -1,16 +1,13 @@
 namespace Scene {
-
-    const Sprites = document.createElement("img")
-    Sprites.style.touchAction = "manipulation" // Improves responsiveness on IE/Edge on touchscreens.
-    Sprites.style.webkitBackfaceVisibility = "hidden" // Prevents a "pop" on Chrome when all transitions have finished.
-    Sprites.style.position = "absolute"
-    Sprites.style.pointerEvents = "all"
+    let Sprites: HTMLImageElement | undefined = undefined
 
     type CachedSprite = [HTMLDivElement, HTMLImageElement]
     const CachedSprites: CachedSprite[] = []
     const CachedGroups: HTMLDivElement[] = []
 
     function CreateSprite(): CachedSprite {
+        // This should never happen; only game code or post-loading code should call this, by which time the sprites must have been loaded.
+        if (!Sprites) throw new Error("Sprites have not been loaded")
         const container = CreateGroup()
         const image = Sprites.cloneNode(true) as HTMLImageElement
         container.appendChild(image)
@@ -62,45 +59,12 @@ namespace Scene {
     // You should not need to call this yourself.
     export function LoadSprites(then: () => void) {
         SetLoadingMessage("Loading sprites...")
-        let loaded = false
-        Sprites.onload = () => {
-            // Resizing the image can re-trigger the loaded event.
-            if (loaded) return
-            loaded = true
-            SetLoadingMessage("Processing sprites...")
-            if ("imageRendering" in Sprites.style) {
-                (Sprites.style as any).imageRendering = "pixelated"; // Chrome.
-                (Sprites.style as any).imageRendering = "-moz-crisp-edges" // Firefox.
-            } else if ("msInterpolationMode" in Sprites.style) {
-                (Sprites.style as any).msInterpolationMode = "nearest-neighbor" // IE.
-            } else if (navigator.userAgent.indexOf("Nintendo 3DS") == -1) { // The 3DS actually uses nearest-neighbor anyway, and takes a long time to resize the sprite sheet.
-                // Workaround for Edge as it always uses linear interpolation; scale up in a canvas to ensure that the pixels stay mostly square.
-                const NearestNeighborWorkaroundScale = 4
-                const inputCanvas = document.createElement("canvas")
-                if (inputCanvas.getContext) {
-                    inputCanvas.width = ContentSpritesWidth
-                    inputCanvas.height = ContentSpritesHeight
-                    const inputContext = inputCanvas.getContext("2d")
-                    if (inputContext) {
-                        inputContext.drawImage(Sprites, 0, 0)
-                        const data = inputContext.getImageData(0, 0, ContentSpritesWidth, ContentSpritesHeight).data
-                        const outputCanvas = document.createElement("canvas")
-                        outputCanvas.width = Sprites.width * NearestNeighborWorkaroundScale
-                        outputCanvas.height = Sprites.height * NearestNeighborWorkaroundScale
-                        const outputContext = outputCanvas.getContext("2d")
-                        if (outputContext) {
-                            // Newer versions of Edge don't support disabling image smoothing, so we have to do a manual blit.
-                            for (let y = 0; y < ContentSpritesWidth; y++)
-                                for (let x = 0; x < ContentSpritesHeight; x++) {
-                                    outputContext.fillStyle = `rgba(${data[x * 4 + y * ContentSpritesWidth * 4]}, ${data[x * 4 + y * ContentSpritesWidth * 4 + 1]}, ${data[x * 4 + y * ContentSpritesWidth * 4 + 2]}, ${data[x * 4 + y * ContentSpritesWidth * 4 + 3] / 255})`
-                                    outputContext.fillRect(x * NearestNeighborWorkaroundScale, y * NearestNeighborWorkaroundScale, NearestNeighborWorkaroundScale, NearestNeighborWorkaroundScale)
-                                }
-                            Sprites.src = outputCanvas.toDataURL("image/png")
-                        }
-                    }
-                }
-            }
-
+        InternalLoadAndPrepareImage("Sprites.png", ContentSpritesWidth, ContentSpritesHeight, element => {
+            element.style.touchAction = "manipulation" // Improves responsiveness on IE/Edge on touchscreens.
+            element.style.webkitBackfaceVisibility = "hidden" // Prevents a "pop" on Chrome when all transitions have finished.
+            element.style.position = "absolute"
+            element.style.pointerEvents = "all"
+            Sprites = element
             SetLoadingMessage("Caching sprites...")
             setTimeout(() => {
                 while (CachedSprites.length < 500) CachedSprites.push(CreateSprite())
@@ -110,9 +74,7 @@ namespace Scene {
                     then()
                 }, 0)
             }, 0)
-        }
-        Sprites.onerror = () => SetLoadingMessage("Failed to load sprites.  Please try refreshing this page.")
-        Sprites.src = "Sprites.png"
+        }, () => SetLoadingMessage("Failed to load sprites.  Please try refreshing this page."))
     }
 
     type Child = {
