@@ -92,7 +92,12 @@ namespace Scene {
         readonly Delete: () => void
     }
 
-    abstract class SceneGraphBase implements IPausable, IDeletable {
+    interface IDisableable {
+        readonly Disable: () => void
+        readonly Enable: () => void
+    }
+
+    abstract class SceneGraphBase implements IPausable, IDeletable, IDisableable {
         private DeletedValue = false
         readonly Deleted = () => this.DeletedValue
         readonly Delete = () => {
@@ -117,6 +122,22 @@ namespace Scene {
             this.OnResume()
         }
         protected abstract readonly OnResume: () => void
+
+        private LocallyDisabledValue = false
+        readonly LocallyDisabled = () => this.LocallyDisabledValue
+        readonly Disabled = () => this.LocallyDisabled() || this.GetParentDisabled()
+
+        readonly Disable = () => {
+            if (this.Deleted() || this.LocallyDisabled()) return
+            this.LocallyDisabledValue = true
+        }
+
+        readonly Enable = () => {
+            if (this.Deleted() || !this.LocallyDisabled()) return
+            this.LocallyDisabledValue = false
+        }
+
+        protected abstract readonly GetParentDisabled: () => void
     }
 
     interface IMoveable extends IPausable {
@@ -139,7 +160,7 @@ namespace Scene {
         constructor(partOf: SceneGraphBase, element: HTMLDivElement, onClick?: () => void) {
             this.PartOf = partOf
             this.Element = element
-            if (onClick) this.Element.onclick = () => Timers.InternalInvoke(onClick)
+            if (onClick) this.Element.onclick = () => { if (!partOf.Disabled()) Timers.InternalInvoke(onClick) }
         }
 
         readonly X = () => {
@@ -303,7 +324,7 @@ namespace Scene {
             this.Element.style.position = "absolute"
             this.Element.style.overflow = crop ? "hidden" : "visible"
             this.Element.style.pointerEvents = "none"
-            if (onClick) this.Element.onclick = () => Timers.InternalInvoke(onClick)
+            if (onClick) this.Element.onclick = () => { if (!this.Disabled()) Timers.InternalInvoke(onClick) }
 
             this.HorizontalAlignment = horizontalAlignment
             this.VerticalAlignment = verticalAlignment
@@ -361,6 +382,8 @@ namespace Scene {
             Display.RootElement.removeChild(this.Element)
             this.Children.Delete()
         }
+
+        protected readonly GetParentDisabled = () => false
     }
 
     export class Group extends SceneGraphBase implements IMoveable {
@@ -419,6 +442,8 @@ namespace Scene {
             this.MoveableElement.Resume()
             this.Children.Resume()
         }
+
+        protected readonly GetParentDisabled = () => this.Parent.Disabled()
     }
 
     export class Sprite extends SceneGraphBase implements IMoveable {
@@ -478,6 +503,8 @@ namespace Scene {
             this.MoveableElement.Resume()
             if (this.AnimationTimer) this.AnimationTimer.Resume()
         }
+
+        protected readonly GetParentDisabled = () => this.Parent.Disabled()
 
         private AnimationTimer: Timers.Once | undefined = undefined
 

@@ -128,6 +128,12 @@ new Demo("Scene Graph", (group) => {
             })
             destinationGroup.Move(x, y)
         }
+    }, {
+        Label: "Disable",
+        Action: wrappingGroup.Disable
+    }, {
+        Label: "Enable",
+        Action: wrappingGroup.Enable
     }])
 
     CreateButtons("Scene.Sprite", "Right", ResolutionX + Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionX - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
@@ -163,6 +169,12 @@ new Demo("Scene Graph", (group) => {
             sprite.MoveOver(x, y, 0.5, () => sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)))
             destinationSprite.Move(x, y)
         }
+    }, {
+        Label: "Disable",
+        Action: sprite.Disable
+    }, {
+        Label: "Enable",
+        Action: sprite.Enable
     }])
 
     return closing.Raise
