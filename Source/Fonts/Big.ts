@@ -1,4 +1,4 @@
-const FontBig = new Font(Content.Fonts.Big, 6, 8, 1, 5, {
+const FontBig = new Font(Content.Fonts.Big, 6, 9, 1, 5, {
     "i": 1,
     "j": 1,
     "c": 4,
