@@ -1,5 +1,5 @@
 new Demo("Fonts", (group) => {
-    const text = "\n\nText can be multi-line,\nanchored to the top,\nbottom, left, right\nor middle.\n"
+    const text = "Text can be multi-line,\nanchored to the top,\nbottom, left, right\nor middle."
 
     const configurations: [HorizontalAlignment, VerticalAlignment][] = [
         ["Left", "Top"],
