@@ -209,7 +209,10 @@ namespace Scene {
         }
 
         readonly Delete = () => {
-            this.Pause()
+            if (this.Timer) {
+                this.Timer.Cancel()
+                this.Timer = undefined
+            }
         }
 
         readonly Pause = () => {
@@ -242,6 +245,8 @@ namespace Scene {
         }
 
         readonly Move = (leftPixels: number, topPixels: number) => {
+            if (this.PartOf.Deleted()) return
+
             if (this.Timer) {
                 this.Timer.Cancel()
                 this.Timer = undefined
@@ -253,6 +258,8 @@ namespace Scene {
         }
 
         readonly MoveOver = (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => {
+            if (this.PartOf.Deleted()) return
+
             this.Move(this.X(), this.Y())
             this.ToX = Math.round(leftPixels)
             this.ToY = Math.round(topPixels)
