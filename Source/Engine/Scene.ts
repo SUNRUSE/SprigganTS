@@ -589,10 +589,6 @@ namespace Scene {
 
         readonly Loop = (animation: SpriteFrame | SpriteFrame[]) => {
             if (animation instanceof SpriteFrame) {
-                if (this.AnimationTimer) {
-                    this.AnimationTimer.Cancel()
-                    this.AnimationTimer = undefined
-                }
                 this.Play(animation)
             } else {
                 const playAgain = () => this.Play(animation, playAgain)
