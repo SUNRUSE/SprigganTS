@@ -23,14 +23,6 @@ class Font {
     }
 
     readonly Write = (to: Scene.Viewport | Scene.Group, text: string, horizontalAlignment: HorizontalAlignment = "Left", verticalAlignment: VerticalAlignment = "Top", x = 0, y = 0) => {
-        switch (horizontalAlignment) {
-            case "Middle":
-                x -= this.CalculateWidth(text) / 2
-                break
-            case "Right":
-                x -= this.CalculateWidth(text)
-                break
-        }
         switch (verticalAlignment) {
             case "Middle":
                 y -= this.CalculateHeight(text) / 2
@@ -39,24 +31,57 @@ class Font {
                 y -= this.CalculateHeight(text)
                 break
         }
-        let trackX = x
-        for (let i = 0; i < text.length; i++) {
-            const character = text.charAt(i)
-            if (character == "\n") {
-                trackX = x
-                y += this.LineHeightPixels
-                y += this.LineSpacingPixels
-            } else {
-                const spriteFrame = this.CharacterSpriteFrames[character]
-                if (spriteFrame) {
-                    const sprite = new Scene.Sprite(to)
-                    sprite.Loop(spriteFrame)
-                    sprite.Move(trackX, y)
+        if (horizontalAlignment == "Left") {
+            let trackX = x
+            for (let i = 0; i < text.length; i++) {
+                const character = text.charAt(i)
+                if (character == "\n") {
+                    trackX = x
+                    y += this.LineHeightPixels
+                    y += this.LineSpacingPixels
+                } else {
+                    const spriteFrame = this.CharacterSpriteFrames[character]
+                    if (spriteFrame) {
+                        const sprite = new Scene.Sprite(to)
+                        sprite.Loop(spriteFrame)
+                        sprite.Move(trackX, y)
+                    }
+                    let width = this.CharacterWidthOverrides[character]
+                    if (width === undefined) width = this.DefaultCharacterWidth
+                    trackX += width
+                    trackX += this.CharacterSpacingPixels
                 }
-                let width = this.CharacterWidthOverrides[character]
-                if (width === undefined) width = this.DefaultCharacterWidth
-                trackX += width
-                trackX += this.CharacterSpacingPixels
+            }
+        } else {
+            let lineWidth = 0
+            let lineStarted = 0
+            for (let i = 0; i <= text.length; i++) {
+                const character = i < text.length ? text.charAt(i) : "\n"
+                if (character == "\n") {
+                    let trackX = x - lineWidth / (horizontalAlignment == "Middle" ? 2 : 1)
+                    for (let j = lineStarted; j < i; j++) {
+                        const drawCharacter = text.charAt(j)
+                        const spriteFrame = this.CharacterSpriteFrames[drawCharacter]
+                        if (spriteFrame) {
+                            const sprite = new Scene.Sprite(to)
+                            sprite.Loop(spriteFrame)
+                            sprite.Move(trackX, y)
+                        }
+                        let width = this.CharacterWidthOverrides[drawCharacter]
+                        if (width === undefined) width = this.DefaultCharacterWidth
+                        trackX += width
+                        trackX += this.CharacterSpacingPixels
+                    }
+                    lineWidth = 0
+                    lineStarted = i + 1
+                    y += this.LineHeightPixels
+                    y += this.LineSpacingPixels
+                } else {
+                    let width = this.CharacterWidthOverrides[character]
+                    if (width === undefined) width = this.DefaultCharacterWidth
+                    lineWidth += width
+                    if (i != lineStarted) lineWidth += this.CharacterSpacingPixels
+                }
             }
         }
     }
