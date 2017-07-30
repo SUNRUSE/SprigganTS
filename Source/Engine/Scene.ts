@@ -97,7 +97,12 @@ namespace Scene {
         readonly Enable: () => void
     }
 
-    abstract class SceneGraphBase implements IPausable, IDeletable, IDisableable {
+    interface IHideable {
+        readonly Hide: () => void
+        readonly Show: () => void
+    }
+
+    abstract class SceneGraphBase implements IPausable, IDeletable, IDisableable, IHideable {
         private DeletedValue = false
         readonly Deleted = () => this.DeletedValue
         readonly Delete = () => {
@@ -138,6 +143,26 @@ namespace Scene {
         }
 
         protected abstract readonly GetParentDisabled: () => void
+
+        private LocallyHiddenValue = false
+        readonly LocallyHidden = () => this.LocallyHiddenValue
+        readonly Hidden = () => this.LocallyHidden() || this.GetParentHidden()
+
+        readonly Hide = () => {
+            if (this.Deleted() || this.LocallyHidden()) return
+            this.LocallyHiddenValue = true
+            this.OnHide()
+        }
+
+        readonly Show = () => {
+            if (this.Deleted() || !this.LocallyHidden()) return
+            this.LocallyHiddenValue = false
+            this.OnShow()
+        }
+
+        protected abstract readonly OnHide: () => void
+        protected abstract readonly OnShow: () => void
+        protected abstract readonly GetParentHidden: () => void
     }
 
     interface IMoveable extends IPausable {
@@ -148,7 +173,7 @@ namespace Scene {
         readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
     }
 
-    class MoveableElement implements IMoveable, IDeletable {
+    class MoveableElement implements IMoveable, IDeletable, IHideable {
         private readonly PartOf: SceneGraphBase
         readonly Element: HTMLDivElement
         private Timer: Timers.Once | undefined = undefined
@@ -258,6 +283,16 @@ namespace Scene {
 
         readonly MoveAt = (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => {
             this.MoveOver(leftPixels, topPixels, Distance(leftPixels, topPixels, this.X(), this.Y()) / pixelsPerSecond, onArrivingIfUninterrupted)
+        }
+
+        readonly Hide = () => {
+            if (this.PartOf.Deleted()) return
+            this.Element.style.visibility = "hidden"
+        }
+
+        readonly Show = () => {
+            if (this.PartOf.Deleted()) return
+            this.Element.style.visibility = "inherit"
         }
     }
 
@@ -384,6 +419,9 @@ namespace Scene {
         }
 
         protected readonly GetParentDisabled = () => false
+        protected readonly OnHide = () => this.Element.style.visibility = "hidden"
+        protected readonly OnShow = () => this.Element.style.visibility = "inherit"
+        protected readonly GetParentHidden = () => false
     }
 
     export class Group extends SceneGraphBase implements IMoveable {
@@ -444,6 +482,9 @@ namespace Scene {
         }
 
         protected readonly GetParentDisabled = () => this.Parent.Disabled()
+        protected readonly OnHide = () => this.MoveableElement.Hide()
+        protected readonly OnShow = () => this.MoveableElement.Show()
+        protected readonly GetParentHidden = () => this.Parent.Hidden()
     }
 
     export class Sprite extends SceneGraphBase implements IMoveable {
@@ -505,6 +546,9 @@ namespace Scene {
         }
 
         protected readonly GetParentDisabled = () => this.Parent.Disabled()
+        protected readonly OnHide = () => this.MoveableElement.Hide()
+        protected readonly OnShow = () => this.MoveableElement.Show()
+        protected readonly GetParentHidden = () => this.Parent.Hidden()
 
         private AnimationTimer: Timers.Once | undefined = undefined
 
