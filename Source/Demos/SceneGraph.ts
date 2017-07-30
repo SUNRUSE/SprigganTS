@@ -19,7 +19,12 @@ new Demo("Scene Graph", (group) => {
     destinationBottomRight.Loop(Content.Markers.AlternativeBounds.BottomRight)
     destinationBottomRight.Move(groupSize, groupSize)
 
-    const wrappingGroup = new Scene.Group(simulationGroup)
+    const wrappingGroup = new Scene.Group(simulationGroup, () => {
+        topLeft.Play(Content.Markers.AlternativeStrobeBounds.TopLeft)
+        topRight.Play(Content.Markers.AlternativeStrobeBounds.TopRight)
+        bottomLeft.Play(Content.Markers.AlternativeStrobeBounds.BottomLeft)
+        bottomRight.Play(Content.Markers.AlternativeStrobeBounds.BottomRight)
+    })
 
     const topLeft = new Scene.Sprite(wrappingGroup)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
@@ -37,7 +42,11 @@ new Demo("Scene Graph", (group) => {
     const destinationSprite = new Scene.Sprite(wrappingGroup)
     destinationSprite.Loop(Content.Markers.Anchor)
 
-    const sprite = new Scene.Sprite(wrappingGroup)
+    const sprite = new Scene.Sprite(wrappingGroup, () => {
+        const clickSprite = new Scene.Sprite(wrappingGroup)
+        clickSprite.Move(sprite.X(), sprite.Y())
+        clickSprite.Play(Content.Demos.SceneGraph.Clicked, clickSprite.Delete)
+    })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
 
     const groupControlsViewport = new Scene.Viewport("Left", "Bottom")
