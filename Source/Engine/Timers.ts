@@ -245,9 +245,9 @@ namespace Timers {
         readonly Cancel = () => {
             if (this.Cancelled() || this.Completed()) return
             this.CancelledElapsed = this.ElapsedSeconds()
+            if (this.OnCancellation) this.OnCancellation(this.ElapsedSeconds(), this.ElapsedUnitInterval())
             if (!this.Paused()) {
                 Remove(CallbackQueue, this.CallbackQueueItem)
-                if (this.OnCancellation) this.OnCancellation(this.ElapsedSeconds(), this.ElapsedUnitInterval())
                 if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
             }
         }
