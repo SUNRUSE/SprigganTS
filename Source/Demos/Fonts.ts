@@ -79,6 +79,10 @@ new Demo("Fonts", (group) => {
                 break
         }
 
+        // The bounds sprites include an extra pixel.
+        right--
+        bottom--
+
         topLeft.MoveOver(left, top, 0.3)
         topRight.MoveOver(right, top, 0.3)
         bottomLeft.MoveOver(left, bottom, 0.3)
