@@ -49,151 +49,121 @@ new Demo("Scene Graph", (group) => {
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
 
-    const groupControlsViewport = new Scene.Viewport("Left", "Bottom")
-    FontBig.Write(groupControlsViewport, "Containing group", "Middle", "Middle", Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 5.5)
+    const closing = new Events.Once<() => void>()
+
+    function CreateButtons(label: string, horizontalAlignment: HorizontalAlignment, outX: number, inX: number, buttons: {
+        readonly Label: string
+        readonly Action: () => void
+    }[]) {
+        const menuViewport = new Scene.Viewport(horizontalAlignment, "Bottom")
+        const menuGroup = new Scene.Group(menuViewport)
+        menuGroup.Move(outX, 0)
+        menuGroup.MoveOver(inX, 0, 0.5)
+        FontBig.Write(menuGroup, label, "Middle", "Middle", 0, ResolutionY - (buttons.length + 0.5) * (Content.Buttons.Wide.Unpressed.HeightPixels + 2))
+        for (const button of buttons) {
+            const buttonGroup = new Scene.Group(menuGroup, () => {
+                buttonSprite.Play(Content.Buttons.Wide.Pressed)
+                button.Action()
+            })
+            buttonGroup.Move(0, ResolutionY - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * (Content.Buttons.Wide.Unpressed.HeightPixels + 2))
+            const buttonSprite = new Scene.Sprite(buttonGroup)
+            buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
+            FontBig.Write(buttonGroup, button.Label, "Middle", "Middle", 0, 0)
+        }
+        closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, menuViewport.Delete))
+    }
 
     const randomSizeX = 144
     const randomSizeY = 48
 
-    const groupPauseGroup = new Scene.Group(groupControlsViewport, () => {
-        groupPauseSprite.Play(Content.Buttons.Wide.Pressed)
-        simulationGroup.Pause()
-    })
-    groupPauseGroup.Move(Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 4.5)
-    const groupPauseSprite = new Scene.Sprite(groupPauseGroup)
-    groupPauseSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(groupPauseGroup, "Pause", "Middle", "Middle")
-
-    const groupResumeGroup = new Scene.Group(groupControlsViewport, () => {
-        groupResumeSprite.Play(Content.Buttons.Wide.Pressed)
-        simulationGroup.Resume()
-    })
-    groupResumeGroup.Move(Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 3.5)
-    const groupResumeSprite = new Scene.Sprite(groupResumeGroup)
-    groupResumeSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(groupResumeGroup, "Resume", "Middle", "Middle")
-
-    const groupMoveGroup = new Scene.Group(groupControlsViewport, () => {
-        groupMoveSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * randomSizeX - randomSizeX / 2
-        const y = Math.random() * randomSizeY - randomSizeY / 2
-        wrappingGroup.Move(x, y)
-        destinationGroup.Move(x, y)
-        topLeft.Play(Content.Markers.StrobeBounds.TopLeft)
-        topRight.Play(Content.Markers.StrobeBounds.TopRight)
-        bottomLeft.Play(Content.Markers.StrobeBounds.BottomLeft)
-        bottomRight.Play(Content.Markers.StrobeBounds.BottomRight)
-    })
-    groupMoveGroup.Move(Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 2.5)
-    const groupMoveSprite = new Scene.Sprite(groupMoveGroup)
-    groupMoveSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(groupMoveGroup, "Move", "Middle", "Middle")
-
-    const groupMoveAtGroup = new Scene.Group(groupControlsViewport, () => {
-        groupMoveAtSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * randomSizeX - randomSizeX / 2
-        const y = Math.random() * randomSizeY - randomSizeY / 2
-        topLeft.Loop(Content.Markers.FlashingBounds.TopLeft)
-        topRight.Loop(Content.Markers.FlashingBounds.TopRight)
-        bottomLeft.Loop(Content.Markers.FlashingBounds.BottomLeft)
-        bottomRight.Loop(Content.Markers.FlashingBounds.BottomRight)
-        wrappingGroup.MoveAt(x, y, 25, () => {
+    CreateButtons("Scene.Group", "Left", -Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+        Label: "Pause",
+        Action: wrappingGroup.Pause
+    }, {
+        Label: "Resume",
+        Action: wrappingGroup.Resume
+    }, {
+        Label: "Move",
+        Action: () => {
+            const x = Math.random() * randomSizeX - randomSizeX / 2
+            const y = Math.random() * randomSizeY - randomSizeY / 2
+            wrappingGroup.Move(x, y)
+            destinationGroup.Move(x, y)
             topLeft.Play(Content.Markers.StrobeBounds.TopLeft)
             topRight.Play(Content.Markers.StrobeBounds.TopRight)
             bottomLeft.Play(Content.Markers.StrobeBounds.BottomLeft)
             bottomRight.Play(Content.Markers.StrobeBounds.BottomRight)
-        })
-        destinationGroup.Move(x, y)
-    })
-    groupMoveAtGroup.Move(Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 1.5)
-    const groupMoveAtSprite = new Scene.Sprite(groupMoveAtGroup)
-    groupMoveAtSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(groupMoveAtGroup, "MoveAt (25px/sec.)", "Middle", "Middle")
+        }
+    }, {
+        Label: "MoveAt",
+        Action: () => {
+            const x = Math.random() * randomSizeX - randomSizeX / 2
+            const y = Math.random() * randomSizeY - randomSizeY / 2
+            topLeft.Loop(Content.Markers.FlashingBounds.TopLeft)
+            topRight.Loop(Content.Markers.FlashingBounds.TopRight)
+            bottomLeft.Loop(Content.Markers.FlashingBounds.BottomLeft)
+            bottomRight.Loop(Content.Markers.FlashingBounds.BottomRight)
+            wrappingGroup.MoveAt(x, y, 25, () => {
+                topLeft.Play(Content.Markers.StrobeBounds.TopLeft)
+                topRight.Play(Content.Markers.StrobeBounds.TopRight)
+                bottomLeft.Play(Content.Markers.StrobeBounds.BottomLeft)
+                bottomRight.Play(Content.Markers.StrobeBounds.BottomRight)
+            })
+            destinationGroup.Move(x, y)
+        }
+    }, {
+        Label: "MoveOver",
+        Action: () => {
+            const x = Math.random() * randomSizeX - randomSizeX / 2
+            const y = Math.random() * randomSizeY - randomSizeY / 2
+            topLeft.Loop(Content.Markers.FlashingBounds.TopLeft)
+            topRight.Loop(Content.Markers.FlashingBounds.TopRight)
+            bottomLeft.Loop(Content.Markers.FlashingBounds.BottomLeft)
+            bottomRight.Loop(Content.Markers.FlashingBounds.BottomRight)
+            wrappingGroup.MoveOver(x, y, 0.5, () => {
+                topLeft.Play(Content.Markers.StrobeBounds.TopLeft)
+                topRight.Play(Content.Markers.StrobeBounds.TopRight)
+                bottomLeft.Play(Content.Markers.StrobeBounds.BottomLeft)
+                bottomRight.Play(Content.Markers.StrobeBounds.BottomRight)
+            })
+            destinationGroup.Move(x, y)
+        }
+    }])
 
-    const groupMoveOverGroup = new Scene.Group(groupControlsViewport, () => {
-        groupMoveOverSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * randomSizeX - randomSizeX / 2
-        const y = Math.random() * randomSizeY - randomSizeY / 2
-        topLeft.Loop(Content.Markers.FlashingBounds.TopLeft)
-        topRight.Loop(Content.Markers.FlashingBounds.TopRight)
-        bottomLeft.Loop(Content.Markers.FlashingBounds.BottomLeft)
-        bottomRight.Loop(Content.Markers.FlashingBounds.BottomRight)
-        wrappingGroup.MoveOver(x, y, 0.5, () => {
-            topLeft.Play(Content.Markers.StrobeBounds.TopLeft)
-            topRight.Play(Content.Markers.StrobeBounds.TopRight)
-            bottomLeft.Play(Content.Markers.StrobeBounds.BottomLeft)
-            bottomRight.Play(Content.Markers.StrobeBounds.BottomRight)
-        })
-        destinationGroup.Move(x, y)
-    })
-    groupMoveOverGroup.Move(Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels / 2)
-    const groupMoveOverSprite = new Scene.Sprite(groupMoveOverGroup)
-    groupMoveOverSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(groupMoveOverGroup, "MoveOver (0.5 sec.)", "Middle", "Middle")
+    CreateButtons("Scene.Sprite", "Right", ResolutionX + Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionX - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+        Label: "Pause",
+        Action: sprite.Pause
+    }, {
+        Label: "Resume",
+        Action: sprite.Resume
+    }, {
+        Label: "Move",
+        Action: () => {
+            const x = Math.random() * groupSize - groupSize / 2
+            const y = Math.random() * groupSize - groupSize / 2
+            sprite.Move(x, y)
+            destinationSprite.Move(x, y)
+            sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle))
+        }
+    }, {
+        Label: "MoveAt",
+        Action: () => {
+            const x = Math.random() * groupSize - groupSize / 2
+            const y = Math.random() * groupSize - groupSize / 2
+            sprite.Loop(Content.Demos.SceneGraph.Sprite.Moving)
+            sprite.MoveAt(x, y, 25, () => sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)))
+            destinationSprite.Move(x, y)
+        }
+    }, {
+        Label: "MoveOver",
+        Action: () => {
+            const x = Math.random() * groupSize - groupSize / 2
+            const y = Math.random() * groupSize - groupSize / 2
+            sprite.Loop(Content.Demos.SceneGraph.Sprite.Moving)
+            sprite.MoveOver(x, y, 0.5, () => sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)))
+            destinationSprite.Move(x, y)
+        }
+    }])
 
-
-    const spriteControlsViewport = new Scene.Viewport("Right", "Bottom")
-    FontBig.Write(spriteControlsViewport, "Sprite", "Middle", "Middle", ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 5.5)
-
-    const spritePauseGroup = new Scene.Group(spriteControlsViewport, () => {
-        spritePauseSprite.Play(Content.Buttons.Wide.Pressed)
-        sprite.Pause()
-    })
-    spritePauseGroup.Move(ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 4.5)
-    const spritePauseSprite = new Scene.Sprite(spritePauseGroup)
-    spritePauseSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(spritePauseGroup, "Pause", "Middle", "Middle")
-
-    const spriteResumeGroup = new Scene.Group(spriteControlsViewport, () => {
-        spriteResumeSprite.Play(Content.Buttons.Wide.Pressed)
-        sprite.Resume()
-    })
-    spriteResumeGroup.Move(ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 3.5)
-    const spriteResumeSprite = new Scene.Sprite(spriteResumeGroup)
-    spriteResumeSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(spriteResumeGroup, "Resume", "Middle", "Middle")
-
-    const spriteMoveGroup = new Scene.Group(spriteControlsViewport, () => {
-        spriteMoveSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * groupSize - groupSize / 2
-        const y = Math.random() * groupSize - groupSize / 2
-        sprite.Move(x, y)
-        destinationSprite.Move(x, y)
-        sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle))
-    })
-    spriteMoveGroup.Move(ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 2.5)
-    const spriteMoveSprite = new Scene.Sprite(spriteMoveGroup)
-    spriteMoveSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(spriteMoveGroup, "Move", "Middle", "Middle")
-
-    const spriteMoveAtGroup = new Scene.Group(spriteControlsViewport, () => {
-        spriteMoveAtSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * groupSize - groupSize / 2
-        const y = Math.random() * groupSize - groupSize / 2
-        sprite.Loop(Content.Demos.SceneGraph.Sprite.Moving)
-        sprite.MoveAt(x, y, 25, () => sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)))
-        destinationSprite.Move(x, y)
-    })
-    spriteMoveAtGroup.Move(ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels * 1.5)
-    const spriteMoveAtSprite = new Scene.Sprite(spriteMoveAtGroup)
-    spriteMoveAtSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(spriteMoveAtGroup, "MoveAt (25px/sec.)", "Middle", "Middle")
-
-    const spriteMoveOverGroup = new Scene.Group(spriteControlsViewport, () => {
-        spriteMoveOverSprite.Play(Content.Buttons.Wide.Pressed)
-        const x = Math.random() * groupSize - groupSize / 2
-        const y = Math.random() * groupSize - groupSize / 2
-        sprite.Loop(Content.Demos.SceneGraph.Sprite.Moving)
-        sprite.MoveOver(x, y, 0.5, () => sprite.Play(Content.Demos.SceneGraph.Sprite.Stopped, () => sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)))
-        destinationSprite.Move(x, y)
-    })
-    spriteMoveOverGroup.Move(ResolutionX - 1 - Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionY - Content.Buttons.Wide.Unpressed.HeightPixels / 2)
-    const spriteMoveOverSprite = new Scene.Sprite(spriteMoveOverGroup)
-    spriteMoveOverSprite.Loop(Content.Buttons.Wide.Unpressed)
-    FontBig.Write(spriteMoveOverGroup, "MoveOver (0.5 sec.)", "Middle", "Middle")
-
-    return () => {
-        groupControlsViewport.Delete()
-        spriteControlsViewport.Delete()
-    }
+    return closing.Raise
 })
