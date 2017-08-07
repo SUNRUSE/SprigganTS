@@ -125,13 +125,13 @@ declare class Group {
     /** Removes this Group and all its children from the scene graph. */
     Delete(): void
 
-    /** Plays a Sound from this Group , using positional audio if available.
+    /** Plays a Sound from this Group, using positional audio if available.
      * @param {Sound} sound The Sound to play.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
     PlaySound(sound: Sound): Group
 
-    /** Plays a line of Dialog from this Group , using positional audio if available.
+    /** Plays a line of Dialog from this Group, using positional audio if available.
      * @param {Dialog} dialog The Dialog to play.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
@@ -144,17 +144,17 @@ declare class Sprite {
     */
     constructor(parent: Viewport | Group)
 
-    /** Pauses this Sprite ; motion and animation will be paused until this Group is Resume -d.
+    /** Pauses this Sprite; motion and animation will be paused until this Group is Resume -d.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
     Pause(): Group
 
-    /** Resumes this Sprite ; motion and animation will resume from where they were .Pause()-d.
+    /** Resumes this Sprite; motion and animation will resume from where they were .Pause()-d.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
     Resume(): Group
 
-    /** Hides this Sprite ; clicks will not trigger actions or block underlying scene objects being clicked until .Show()-n.
+    /** Hides this Sprite; clicks will not trigger actions or block underlying scene objects being clicked until .Show()-n.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
     Hide(): Sprite
@@ -205,13 +205,13 @@ declare class Sprite {
     /** Removes this Sprite from the scene graph. */
     Delete(): void
 
-    /** Plays a Sound from this Sprite , using positional audio if available.
+    /** Plays a Sound from this Sprite, using positional audio if available.
      * @param {Sound} sound The Sound to play.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
     PlaySound(sound: Sound): Sprite
 
-    /** Plays a line of Dialog from this Sprite , using positional audio if available.
+    /** Plays a line of Dialog from this Sprite, using positional audio if available.
      * @param {Dialog} dialog The Dialog to play.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
@@ -225,10 +225,10 @@ declare namespace Background {
      */
     function Set(animation: SpriteFrame | SpriteFrame[]): void
 
-    /** If a background was previously Set , it is removed. */
+    /** If a background was previously Set, it is removed. */
     function Remove(): void
 
-    /** Pauses the animation Set . */
+    /** Pauses the animation Set. */
     function Pause(): void
 
     /** Resumes the animation Set and then .Pause()-d. */
