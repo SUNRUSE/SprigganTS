@@ -73,8 +73,9 @@ declare class Viewport {
 declare class Group {
     /** An invisible grouping of Group and/or Sprite scene objects. 
      * @param {Viewport | Group} parent The parent scene object to add the new Group to.
+     * @param {?Function} onClick An optional callback to execute when the this Group or any of its children are clicked or tapped.  Childrens' events are fired first, and this will not be called if this Group is deleted by a child's event.
     */
-    constructor(parent: Viewport | Group)
+    constructor(parent: Viewport | Group, onClick?: () => void)
 
     /** Pauses this Group and all its children; motion and animation will be paused until this Group is Resume -d.
      * Clicks will still trigger actions.
@@ -141,8 +142,9 @@ declare class Group {
 declare class Sprite {
     /** Displays a SpriteFrame inside a Viewport or Group. 
      * @param {Viewport | Group} parent The parent scene object to add the new Sprite to.
+     * @param {?Function} onClick An optional callback to execute when the this Sprite is clicked or tapped.
     */
-    constructor(parent: Viewport | Group)
+    constructor(parent: Viewport | Group, onClick?: () => void)
 
     /** Pauses this Sprite; motion and animation will be paused until this Group is Resume -d.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
