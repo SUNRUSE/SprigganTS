@@ -12,8 +12,8 @@ new ContentType(".music.flp", (filename, then) => then(), then => then("", []))
 FindFiles()
 
 function FindFiles() {
-    console.info("Finding files in the Source directory...")
-    Recurse("Source", CheckForPreviousBuild)
+    console.info("Finding files in the Game directory...")
+    Recurse("Game", CheckForPreviousBuild)
     function Recurse(directory: string, then: () => void) {
         fs.readdir(directory, (err, filesOrDirectories) => {
             Error(err)
@@ -245,7 +245,7 @@ function GenerateTypeScriptTree() {
         }
         if (currentFragment) fragments.push(currentFragment)
 
-        // Skip "Source".
+        // Skip "Game".
         let directory = root
         for (const fragment of fragments.slice(1, -1)) {
             const next = directory.Children[fragment]

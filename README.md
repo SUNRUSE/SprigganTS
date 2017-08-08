@@ -182,7 +182,7 @@ It can be played at http://localhost:3333 in your browser.
 
 ### TypeScript API
 
-The entry point for the TypeScript application is Source/Entry.ts.  The "StartGame" function will be executed when all content required to play the game has been loaded.
+The entry point for the TypeScript application is Game/Entry.ts.  The "StartGame" function will be executed when all content required to play the game has been loaded.
 
 All methods in the API are "bound", meaning that it is safe to directly call them:
 
@@ -199,7 +199,7 @@ May not work.  However, quoted property names will be preserved, so the followin
 
 #### Configuration
 
-At the top of Source/Engine/Entry.ts is a reference to Source/Engine/Configuration.ts.  This file is shared between the runtime engine and build process, and defines:
+At the top of Engine/DOM/Entry.ts is a reference to Engine/DOM/Configuration.ts.  This file is shared between the runtime engine and build process, and defines:
 
 ##### ResolutionX
 
@@ -221,13 +221,13 @@ This should be set high enough that you never need to create any more; no error 
 
 #### Content
 
-The build process will generate the file Source/Content.ts.  This contains an object hierarchy mimicking your directory structure (and often the records inside the content files), with objects containing the associated metadata.
+The build process will generate the file Temp/Content.ts.  This contains an object hierarchy mimicking your directory structure (and often the records inside the content files), with objects containing the associated metadata.
 
 Directories containing only consecutive numbers will be turned into arrays.
 
 For instance, the following directory structure:
 
-    '-Source
+    '-Game
       '- Battle
          |'- Sky.background.ase (contains an animation containing Day/0 and Day/1, and single frame animations Sunset/0 and Sunset/1)
          |'- Character.sprite.ase (contains single frame animations Idle, Walk/A and Walk/B)

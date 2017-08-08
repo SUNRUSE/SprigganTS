@@ -1,6 +1,6 @@
 {
     "files": [
-        "Source/Entry.ts"
+        "Game/Entry.ts"
     ],
     "compilerOptions": {
         "allowJs": false,
@@ -14,7 +14,6 @@
         "noFallthroughCasesInSwitch": true,
         "noImplicitThis": true,
         "outFile": "Build/Index.js",
-        "target": "es3",
-        "sourceMap": true
+        "target": "es3"
     }
 }
