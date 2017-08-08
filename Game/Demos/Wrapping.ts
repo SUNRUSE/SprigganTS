@@ -26,7 +26,7 @@ new Demo("Wrapping", (group) => {
         if (wrapped != cachedText) {
             cachedTextGroup.Delete()
             cachedTextGroup = new Group(group)
-            FontBig.Write(cachedTextGroup, wrapped, "Left", "Top", 0, 30)
+            FontBig.Write(cachedTextGroup, wrapped, HorizontalAlignment.Left, VerticalAlignment.Top, 0, 30)
             cachedText = wrapped
         }
     }

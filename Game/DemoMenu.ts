@@ -1,10 +1,10 @@
 function DemoMenu() {
     const spacing = 2
 
-    const titleViewport = new Viewport("Middle", "Top", false)
+    const titleViewport = new Viewport(HorizontalAlignment.Middle, VerticalAlignment.Top, false)
     let titleGroup = new Group(titleViewport)
     titleGroup.Move(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
-    FontBig.Write(titleGroup, "SprigganTS Sample", "Middle", "Middle")
+    FontBig.Write(titleGroup, "SprigganTS Sample", HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
     const rowsPerColumn = Math.floor(HeightVirtualPixels / (Content.Buttons.Wide.Unpressed.HeightPixels + spacing)) - 1
     const columns = Math.ceil(Demos.length / rowsPerColumn)
@@ -27,7 +27,7 @@ function DemoMenu() {
         const buttonSprite = new Sprite(buttonGroup)
         buttonSprite.Play(Content.Buttons.Wide.Materialize)
 
-        FontBig.Write(buttonGroup, demoReference.Name, "Middle", "Middle")
+        FontBig.Write(buttonGroup, demoReference.Name, HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
         remainingButtonGroups.push([buttonGroup, buttonSprite])
         openedDemos++
@@ -35,19 +35,19 @@ function DemoMenu() {
         function Select() {
             buttonSprite.Play(Content.Buttons.Wide.Pressed)
 
-            const demoViewport = new Viewport("Middle", "Middle")
+            const demoViewport = new Viewport(HorizontalAlignment.Middle, VerticalAlignment.Middle)
             const demoScrollingGroup = new Group(demoViewport)
             demoScrollingGroup.Move(0, HeightVirtualPixels)
             demoScrollingGroup.MoveAt(0, 0, 500)
             const demoGroup = new Group(demoScrollingGroup)
             const stopDemo = demoReference.Setup(demoGroup)
 
-            const homeButtonViewport = new Viewport("Left", "Top")
+            const homeButtonViewport = new Viewport(HorizontalAlignment.Left, VerticalAlignment.Top)
             const homeButtonGroup = new Group(homeButtonViewport, ReturnHome)
             homeButtonGroup.Move(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
             const homeButtonSprite = new Sprite(homeButtonGroup)
             homeButtonSprite.Loop(Content.Buttons.Narrow.Unpressed)
-            FontBig.Write(homeButtonGroup, "< Home", "Middle", "Middle")
+            FontBig.Write(homeButtonGroup, "< Home", HorizontalAlignment.Middle, VerticalAlignment.Middle)
             homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125)
 
             function ReturnHome() {
@@ -63,7 +63,7 @@ function DemoMenu() {
                 titleGroup.Delete()
                 titleGroup = new Group(titleViewport)
                 titleGroup.Move(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
-                FontBig.Write(titleGroup, demoReference.Name, "Middle", "Middle")
+                FontBig.Write(titleGroup, demoReference.Name, HorizontalAlignment.Middle, VerticalAlignment.Middle)
                 buttonSprite.Play(Content.Buttons.Wide.Dematerialize, () => buttonGroup.Delete())
             })
 

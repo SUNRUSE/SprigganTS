@@ -2,16 +2,16 @@ new Demo("Fonts", (group) => {
     const text = "Text can be multi-line,\nanchored to the top,\nbottom, left, right\nor middle."
 
     const configurations: [HorizontalAlignment, VerticalAlignment][] = [
-        ["Left", "Top"],
-        ["Middle", "Top"],
-        ["Right", "Top"],
-        ["Right", "Middle"],
-        ["Middle", "Middle"],
-        ["Left", "Middle"],
-        ["Left", "Bottom"],
-        ["Middle", "Bottom"],
-        ["Right", "Bottom"],
-        ["Middle", "Middle"]
+        [HorizontalAlignment.Left, VerticalAlignment.Top],
+        [HorizontalAlignment.Middle, VerticalAlignment.Top],
+        [HorizontalAlignment.Right, VerticalAlignment.Top],
+        [HorizontalAlignment.Right, VerticalAlignment.Middle],
+        [HorizontalAlignment.Middle, VerticalAlignment.Middle],
+        [HorizontalAlignment.Left, VerticalAlignment.Middle],
+        [HorizontalAlignment.Left, VerticalAlignment.Bottom],
+        [HorizontalAlignment.Middle, VerticalAlignment.Bottom],
+        [HorizontalAlignment.Right, VerticalAlignment.Bottom],
+        [HorizontalAlignment.Middle, VerticalAlignment.Middle]
     ]
 
     let configurationId = 0
@@ -54,27 +54,27 @@ new Demo("Fonts", (group) => {
         let bottom = top
 
         switch (configuration[0]) {
-            case "Left":
+            case HorizontalAlignment.Left:
                 right += width
                 break
-            case "Middle":
+            case HorizontalAlignment.Middle:
                 left -= width / 2
                 right += width / 2
                 break
-            case "Right":
+            case HorizontalAlignment.Right:
                 left -= width
                 break
         }
 
         switch (configuration[1]) {
-            case "Top":
+            case VerticalAlignment.Top:
                 bottom += height
                 break
-            case "Middle":
+            case VerticalAlignment.Middle:
                 top -= height / 2
                 bottom += height / 2
                 break
-            case "Bottom":
+            case VerticalAlignment.Bottom:
                 top -= height
                 break
         }

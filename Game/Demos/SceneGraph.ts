@@ -1,49 +1,49 @@
 new Demo("Scene Graph", (group) => {
-    const simulationGroup = new Scene.Group(group)
+    const simulationGroup = new Group(group)
     simulationGroup.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
     const groupSize = 48
 
-    const destinationGroup = new Scene.Group(simulationGroup)
+    const destinationGroup = new Group(simulationGroup)
 
-    const destinationTopLeft = new Scene.Sprite(destinationGroup)
+    const destinationTopLeft = new Sprite(destinationGroup)
     destinationTopLeft.Loop(Content.Markers.AlternativeBounds.TopLeft)
     destinationTopLeft.Move(-groupSize, -groupSize)
-    const destinationTopRight = new Scene.Sprite(destinationGroup)
+    const destinationTopRight = new Sprite(destinationGroup)
     destinationTopRight.Loop(Content.Markers.AlternativeBounds.TopRight)
     destinationTopRight.Move(groupSize, -groupSize)
-    const destinationBottomLeft = new Scene.Sprite(destinationGroup)
+    const destinationBottomLeft = new Sprite(destinationGroup)
     destinationBottomLeft.Loop(Content.Markers.AlternativeBounds.BottomLeft)
     destinationBottomLeft.Move(-groupSize, groupSize)
-    const destinationBottomRight = new Scene.Sprite(destinationGroup)
+    const destinationBottomRight = new Sprite(destinationGroup)
     destinationBottomRight.Loop(Content.Markers.AlternativeBounds.BottomRight)
     destinationBottomRight.Move(groupSize, groupSize)
 
-    const wrappingGroup = new Scene.Group(simulationGroup, () => {
+    const wrappingGroup = new Group(simulationGroup, () => {
         topLeft.Play(Content.Markers.AlternativeStrobeBounds.TopLeft)
         topRight.Play(Content.Markers.AlternativeStrobeBounds.TopRight)
         bottomLeft.Play(Content.Markers.AlternativeStrobeBounds.BottomLeft)
         bottomRight.Play(Content.Markers.AlternativeStrobeBounds.BottomRight)
     })
 
-    const topLeft = new Scene.Sprite(wrappingGroup)
+    const topLeft = new Sprite(wrappingGroup)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
     topLeft.Move(-groupSize, -groupSize)
-    const topRight = new Scene.Sprite(wrappingGroup)
+    const topRight = new Sprite(wrappingGroup)
     topRight.Loop(Content.Markers.Bounds.TopRight)
     topRight.Move(groupSize, -groupSize)
-    const bottomLeft = new Scene.Sprite(wrappingGroup)
+    const bottomLeft = new Sprite(wrappingGroup)
     bottomLeft.Loop(Content.Markers.Bounds.BottomLeft)
     bottomLeft.Move(-groupSize, groupSize)
-    const bottomRight = new Scene.Sprite(wrappingGroup)
+    const bottomRight = new Sprite(wrappingGroup)
     bottomRight.Loop(Content.Markers.Bounds.BottomRight)
     bottomRight.Move(groupSize, groupSize)
 
-    const destinationSprite = new Scene.Sprite(wrappingGroup)
+    const destinationSprite = new Sprite(wrappingGroup)
     destinationSprite.Loop(Content.Markers.Anchor)
 
-    const sprite = new Scene.Sprite(wrappingGroup, () => {
-        const clickSprite = new Scene.Sprite(wrappingGroup)
+    const sprite = new Sprite(wrappingGroup, () => {
+        const clickSprite = new Sprite(wrappingGroup)
         clickSprite.Move(sprite.X(), sprite.Y())
         clickSprite.Play(Content.Demos.SceneGraph.Clicked, clickSprite.Delete)
     })
@@ -55,20 +55,20 @@ new Demo("Scene Graph", (group) => {
         readonly Label: string
         readonly Action: () => void
     }[]) {
-        const menuViewport = new Scene.Viewport(horizontalAlignment, "Bottom")
-        const menuGroup = new Scene.Group(menuViewport)
+        const menuViewport = new Viewport(horizontalAlignment, VerticalAlignment.Bottom)
+        const menuGroup = new Group(menuViewport)
         menuGroup.Move(outX, 0)
         menuGroup.MoveOver(inX, 0, 0.5)
-        FontBig.Write(menuGroup, label, "Middle", "Middle", 0, HeightVirtualPixels - (buttons.length + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
+        FontBig.Write(menuGroup, label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, HeightVirtualPixels - (buttons.length + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
         for (const button of buttons) {
-            const buttonGroup = new Scene.Group(menuGroup, () => {
+            const buttonGroup = new Group(menuGroup, () => {
                 buttonSprite.Play(Content.Buttons.Wide.Pressed)
                 button.Action()
             })
             buttonGroup.Move(0, HeightVirtualPixels - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
-            const buttonSprite = new Scene.Sprite(buttonGroup)
+            const buttonSprite = new Sprite(buttonGroup)
             buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
-            FontBig.Write(buttonGroup, button.Label, "Middle", "Middle", 0, 0)
+            FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, 0)
         }
         closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, menuViewport.Delete))
     }
@@ -76,7 +76,7 @@ new Demo("Scene Graph", (group) => {
     const randomSizeX = 144
     const randomSizeY = 48
 
-    CreateButtons("Scene.Group", "Left", -Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+    CreateButtons("Group", HorizontalAlignment.Left, -Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
         Label: "Pause",
         Action: wrappingGroup.Pause
     }, {
@@ -142,7 +142,7 @@ new Demo("Scene Graph", (group) => {
         Action: wrappingGroup.Show
     }])
 
-    CreateButtons("Scene.Sprite", "Right", WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, WidthVirtualPixels - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+    CreateButtons("Sprite", HorizontalAlignment.Right, WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, WidthVirtualPixels - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
         Label: "Pause",
         Action: sprite.Pause
     }, {
