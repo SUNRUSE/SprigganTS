@@ -45,16 +45,16 @@ new Demo("Events.Recurring", (group) => {
 
             let calls = 0
             let calledGroup = new Scene.Group(subGroup)
-            FontBig.Write(calledGroup, "Not yet called", "Middle", "Middle", x + (ResolutionX - x) / 2, y)
+            FontBig.Write(calledGroup, "Not yet called", "Middle", "Middle", x + (WidthVirtualPixels - x) / 2, y)
             function Callback(arg: number) {
                 calledGroup.Delete()
                 calledGroup = new Scene.Group(subGroup)
                 calls++
-                FontBig.Write(calledGroup, `${calls} call(s); last arg ${arg}`, "Middle", "Middle", x + (ResolutionX - x) / 2, y)
+                FontBig.Write(calledGroup, `${calls} call(s); last arg ${arg}`, "Middle", "Middle", x + (WidthVirtualPixels - x) / 2, y)
             }
         }
 
-        const raisedX = (ResolutionX + 4 + Content.Buttons.Narrow.Unpressed.WidthPixels * 2.5) / 2
+        const raisedX = (WidthVirtualPixels + 4 + Content.Buttons.Narrow.Unpressed.WidthPixels * 2.5) / 2
         let raisedGroup = new Scene.Group(subGroup)
         FontBig.Write(raisedGroup, "Not yet raised", "Middle", "Middle", raisedX, ResolutionY - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
 

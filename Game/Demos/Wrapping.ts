@@ -16,7 +16,7 @@ new Demo("Wrapping", (group) => {
     const refresh = () => {
         if (movingRight) {
             rulerSprite.Move(rulerSprite.X() + 1, rulerSprite.Y())
-            if (rulerSprite.X() == ResolutionX - 1) movingRight = false
+            if (rulerSprite.X() == WidthVirtualPixels - 1) movingRight = false
         } else {
             rulerSprite.Move(rulerSprite.X() - 1, rulerSprite.Y())
             if (rulerSprite.X() == 0) movingRight = true

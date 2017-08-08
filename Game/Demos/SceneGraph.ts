@@ -1,6 +1,6 @@
 new Demo("Scene Graph", (group) => {
     const simulationGroup = new Scene.Group(group)
-    simulationGroup.Move(ResolutionX / 2, ResolutionY / 2)
+    simulationGroup.Move(WidthVirtualPixels / 2, ResolutionY / 2)
 
     const groupSize = 48
 
@@ -142,7 +142,7 @@ new Demo("Scene Graph", (group) => {
         Action: wrappingGroup.Show
     }])
 
-    CreateButtons("Scene.Sprite", "Right", ResolutionX + Content.Buttons.Wide.Unpressed.WidthPixels / 2, ResolutionX - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+    CreateButtons("Scene.Sprite", "Right", WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, WidthVirtualPixels - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
         Label: "Pause",
         Action: sprite.Pause
     }, {
