@@ -13,6 +13,12 @@ declare abstract class Music { }
 /** A line of dialog, imported from non-code content. */
 declare abstract class Dialog { }
 
+/** The width of the "safe zone", in virtual pixels. */
+declare const WidthVirtualPixels: number
+
+/** The height of the "safe zone", in virtual pixels. */
+declare const HeightVirtualPixels: number
+
 /** Describes the horizontal (left-to-right) alignment of an object. */
 declare const enum HorizontalAlignment {
     /** The object is aligned to the left edge. */
