@@ -3,7 +3,6 @@ import "./Sprite"
 import "./Background"
 
 import fs = require("fs")
-import mkdirp = require("mkdirp")
 import path = require("path")
 const rimraf = require("rimraf")
 
@@ -323,13 +322,13 @@ function GenerateTypeScriptSource() {
 
 function DeleteExistingTypeScriptFile() {
     console.info("Checking whether a TypeScript file already exists...")
-    fs.stat("Source/Engine/Generated/Content.ts", (err) => {
+    fs.stat("Temp/Content.ts", (err) => {
         if (err && err.code == "ENOENT") {
             console.info("No TypeScript file exists.")
             WriteTypeScriptFile()
         } else {
             Error(err)
-            fs.unlink("Source/Engine/Generated/Content.ts", (err) => {
+            fs.unlink("Temp/Content.ts", (err) => {
                 Error(err)
                 WriteTypeScriptFile()
             })
@@ -338,14 +337,10 @@ function DeleteExistingTypeScriptFile() {
 }
 
 function WriteTypeScriptFile() {
-    console.info("Ensuring that Source/Engine/Generated exists...")
-    mkdirp("Source/Engine/Generated", (err) => {
+    console.info("Writing TypeScript...")
+    fs.writeFile("Temp/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
         Error(err)
-        console.info("Writing TypeScript...")
-        fs.writeFile("Source/Engine/Generated/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
-            Error(err)
-            GenerateBuild()
-        })
+        GenerateBuild()
     })
 }
 

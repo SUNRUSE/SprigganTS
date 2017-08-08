@@ -9,4 +9,4 @@
 /// <reference path="Scene.ts" />
 /// <reference path="Font.ts" />
 /// <reference path="Start.ts" />
-/// <reference path="Generated/Content.ts" />
+/// <reference path="../../Temp/Content.ts" />

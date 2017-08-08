@@ -1,4 +1,4 @@
-/// <reference path="Engine/Entry.ts" />
+/// <reference path="../Engine/DOM/Entry.ts" />
 /// <reference path="Fonts/Big.ts" />
 /// <reference path="Demo.ts" />
 /// <reference path="Demos/EventsOnce.ts" />
