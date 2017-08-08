@@ -1,6 +1,6 @@
 new Demo("Scene Graph", (group) => {
     const simulationGroup = new Scene.Group(group)
-    simulationGroup.Move(WidthVirtualPixels / 2, ResolutionY / 2)
+    simulationGroup.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
     const groupSize = 48
 
@@ -59,13 +59,13 @@ new Demo("Scene Graph", (group) => {
         const menuGroup = new Scene.Group(menuViewport)
         menuGroup.Move(outX, 0)
         menuGroup.MoveOver(inX, 0, 0.5)
-        FontBig.Write(menuGroup, label, "Middle", "Middle", 0, ResolutionY - (buttons.length + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
+        FontBig.Write(menuGroup, label, "Middle", "Middle", 0, HeightVirtualPixels - (buttons.length + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
         for (const button of buttons) {
             const buttonGroup = new Scene.Group(menuGroup, () => {
                 buttonSprite.Play(Content.Buttons.Wide.Pressed)
                 button.Action()
             })
-            buttonGroup.Move(0, ResolutionY - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
+            buttonGroup.Move(0, HeightVirtualPixels - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
             const buttonSprite = new Scene.Sprite(buttonGroup)
             buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
             FontBig.Write(buttonGroup, button.Label, "Middle", "Middle", 0, 0)

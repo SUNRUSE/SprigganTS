@@ -410,10 +410,10 @@ namespace Scene {
             const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
 
             this.Element.style.width = `${WidthVirtualPixels * realPixelsPerVirtualPixel}px`
-            this.Element.style.height = `${ResolutionY * realPixelsPerVirtualPixel}px`
+            this.Element.style.height = `${HeightVirtualPixels * realPixelsPerVirtualPixel}px`
 
             if (this.HorizontalAlignment == "Middle") this.Element.style.marginLeft = `-${WidthVirtualPixels * realPixelsPerVirtualPixel / 2}px`
-            if (this.VerticalAlignment == "Middle") this.Element.style.marginTop = `-${ResolutionY * realPixelsPerVirtualPixel / 2}px`
+            if (this.VerticalAlignment == "Middle") this.Element.style.marginTop = `-${HeightVirtualPixels * realPixelsPerVirtualPixel / 2}px`
 
             this.Children.Rescale()
         }

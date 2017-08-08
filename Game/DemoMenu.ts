@@ -6,7 +6,7 @@ function DemoMenu() {
     titleGroup.Move(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
     FontBig.Write(titleGroup, "SprigganTS Sample", "Middle", "Middle")
 
-    const rowsPerColumn = Math.floor(ResolutionY / (Content.Buttons.Wide.Unpressed.HeightPixels + spacing)) - 1
+    const rowsPerColumn = Math.floor(HeightVirtualPixels / (Content.Buttons.Wide.Unpressed.HeightPixels + spacing)) - 1
     const columns = Math.ceil(Demos.length / rowsPerColumn)
 
     let openedDemos = 0
@@ -37,7 +37,7 @@ function DemoMenu() {
 
             const demoViewport = new Scene.Viewport("Middle", "Middle")
             const demoScrollingGroup = new Scene.Group(demoViewport)
-            demoScrollingGroup.Move(0, ResolutionY)
+            demoScrollingGroup.Move(0, HeightVirtualPixels)
             demoScrollingGroup.MoveAt(0, 0, 500)
             const demoGroup = new Scene.Group(demoScrollingGroup)
             const stopDemo = demoReference.Setup(demoGroup)
@@ -52,7 +52,7 @@ function DemoMenu() {
 
             function ReturnHome() {
                 stopDemo()
-                demoScrollingGroup.MoveAt(0, ResolutionY, 500, demoViewport.Delete)
+                demoScrollingGroup.MoveAt(0, HeightVirtualPixels, 500, demoViewport.Delete)
                 homeButtonSprite.Play(Content.Buttons.Narrow.Pressed)
                 titleGroup.MoveAt(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2, 125, titleViewport.Delete)
                 homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125, homeButtonViewport.Delete)

@@ -21,19 +21,19 @@ new Demo("Fonts", (group) => {
 
     const topLeft = new Scene.Sprite(group)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
-    topLeft.Move(WidthVirtualPixels / 2, ResolutionY / 2)
+    topLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
     const topRight = new Scene.Sprite(group)
     topRight.Loop(Content.Markers.Bounds.TopRight)
-    topRight.Move(WidthVirtualPixels / 2 + width, ResolutionY / 2)
+    topRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2)
 
     const bottomLeft = new Scene.Sprite(group)
     bottomLeft.Loop(Content.Markers.Bounds.BottomLeft)
-    bottomLeft.Move(WidthVirtualPixels / 2, ResolutionY / 2 + height)
+    bottomLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2 + height)
 
     const bottomRight = new Scene.Sprite(group)
     bottomRight.Loop(Content.Markers.Bounds.BottomRight)
-    bottomRight.Move(WidthVirtualPixels / 2 + width, ResolutionY / 2 + height)
+    bottomRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2 + height)
 
     let textGroup = new Scene.Group(group)
 
@@ -46,11 +46,11 @@ new Demo("Fonts", (group) => {
         configurationId = configurationId % configurations.length
 
         textGroup = new Scene.Group(group)
-        FontBig.Write(textGroup, text, configuration[0], configuration[1], WidthVirtualPixels / 2, ResolutionY / 2)
+        FontBig.Write(textGroup, text, configuration[0], configuration[1], WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
         let left = WidthVirtualPixels / 2
         let right = left
-        let top = ResolutionY / 2
+        let top = HeightVirtualPixels / 2
         let bottom = top
 
         switch (configuration[0]) {
@@ -92,7 +92,7 @@ new Demo("Fonts", (group) => {
     const configurationTimer = new Timers.Recurring(0.75, ShowNextConfiguration)
 
     const anchorSprite = new Scene.Sprite(group)
-    anchorSprite.Move(WidthVirtualPixels / 2, ResolutionY / 2)
+    anchorSprite.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     anchorSprite.Loop(Content.Markers.Anchor)
 
     return configurationTimer.Stop

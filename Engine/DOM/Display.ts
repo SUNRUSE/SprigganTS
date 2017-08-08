@@ -32,7 +32,7 @@ namespace Display {
     }
 
     export function RealPixelsPerVirtualPixel() {
-        return Math.min(RealWidthPixels() / WidthVirtualPixels, RealHeightPixels() / ResolutionY)
+        return Math.min(RealWidthPixels() / WidthVirtualPixels, RealHeightPixels() / HeightVirtualPixels)
     }
 
     onresize = () => {
