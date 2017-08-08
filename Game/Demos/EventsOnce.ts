@@ -1,12 +1,12 @@
 new Demo("Events.Once", (group) => {
-    let subGroup: Scene.Group
+    let subGroup: Group
     let event: Events.Once<(value: number) => void>
 
     let firstStart = true
     Start()
 
     function Start() {
-        subGroup = new Scene.Group(group)
+        subGroup = new Group(group)
         if (firstStart) {
             firstStart = false
         } else {
@@ -20,9 +20,9 @@ new Demo("Events.Once", (group) => {
             FontBig.Write(subGroup, `Callback ${i}`, "Left", "Middle", 0, y)
             let x = FontBig.CalculateWidth(`Callback ${i}`) + 2
 
-            const listenGroup = new Scene.Group(subGroup, Listen)
+            const listenGroup = new Group(subGroup, Listen)
             listenGroup.Move(x + Content.Buttons.Narrow.Unpressed.WidthPixels / 2, y)
-            const listenSprite = new Scene.Sprite(listenGroup)
+            const listenSprite = new Sprite(listenGroup)
             listenSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(listenGroup, "Listen", "Middle", "Middle")
             function Listen() {
@@ -31,9 +31,9 @@ new Demo("Events.Once", (group) => {
             }
 
             x += Content.Buttons.Narrow.Unpressed.WidthPixels + 2
-            const unlistenGroup = new Scene.Group(subGroup, Unlisten)
+            const unlistenGroup = new Group(subGroup, Unlisten)
             unlistenGroup.Move(x + Content.Buttons.Narrow.Unpressed.WidthPixels / 2, y)
-            const unlistenSprite = new Scene.Sprite(unlistenGroup)
+            const unlistenSprite = new Sprite(unlistenGroup)
             unlistenSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(unlistenGroup, "Unlisten", "Middle", "Middle")
             function Unlisten() {
@@ -44,23 +44,23 @@ new Demo("Events.Once", (group) => {
             x += Content.Buttons.Narrow.Unpressed.WidthPixels + 2
 
             let calls = 0
-            let calledGroup = new Scene.Group(subGroup)
+            let calledGroup = new Group(subGroup)
             FontBig.Write(calledGroup, "Not yet called", "Middle", "Middle", x + (WidthVirtualPixels - x) / 2, y)
             function Callback(arg: number) {
                 calledGroup.Delete()
-                calledGroup = new Scene.Group(subGroup)
+                calledGroup = new Group(subGroup)
                 calls++
                 FontBig.Write(calledGroup, `${calls} call(s); last arg ${arg}`, "Middle", "Middle", x + (WidthVirtualPixels - x) / 2, y)
             }
         }
 
         const raisedX = (WidthVirtualPixels + 4 + Content.Buttons.Narrow.Unpressed.WidthPixels * 2.5) / 2
-        let raisedGroup = new Scene.Group(subGroup)
+        let raisedGroup = new Group(subGroup)
         FontBig.Write(raisedGroup, "Not yet raised", "Middle", "Middle", raisedX, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
 
-        const raiseGroup = new Scene.Group(subGroup, Raise)
+        const raiseGroup = new Group(subGroup, Raise)
         raiseGroup.Move(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
-        const raiseSprite = new Scene.Sprite(raiseGroup)
+        const raiseSprite = new Sprite(raiseGroup)
         raiseSprite.Loop(Content.Buttons.Narrow.Unpressed)
         FontBig.Write(raiseGroup, "Raise", "Middle", "Middle")
         let raises = 0
@@ -69,14 +69,14 @@ new Demo("Events.Once", (group) => {
             const arg = Math.floor(Math.random() * 100)
             event.Raise(arg)
             raisedGroup.Delete()
-            raisedGroup = new Scene.Group(subGroup)
+            raisedGroup = new Group(subGroup)
             raises++
             FontBig.Write(raisedGroup, `Raised ${raises} time(s); last arg ${arg}`, "Middle", "Middle", raisedX, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
         }
 
-        const resetGroup = new Scene.Group(subGroup, Reset)
+        const resetGroup = new Group(subGroup, Reset)
         resetGroup.Move(2 + Content.Buttons.Narrow.Unpressed.WidthPixels * 1.5, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
-        const resetSprite = new Scene.Sprite(resetGroup)
+        const resetSprite = new Sprite(resetGroup)
         resetSprite.Loop(Content.Buttons.Narrow.Unpressed)
         FontBig.Write(resetGroup, "Reset", "Middle", "Middle")
         function Reset() {

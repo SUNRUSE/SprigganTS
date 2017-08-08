@@ -19,23 +19,23 @@ new Demo("Fonts", (group) => {
     const width = FontBig.CalculateWidth(text)
     const height = FontBig.CalculateHeight(text)
 
-    const topLeft = new Scene.Sprite(group)
+    const topLeft = new Sprite(group)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
     topLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
-    const topRight = new Scene.Sprite(group)
+    const topRight = new Sprite(group)
     topRight.Loop(Content.Markers.Bounds.TopRight)
     topRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2)
 
-    const bottomLeft = new Scene.Sprite(group)
+    const bottomLeft = new Sprite(group)
     bottomLeft.Loop(Content.Markers.Bounds.BottomLeft)
     bottomLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2 + height)
 
-    const bottomRight = new Scene.Sprite(group)
+    const bottomRight = new Sprite(group)
     bottomRight.Loop(Content.Markers.Bounds.BottomRight)
     bottomRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2 + height)
 
-    let textGroup = new Scene.Group(group)
+    let textGroup = new Group(group)
 
     ShowNextConfiguration()
 
@@ -45,7 +45,7 @@ new Demo("Fonts", (group) => {
         const configuration = configurations[configurationId++]
         configurationId = configurationId % configurations.length
 
-        textGroup = new Scene.Group(group)
+        textGroup = new Group(group)
         FontBig.Write(textGroup, text, configuration[0], configuration[1], WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
         let left = WidthVirtualPixels / 2
@@ -91,7 +91,7 @@ new Demo("Fonts", (group) => {
 
     const configurationTimer = new Timers.Recurring(0.75, ShowNextConfiguration)
 
-    const anchorSprite = new Scene.Sprite(group)
+    const anchorSprite = new Sprite(group)
     anchorSprite.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     anchorSprite.Loop(Content.Markers.Anchor)
 

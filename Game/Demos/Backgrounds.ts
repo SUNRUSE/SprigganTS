@@ -20,12 +20,12 @@ new Demo("Backgrounds", (group) => {
     }]
 
     for (const button of buttons) {
-        const buttonGroup = new Scene.Group(group, () => {
+        const buttonGroup = new Group(group, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             button.Action()
         })
         buttonGroup.Move(IndexOf(buttons, button) * (WidthVirtualPixels - Content.Buttons.Narrow.Unpressed.WidthPixels) / (buttons.length - 1) + Content.Buttons.Narrow.Unpressed.WidthPixels / 2, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
-        const staticSprite = new Scene.Sprite(buttonGroup)
+        const staticSprite = new Sprite(buttonGroup)
         staticSprite.Loop(Content.Buttons.Narrow.Unpressed)
         FontBig.Write(buttonGroup, button.Label, "Middle", "Middle")
     }

@@ -6,7 +6,7 @@ new Demo("Bouncing Balls", (group) => {
     const right = left + width
     const bottom = top + height
     for (let i = 0; i < 10; i++) {
-        const ball = new Scene.Sprite(group)
+        const ball = new Sprite(group)
         ball.Loop(Content.Demos.BouncingBalls.Red)
         ball.Move(Content.Demos.BouncingBalls.Red.WidthPixels + Math.random() * (WidthVirtualPixels - Content.Demos.BouncingBalls.Red.WidthPixels * 2), Content.Demos.BouncingBalls.Red.HeightPixels + Math.random() * (HeightVirtualPixels - Content.Demos.BouncingBalls.Red.HeightPixels * 2))
         let movingRight = Math.random() < 0.5
