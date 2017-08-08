@@ -6,8 +6,8 @@ import fs = require("fs")
 import path = require("path")
 const rimraf = require("rimraf")
 
-new ContentType(".sound.flp", (filename, then) => then(), then => then("", []))
-new ContentType(".music.flp", (filename, then) => then(), then => then("", []))
+new ContentType(".sound.flp", "Sound", (filename, then) => then(), then => then("", []))
+new ContentType(".music.flp", "Music", (filename, then) => then(), then => then("", []))
 
 FindFiles()
 
@@ -202,6 +202,7 @@ type ContentTreeDirectory = {
 type ContentTree = ContentTreeDirectory | {
     readonly Type: "Content"
     readonly GeneratedCode: string
+    readonly TypeGeneratedCode: string
 }
 const root: ContentTreeDirectory = { Type: "Directory", Children: {} }
 
@@ -268,7 +269,8 @@ function GenerateTypeScriptTree() {
 
         directory.Children[fragments[fragments.length - 1]] = {
             Type: "Content",
-            GeneratedCode: content.GeneratedCode
+            GeneratedCode: content.GeneratedCode,
+            TypeGeneratedCode: ContentTypes[extension].TypeGeneratedCode
         }
     }
     GenerateTypeScriptSource()
@@ -339,6 +341,74 @@ function DeleteExistingTypeScriptFile() {
 function WriteTypeScriptFile() {
     console.info("Writing TypeScript...")
     fs.writeFile("Temp/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
+        Error(err)
+        GenerateTypeScriptTypes()
+    })
+}
+
+let GeneratedTypeScriptTypes = ""
+
+function GenerateTypeScriptTypes() {
+    console.info("Generating TypeScript types...")
+
+    GeneratedTypeScriptTypes += `declare const Content: ${RecurseDirectory(root, "")}`
+
+    function RecurseChild(child: ContentTree, tabs: string) {
+        if (child.Type == "Directory")
+            return RecurseDirectory(child, tabs)
+        else
+            return child.TypeGeneratedCode
+    }
+
+    function RecurseDirectory(directory: ContentTreeDirectory, tabs: string) {
+        const sequentialNumbers: ContentTree[] = []
+        while (directory.Children[sequentialNumbers.length]) sequentialNumbers.push(directory.Children[sequentialNumbers.length])
+        let output = ""
+        if (Object.keys(directory.Children).length == sequentialNumbers.length) {
+            output += "[\n"
+            for (const child of sequentialNumbers) {
+                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)}`
+                if (child != sequentialNumbers[sequentialNumbers.length - 1]) output += ","
+                output += "\n"
+            }
+            output += `${tabs}]`
+        } else {
+            output += "{\n"
+            let remaining = Object.keys(directory.Children).length
+            for (const child in directory.Children) {
+                // Invalid property names are quoted.
+                // Additionally, as Uglify will not mangle quoted named, single character names are quoted too.
+                // This should not make any difference to its compression efforts as it's just one charatcer, but means font characters will be preserved.
+                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
+                if (--remaining) output += ","
+                output += "\n"
+            }
+            output += `${tabs}}`
+        }
+        return output
+    }
+    DeleteExistingTypeScriptTypesFile()
+}
+
+function DeleteExistingTypeScriptTypesFile() {
+    console.info("Checking whether a TypeScript types file already exists...")
+    fs.stat("Temp/ContentTypes.ts", (err) => {
+        if (err && err.code == "ENOENT") {
+            console.info("No TypeScript file exists.")
+            WriteTypeScriptTypesFile()
+        } else {
+            Error(err)
+            fs.unlink("Temp/ContentTypes.ts", (err) => {
+                Error(err)
+                WriteTypeScriptTypesFile()
+            })
+        }
+    })
+}
+
+function WriteTypeScriptTypesFile() {
+    console.info("Writing TypeScript types...")
+    fs.writeFile("Temp/ContentTypes.ts", GeneratedTypeScriptTypes, "utf8", (err) => {
         Error(err)
         GenerateBuild()
     })

@@ -7,7 +7,7 @@ const pngjs = require("pngjs")
 const imagemin = require("imagemin")
 const pngcrush = require("imagemin-pngcrush")
 
-new ContentType(".sprite.ase", (filename, then) => {
+new ContentType(".sprite.ase", "SpriteFrame", (filename, then) => {
     mkdirp(`Temp/${filename}`, err => {
         Error(err)
         child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--sheet", `Temp/${filename}/Sheet.png`, "--trim", "--sheet-pack", "--ignore-empty"]).on("exit", status => {

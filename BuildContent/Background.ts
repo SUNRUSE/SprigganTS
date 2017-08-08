@@ -9,7 +9,7 @@ const pngcrush = require("imagemin-pngcrush")
 const rimraf = require("rimraf")
 const cpr = require("cpr")
 
-new ContentType(".background.ase", (filename, then) => {
+new ContentType(".background.ase", "BackgroundFrame", (filename, then) => {
     mkdirp(`Temp/${filename}`, err => {
         Error(err)
         child_process.spawn("aseprite", ["--batch", filename, "--data", `Temp/${filename}/data.json`, "--list-tags", "--format", "json-array", "--save-as", `Temp/${filename}/{frame}.png`, "--ignore-empty"]).on("exit", status => {

@@ -39,7 +39,7 @@ type PackedContent = {
 const ContentTypes: { [extension: string]: ContentType } = {}
 
 class ContentType {
-    constructor(public readonly Extension: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: (additionalGeneratedCode: string, packedContent: PackedContent[]) => void) => void) {
+    constructor(public readonly Extension: string, public readonly TypeGeneratedCode: string, public readonly Convert: (filename: string, then: () => void) => void, public readonly Pack: (then: (additionalGeneratedCode: string, packedContent: PackedContent[]) => void) => void) {
         ContentTypes[Extension] = this
     }
 }
