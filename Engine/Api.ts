@@ -270,3 +270,22 @@ declare namespace Music {
  * @param {Function} call The function to call after the specified delay.
  */
 declare function After(durationSeconds: number, call: () => void): void
+
+// This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
+/** This type is part of Json, and is required to implement Json under TypeScript. */
+interface JsonArray extends Array<Json> { }
+
+/** Defines types which can be serialized to JSON. */
+type Json = string | number | boolean | JsonArray | { [x: string]: Json; } | null
+
+/** Persists JSON which can then be Load-ed later on, even after the game/device have restarted.
+ * @param {string} name The name to save the JSON under.
+ * @param {Json} data The data to save.
+ */
+declare function Save(name: string, data: Json): void
+
+/** Restores previously Save-d JSON.
+ * @param {string} name The name to load JSON from.
+ * @returns {T | undefined} The loaded JSON, if any; undefined is returned if the JSON cannot be found.
+ */
+declare function Load<T extends Json>(name: string): T | undefined
