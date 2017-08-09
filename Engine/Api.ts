@@ -72,6 +72,16 @@ declare class Viewport {
     */
     Show(): Viewport
 
+    /** Disables this Viewport and all its children; clicks will not trigger actions until .Enable()-d.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Disable(): Viewport
+
+    /** Enables this Viewport and all its children which are not themselves Disable-d.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Enable(): Viewport
+
     /** Removes this Viewport and all its children from the scene graph. */
     Delete(): void
 }
@@ -103,6 +113,16 @@ declare class Group {
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
     Show(): Group
+
+    /** Disables this Group and all its children; clicks will not trigger actions until .Enable()-d.
+     * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Disable(): Group
+
+    /** Enables this Group and all its children which are not themselves Disable-d.
+     * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Enable(): Group
 
     /** Moves this Group to a specified location immediately. 
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Group to the right of the parent scene object's origin.
@@ -171,6 +191,16 @@ declare class Sprite {
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
     Show(): Sprite
+
+    /** Disables this Sprite; clicks will not trigger actions until .Enable()-d.
+     * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Disable(): Sprite
+
+    /** Enables this Sprite.
+     * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Enable(): Sprite
 
     /** Plays a non-looping animation.  If no subsequent animation is played, the last frame remains visible.  Initially paused if this Sprite is .Pause()-d.
      * @param {SpriteFrame | SpriteFrame[]} animation An animation of one or more frames to play.
