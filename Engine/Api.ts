@@ -124,6 +124,16 @@ declare class Group {
     */
     Enable(): Group
 
+    /** Gets the number of virtual pixels this Group is to the right of the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Group is to the right of the parent scene object's origin.
+     */
+    VirtualPixelsFromLeft(): number
+
+    /** Gets the number of virtual pixels this Group is below the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Group is below the parent scene object's origin.
+     */
+    VirtualPixelsFromTop(): number
+
     /** Moves this Group to a specified location immediately. 
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Group to the right of the parent scene object's origin.
      * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Group below the parent scene object's origin.
@@ -214,6 +224,16 @@ declare class Sprite {
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
     Loop(animation: SpriteFrame | SpriteFrame[]): Sprite
+
+    /** Gets the number of virtual pixels this Sprite is to the right of the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Sprite is to the right of the parent scene object's origin.
+     */
+    VirtualPixelsFromLeft(): number
+
+    /** Gets the number of virtual pixels this Sprite is below the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Sprite is below the parent scene object's origin.
+     */
+    VirtualPixelsFromTop(): number
 
     /** Moves this Sprite to a specified location immediately. 
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Sprite to the right of the parent scene object's origin.
