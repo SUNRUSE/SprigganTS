@@ -44,7 +44,7 @@ new Demo("Scene Graph", (group) => {
 
     const sprite = new Sprite(wrappingGroup, () => {
         const clickSprite = new Sprite(wrappingGroup)
-        clickSprite.Move(sprite.X(), sprite.Y())
+        clickSprite.Move(sprite.VirtualPixelsFromLeft(), sprite.VirtualPixelsFromTop())
         clickSprite.Play(Content.Demos.SceneGraph.Clicked, clickSprite.Delete)
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)

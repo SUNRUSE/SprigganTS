@@ -22,7 +22,7 @@ function DemoMenu() {
 
         const buttonGroup = new Group(titleViewport, Select)
         buttonGroup.Move(WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels * 1.5 + (openedDemos % rowsPerColumn) * (Content.Buttons.Wide.Unpressed.HeightPixels + spacing))
-        buttonGroup.MoveAt(Math.floor(openedDemos / rowsPerColumn) * (Content.Buttons.Wide.Unpressed.WidthPixels + spacing) + (WidthVirtualPixels - (columns - 1) * Content.Buttons.Wide.Unpressed.WidthPixels + Math.max(0, (columns - 2)) * spacing) / 2, buttonGroup.Y(), 2500, TakeNextDemo)
+        buttonGroup.MoveAt(Math.floor(openedDemos / rowsPerColumn) * (Content.Buttons.Wide.Unpressed.WidthPixels + spacing) + (WidthVirtualPixels - (columns - 1) * Content.Buttons.Wide.Unpressed.WidthPixels + Math.max(0, (columns - 2)) * spacing) / 2, buttonGroup.VirtualPixelsFromTop(), 2500, TakeNextDemo)
 
         const buttonSprite = new Sprite(buttonGroup)
         buttonSprite.Play(Content.Buttons.Wide.Materialize)
@@ -75,7 +75,7 @@ function DemoMenu() {
                     RemoveNextButtonGroup()
                     return
                 }
-                otherGroup[0].MoveAt(-Content.Buttons.Wide.Unpressed.WidthPixels / 2, otherGroup[0].Y(), 2500, () => {
+                otherGroup[0].MoveAt(-Content.Buttons.Wide.Unpressed.WidthPixels / 2, otherGroup[0].VirtualPixelsFromTop(), 2500, () => {
                     otherGroup[0].Delete()
                     RemoveNextButtonGroup()
                 })

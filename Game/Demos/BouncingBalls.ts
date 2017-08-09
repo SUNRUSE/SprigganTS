@@ -13,16 +13,16 @@ new Demo("Bouncing Balls", (group) => {
         let movingDown = Math.random() < 0.5
         MoveAgain()
         function MoveAgain() {
-            const distanceX = Math.abs((movingRight ? right : left) - ball.X())
-            const distanceY = Math.abs((movingDown ? bottom : top) - ball.Y())
+            const distanceX = Math.abs((movingRight ? right : left) - ball.VirtualPixelsFromLeft())
+            const distanceY = Math.abs((movingDown ? bottom : top) - ball.VirtualPixelsFromTop())
 
             const speed = 180
 
             if (distanceX < distanceY) {
-                ball.MoveAt(movingRight ? right : left, ball.Y() + (movingDown ? distanceX : -distanceX), speed, MoveAgain)
+                ball.MoveAt(movingRight ? right : left, ball.VirtualPixelsFromTop() + (movingDown ? distanceX : -distanceX), speed, MoveAgain)
                 movingRight = !movingRight
             } else {
-                ball.MoveAt(ball.X() + (movingRight ? distanceY : -distanceY), movingDown ? bottom : top, speed, MoveAgain)
+                ball.MoveAt(ball.VirtualPixelsFromLeft() + (movingRight ? distanceY : -distanceY), movingDown ? bottom : top, speed, MoveAgain)
                 movingDown = !movingDown
             }
         }

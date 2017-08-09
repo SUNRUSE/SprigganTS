@@ -15,14 +15,14 @@ new Demo("Wrapping", (group) => {
 
     const refresh = () => {
         if (movingRight) {
-            rulerSprite.Move(rulerSprite.X() + 1, rulerSprite.Y())
-            if (rulerSprite.X() == WidthVirtualPixels - 1) movingRight = false
+            rulerSprite.Move(rulerSprite.VirtualPixelsFromLeft() + 1, rulerSprite.VirtualPixelsFromTop())
+            if (rulerSprite.VirtualPixelsFromLeft() == WidthVirtualPixels - 1) movingRight = false
         } else {
-            rulerSprite.Move(rulerSprite.X() - 1, rulerSprite.Y())
-            if (rulerSprite.X() == 0) movingRight = true
+            rulerSprite.Move(rulerSprite.VirtualPixelsFromLeft() - 1, rulerSprite.VirtualPixelsFromTop())
+            if (rulerSprite.VirtualPixelsFromLeft() == 0) movingRight = true
         }
 
-        const wrapped = FontBig.Wrap(text, rulerSprite.X())
+        const wrapped = FontBig.Wrap(text, rulerSprite.VirtualPixelsFromLeft())
         if (wrapped != cachedText) {
             cachedTextGroup.Delete()
             cachedTextGroup = new Group(group)
