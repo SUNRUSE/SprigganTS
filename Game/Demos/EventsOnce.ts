@@ -16,12 +16,12 @@ new Demo("Events.Once", (group) => {
         event = new Events.Once()
 
         for (let i = 1; i <= 4; i++) {
-            const y = Content.Buttons.Wide.Unpressed.HeightPixels * (i + 0.5) + i * 2
+            const y = ButtonHeight * (i + 0.5) + i * 2
             FontBig.Write(subGroup, `Callback ${i}`, HorizontalAlignment.Left, VerticalAlignment.Middle, 0, y)
             let x = FontBig.CalculateWidth(`Callback ${i}`) + 2
 
             const listenGroup = new Group(subGroup, Listen)
-            listenGroup.Move(x + Content.Buttons.Narrow.Unpressed.WidthPixels / 2, y)
+            listenGroup.Move(x + ButtonNarrowWidth / 2, y)
             const listenSprite = new Sprite(listenGroup)
             listenSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(listenGroup, "Listen", HorizontalAlignment.Middle, VerticalAlignment.Middle)
@@ -30,9 +30,9 @@ new Demo("Events.Once", (group) => {
                 event.Listen(Callback)
             }
 
-            x += Content.Buttons.Narrow.Unpressed.WidthPixels + 2
+            x += ButtonNarrowWidth + 2
             const unlistenGroup = new Group(subGroup, Unlisten)
-            unlistenGroup.Move(x + Content.Buttons.Narrow.Unpressed.WidthPixels / 2, y)
+            unlistenGroup.Move(x + ButtonNarrowWidth / 2, y)
             const unlistenSprite = new Sprite(unlistenGroup)
             unlistenSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(unlistenGroup, "Unlisten", HorizontalAlignment.Middle, VerticalAlignment.Middle)
@@ -41,7 +41,7 @@ new Demo("Events.Once", (group) => {
                 event.Unlisten(Callback)
             }
 
-            x += Content.Buttons.Narrow.Unpressed.WidthPixels + 2
+            x += ButtonNarrowWidth + 2
 
             let calls = 0
             let calledGroup = new Group(subGroup)
@@ -54,12 +54,12 @@ new Demo("Events.Once", (group) => {
             }
         }
 
-        const raisedX = (WidthVirtualPixels + 4 + Content.Buttons.Narrow.Unpressed.WidthPixels * 2.5) / 2
+        const raisedX = (WidthVirtualPixels + 4 + ButtonNarrowWidth * 2.5) / 2
         let raisedGroup = new Group(subGroup)
-        FontBig.Write(raisedGroup, "Not yet raised", HorizontalAlignment.Middle, VerticalAlignment.Middle, raisedX, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
+        FontBig.Write(raisedGroup, "Not yet raised", HorizontalAlignment.Middle, VerticalAlignment.Middle, raisedX, HeightVirtualPixels - ButtonHeight / 2)
 
         const raiseGroup = new Group(subGroup, Raise)
-        raiseGroup.Move(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
+        raiseGroup.Move(ButtonNarrowWidth / 2, HeightVirtualPixels - ButtonHeight / 2)
         const raiseSprite = new Sprite(raiseGroup)
         raiseSprite.Loop(Content.Buttons.Narrow.Unpressed)
         FontBig.Write(raiseGroup, "Raise", HorizontalAlignment.Middle, VerticalAlignment.Middle)
@@ -71,11 +71,11 @@ new Demo("Events.Once", (group) => {
             raisedGroup.Delete()
             raisedGroup = new Group(subGroup)
             raises++
-            FontBig.Write(raisedGroup, `Raised ${raises} time(s); last arg ${arg}`, HorizontalAlignment.Middle, VerticalAlignment.Middle, raisedX, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
+            FontBig.Write(raisedGroup, `Raised ${raises} time(s); last arg ${arg}`, HorizontalAlignment.Middle, VerticalAlignment.Middle, raisedX, HeightVirtualPixels - ButtonHeight / 2)
         }
 
         const resetGroup = new Group(subGroup, Reset)
-        resetGroup.Move(2 + Content.Buttons.Narrow.Unpressed.WidthPixels * 1.5, HeightVirtualPixels - Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
+        resetGroup.Move(2 + ButtonNarrowWidth * 1.5, HeightVirtualPixels - ButtonHeight / 2)
         const resetSprite = new Sprite(resetGroup)
         resetSprite.Loop(Content.Buttons.Narrow.Unpressed)
         FontBig.Write(resetGroup, "Reset", HorizontalAlignment.Middle, VerticalAlignment.Middle)

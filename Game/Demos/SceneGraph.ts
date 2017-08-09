@@ -59,13 +59,13 @@ new Demo("Scene Graph", (group) => {
         const menuGroup = new Group(menuViewport)
         menuGroup.Move(outX, 0)
         menuGroup.MoveOver(inX, 0, 0.5)
-        FontBig.Write(menuGroup, label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, HeightVirtualPixels - (buttons.length + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
+        FontBig.Write(menuGroup, label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, HeightVirtualPixels - (buttons.length + 0.5) * ButtonHeight)
         for (const button of buttons) {
             const buttonGroup = new Group(menuGroup, () => {
                 buttonSprite.Play(Content.Buttons.Wide.Pressed)
                 button.Action()
             })
-            buttonGroup.Move(0, HeightVirtualPixels - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * Content.Buttons.Wide.Unpressed.HeightPixels)
+            buttonGroup.Move(0, HeightVirtualPixels - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * ButtonHeight)
             const buttonSprite = new Sprite(buttonGroup)
             buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
             FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, 0)
@@ -76,7 +76,7 @@ new Demo("Scene Graph", (group) => {
     const randomSizeX = 144
     const randomSizeY = 48
 
-    CreateButtons("Group", HorizontalAlignment.Left, -Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+    CreateButtons("Group", HorizontalAlignment.Left, -ButtonWideWidth / 2, ButtonWideWidth / 2, [{
         Label: "Pause",
         Action: wrappingGroup.Pause
     }, {
@@ -142,7 +142,7 @@ new Demo("Scene Graph", (group) => {
         Action: wrappingGroup.Show
     }])
 
-    CreateButtons("Sprite", HorizontalAlignment.Right, WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, WidthVirtualPixels - Content.Buttons.Wide.Unpressed.WidthPixels / 2, [{
+    CreateButtons("Sprite", HorizontalAlignment.Right, WidthVirtualPixels + ButtonWideWidth / 2, WidthVirtualPixels - ButtonWideWidth / 2, [{
         Label: "Pause",
         Action: sprite.Pause
     }, {

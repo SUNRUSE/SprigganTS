@@ -3,10 +3,10 @@ function DemoMenu() {
 
     const titleViewport = new Viewport(HorizontalAlignment.Middle, VerticalAlignment.Top, false)
     let titleGroup = new Group(titleViewport)
-    titleGroup.Move(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
+    titleGroup.Move(WidthVirtualPixels / 2, ButtonHeight / 2)
     FontBig.Write(titleGroup, "SprigganTS Sample", HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
-    const rowsPerColumn = Math.floor(HeightVirtualPixels / (Content.Buttons.Wide.Unpressed.HeightPixels + spacing)) - 1
+    const rowsPerColumn = Math.floor(HeightVirtualPixels / (ButtonHeight + spacing)) - 1
     const columns = Math.ceil(Demos.length / rowsPerColumn)
 
     let openedDemos = 0
@@ -21,8 +21,8 @@ function DemoMenu() {
         const demoReference = demo
 
         const buttonGroup = new Group(titleViewport, Select)
-        buttonGroup.Move(WidthVirtualPixels + Content.Buttons.Wide.Unpressed.WidthPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels * 1.5 + (openedDemos % rowsPerColumn) * (Content.Buttons.Wide.Unpressed.HeightPixels + spacing))
-        buttonGroup.MoveAt(Math.floor(openedDemos / rowsPerColumn) * (Content.Buttons.Wide.Unpressed.WidthPixels + spacing) + (WidthVirtualPixels - (columns - 1) * Content.Buttons.Wide.Unpressed.WidthPixels + Math.max(0, (columns - 2)) * spacing) / 2, buttonGroup.VirtualPixelsFromTop(), 2500, TakeNextDemo)
+        buttonGroup.Move(WidthVirtualPixels + ButtonWideWidth / 2, ButtonHeight * 1.5 + (openedDemos % rowsPerColumn) * (ButtonHeight + spacing))
+        buttonGroup.MoveAt(Math.floor(openedDemos / rowsPerColumn) * (ButtonWideWidth + spacing) + (WidthVirtualPixels - (columns - 1) * ButtonWideWidth + Math.max(0, (columns - 2)) * spacing) / 2, buttonGroup.VirtualPixelsFromTop(), 2500, TakeNextDemo)
 
         const buttonSprite = new Sprite(buttonGroup)
         buttonSprite.Play(Content.Buttons.Wide.Materialize)
@@ -44,25 +44,25 @@ function DemoMenu() {
 
             const homeButtonViewport = new Viewport(HorizontalAlignment.Left, VerticalAlignment.Top)
             const homeButtonGroup = new Group(homeButtonViewport, ReturnHome)
-            homeButtonGroup.Move(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2)
+            homeButtonGroup.Move(ButtonNarrowWidth / 2, -ButtonHeight / 2)
             const homeButtonSprite = new Sprite(homeButtonGroup)
             homeButtonSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(homeButtonGroup, "< Home", HorizontalAlignment.Middle, VerticalAlignment.Middle)
-            homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125)
+            homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, ButtonHeight / 2, 125)
 
             function ReturnHome() {
                 stopDemo()
                 demoScrollingGroup.MoveAt(0, HeightVirtualPixels, 500, demoViewport.Delete)
                 homeButtonSprite.Play(Content.Buttons.Narrow.Pressed)
-                titleGroup.MoveAt(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2, 125, titleViewport.Delete)
-                homeButtonGroup.MoveAt(Content.Buttons.Narrow.Unpressed.WidthPixels / 2, -Content.Buttons.Narrow.Unpressed.HeightPixels / 2, 125, homeButtonViewport.Delete)
+                titleGroup.MoveAt(WidthVirtualPixels / 2, ButtonHeight / 2, 125, titleViewport.Delete)
+                homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, -ButtonHeight / 2, 125, homeButtonViewport.Delete)
                 DemoMenu()
             }
 
-            buttonGroup.MoveOver(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2, 0.125, () => {
+            buttonGroup.MoveOver(WidthVirtualPixels / 2, ButtonHeight / 2, 0.125, () => {
                 titleGroup.Delete()
                 titleGroup = new Group(titleViewport)
-                titleGroup.Move(WidthVirtualPixels / 2, Content.Buttons.Wide.Unpressed.HeightPixels / 2)
+                titleGroup.Move(WidthVirtualPixels / 2, ButtonHeight / 2)
                 FontBig.Write(titleGroup, demoReference.Name, HorizontalAlignment.Middle, VerticalAlignment.Middle)
                 buttonSprite.Play(Content.Buttons.Wide.Dematerialize, () => buttonGroup.Delete())
             })
@@ -75,7 +75,7 @@ function DemoMenu() {
                     RemoveNextButtonGroup()
                     return
                 }
-                otherGroup[0].MoveAt(-Content.Buttons.Wide.Unpressed.WidthPixels / 2, otherGroup[0].VirtualPixelsFromTop(), 2500, () => {
+                otherGroup[0].MoveAt(-ButtonWideWidth / 2, otherGroup[0].VirtualPixelsFromTop(), 2500, () => {
                     otherGroup[0].Delete()
                     RemoveNextButtonGroup()
                 })

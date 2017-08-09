@@ -1,5 +1,6 @@
 /// <reference path="../Engine/DOM/Entry.ts" />
 /// <reference path="Fonts/Big.ts" />
+/// <reference path="Buttons.ts" />
 /// <reference path="Demo.ts" />
 /// <reference path="Demos/EventsOnce.ts" />
 /// <reference path="Demos/EventsRecurring.ts" />
