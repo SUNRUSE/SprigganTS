@@ -321,11 +321,39 @@ declare namespace Music {
     function Stop(): void
 }
 
-/** Executes a function after a delay.  Similar to setTimeout.
- * @param {float} durationSeconds The number of seconds to wait.
- * @param {Function} call The function to call after the specified delay.
- */
-declare function After(durationSeconds: number, call: () => void): void
+declare class TimerOnce {
+    /** A timer which fires one time after a specified delay.
+     * @param {float} durationSeconds The number of seconds to wait before executing the callback.
+     * @param {Function} onCompletion The function to call when the delay has passed.
+     */
+    constructor(durationSeconds: number, onCompletion: () => void)
+
+    /** Pauses this TimerOnce if not paused or cancelled or completed. */
+    Pause(): void
+
+    /** Resumes this TimerOnce if paused and not cancelled or completed. */
+    Resume(): void
+
+    /** Cancels this TimerOnce, effectively pausing it permanently. */
+    Cancel(): void
+}
+
+declare class TimerRecurring {
+    /** A timer which fires repeatedly on a specified interval. 
+     * @param {float} intervalSeconds The number of seconds between executions of the callback.
+     * @param {Function} onInterval The function to call on each interval.
+    */
+    constructor(intervalSeconds: number, onInterval: () => void)
+
+    /** Pauses this TimerRecurring if not paused or stopped */
+    Pause(): void
+
+    /** Resumes this TimerRecurring if paused and not stopped. */
+    Resume(): void
+
+    /** Stops this TimerRecurring, effectively pausing it permanently. */
+    Cancel(): void
+}
 
 // This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
 /** This type is part of Json, and is required to implement Json under TypeScript. */
