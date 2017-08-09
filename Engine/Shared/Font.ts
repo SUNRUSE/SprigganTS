@@ -22,16 +22,16 @@ class Font {
         this.CharacterWidthOverrides = characterWidthOverrides
     }
 
-    readonly Write = (to: Scene.Viewport | Scene.Group, text: string, horizontalAlignment: HorizontalAlignment = "Left", verticalAlignment: VerticalAlignment = "Top", x = 0, y = 0) => {
+    readonly Write = (to: Viewport | Group, text: string, horizontalAlignment: HorizontalAlignment = HorizontalAlignment.Left, verticalAlignment: VerticalAlignment = VerticalAlignment.Top, x = 0, y = 0) => {
         switch (verticalAlignment) {
-            case "Middle":
+            case VerticalAlignment.Middle:
                 y -= this.CalculateHeight(text) / 2
                 break
-            case "Bottom":
+            case VerticalAlignment.Bottom:
                 y -= this.CalculateHeight(text)
                 break
         }
-        if (horizontalAlignment == "Left") {
+        if (horizontalAlignment == HorizontalAlignment.Left) {
             let trackX = x
             for (let i = 0; i < text.length; i++) {
                 const character = text.charAt(i)
@@ -41,11 +41,7 @@ class Font {
                     y += this.LineSpacingPixels
                 } else {
                     const spriteFrame = this.CharacterSpriteFrames[character]
-                    if (spriteFrame) {
-                        const sprite = new Scene.Sprite(to)
-                        sprite.Loop(spriteFrame)
-                        sprite.Move(trackX, y)
-                    }
+                    if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, y)
                     let width = this.CharacterWidthOverrides[character]
                     if (width === undefined) width = this.DefaultCharacterWidth
                     trackX += width
@@ -58,15 +54,11 @@ class Font {
             for (let i = 0; i <= text.length; i++) {
                 const character = i < text.length ? text.charAt(i) : "\n"
                 if (character == "\n") {
-                    let trackX = x - lineWidth / (horizontalAlignment == "Middle" ? 2 : 1)
+                    let trackX = x - lineWidth / (horizontalAlignment == HorizontalAlignment.Middle ? 2 : 1)
                     for (let j = lineStarted; j < i; j++) {
                         const drawCharacter = text.charAt(j)
                         const spriteFrame = this.CharacterSpriteFrames[drawCharacter]
-                        if (spriteFrame) {
-                            const sprite = new Scene.Sprite(to)
-                            sprite.Loop(spriteFrame)
-                            sprite.Move(trackX, y)
-                        }
+                        if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, y)
                         let width = this.CharacterWidthOverrides[drawCharacter]
                         if (width === undefined) width = this.DefaultCharacterWidth
                         trackX += width
