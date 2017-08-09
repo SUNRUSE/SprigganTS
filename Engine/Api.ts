@@ -276,6 +276,14 @@ declare class Sprite {
     PlayDialog(dialog: Dialog): Sprite
 }
 
+/** Creates a cheap "static sprite" which cannot be interacted with (no direct click handler, deletion, animation or motion controls).  This is intended for writing text, etc. as this would defer to the containing Viewport or Group for this functionality.
+ * @param {Viewport | Group} parent The scene object to add a new static sprite to.
+ * @param {SpriteFrame} frame The SpriteFrame to show.
+ * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place the new static sprite to the right of the parent scene object's origin.
+ * @param {integer} virtualPixelsFromTop The number of virtual pixels to place the new static sprite below the parent scene object's origin.
+ */
+declare function AddStaticSprite(parent: Viewport | Group, frame: SpriteFrame, virtualPixelsFromLeft: number, virtualPixelsFromTop: number): void
+
 /** A single image, drawn behind all scene objects.  Any area not covered by the background or a scene object is black. */
 declare namespace Background {
     /** Plays a looping animation.  If no subsequent animation is played, the last frame remains visible.  Initially paused if .Pause()-d.
