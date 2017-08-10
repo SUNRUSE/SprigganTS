@@ -33,6 +33,6 @@ new Demo("Wrapping", (group) => {
 
     refresh()
 
-    const timer = new Timers.Recurring(0.25, refresh)
-    return timer.Stop
+    const timer = new RecurringTimer(0.25, refresh)
+    return () => timer.Stop()
 })

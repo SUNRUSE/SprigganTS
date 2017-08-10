@@ -89,11 +89,11 @@ new Demo("Fonts", (group) => {
         bottomRight.MoveOver(right, bottom, 0.3)
     }
 
-    const configurationTimer = new Timers.Recurring(0.75, ShowNextConfiguration)
+    const configurationTimer = new RecurringTimer(0.75, ShowNextConfiguration)
 
     const anchorSprite = new Sprite(group)
     anchorSprite.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     anchorSprite.Loop(Content.Markers.Anchor)
 
-    return configurationTimer.Stop
+    return () => configurationTimer.Stop()
 })
