@@ -15,9 +15,6 @@ function Contains<T>(list: T[], item: T) {
     return IndexOf(list, item) != -1
 }
 
-type HorizontalAlignment = "Left" | "Middle" | "Right"
-type VerticalAlignment = "Top" | "Middle" | "Bottom"
-
 function Mix(from: number, to: number, byUnitInterval: number) {
     return from + (to - from) * byUnitInterval
 }
