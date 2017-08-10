@@ -406,7 +406,7 @@ declare class TimerRecurring {
     Resume(): void
 
     /** Stops this TimerRecurring, effectively pausing it permanently. */
-    Cancel(): void
+    Stop(): void
 }
 
 // This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
