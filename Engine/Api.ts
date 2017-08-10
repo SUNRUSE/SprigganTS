@@ -1,3 +1,49 @@
+/** An implementation of [].indexOf(); needed for platforms which do not include .indexOf(). 
+ * @param {T[]} list The list to search for an item.
+ * @param {T} item The item to find..
+ * @returns {integer} The index of the first instance of the item in the list, if any, else, -1.
+*/
+declare function IndexOf<T>(list: T[], item: T): number
+
+/** Removes every instance of an item from a list.
+ * @param {T[]} list The list to remove an item from.
+ * @param {T} item The item to remove.
+ */
+declare function Remove<T>(list: T[], item: T): void
+
+/** Determines whether a list contains an item.
+ * @param {T[]} list The list to search for an item.
+ * @param {T} item The item to find.
+ * @returns {boolean} True when the list contains the item at least once, otherwise, false.
+ */
+declare function Contains<T>(list: T[], item: T): boolean
+
+/** Linearly interpolates between two values.
+ * @param {float} from The value to interpolate from (when byUnitInterval is 0).
+ * @param {float} to The value to interpolate to (when byUnitInterval is 1).
+ * @param {float} byUnitInterval The "alpha", where 0 is from and 1 is to.
+ * @returns {float} The linear interpolation between the given values.
+ */
+declare function Mix(from: number, to: number, byUnitInterval: number): number
+
+/** Calculates the square of the distance between two points in 2D space.
+ * @param {float} x1 The first dimension of the first point.
+ * @param {float} y1 The second dimension of the first point.
+ * @param {float} x2 The first dimension of the second point.
+ * @param {float} y2 The second dimension of the second point.
+ * @returns {float} The square of the distance between the given points.
+ */
+declare function DistanceSquared(x1: number, y1: number, x2: number, y2: number): number
+
+/** Calculates the distance between two points in 2D space.
+ * @param {float} x1 The first dimension of the first point.
+ * @param {float} y1 The second dimension of the first point.
+ * @param {float} x2 The first dimension of the second point.
+ * @param {float} y2 The second dimension of the second point.
+ * @returns {float} The distance between the given points.
+ */
+declare function Distance(x1: number, y1: number, x2: number, y2: number): number
+
 /** A sprite frame, imported from non-code content. */
 declare abstract class SpriteFrame { }
 
