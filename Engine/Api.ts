@@ -375,37 +375,37 @@ declare namespace Music {
     function Stop(): void
 }
 
-declare class TimerOnce {
+declare class Timer {
     /** A timer which fires one time after a specified delay.
      * @param {float} durationSeconds The number of seconds to wait before executing the callback.
      * @param {Function} onCompletion The function to call when the delay has passed.
      */
     constructor(durationSeconds: number, onCompletion: () => void)
 
-    /** Pauses this TimerOnce if not paused or cancelled or completed. */
+    /** Pauses this Timer if not paused or cancelled or completed. */
     Pause(): void
 
-    /** Resumes this TimerOnce if paused and not cancelled or completed. */
+    /** Resumes this Timer if paused and not cancelled or completed. */
     Resume(): void
 
-    /** Cancels this TimerOnce, effectively pausing it permanently. */
+    /** Cancels this Timer, effectively pausing it permanently. */
     Cancel(): void
 }
 
-declare class TimerRecurring {
+declare class RecurringTimer {
     /** A timer which fires repeatedly on a specified interval. 
      * @param {float} intervalSeconds The number of seconds between executions of the callback.
      * @param {Function} onInterval The function to call on each interval.
     */
     constructor(intervalSeconds: number, onInterval: () => void)
 
-    /** Pauses this TimerRecurring if not paused or stopped */
+    /** Pauses this RecurringTimer if not paused or stopped */
     Pause(): void
 
-    /** Resumes this TimerRecurring if paused and not stopped. */
+    /** Resumes this RecurringTimer if paused and not stopped. */
     Resume(): void
 
-    /** Stops this TimerRecurring, effectively pausing it permanently. */
+    /** Stops this RecurringTimer, effectively pausing it permanently. */
     Stop(): void
 }
 
