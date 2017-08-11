@@ -49,7 +49,7 @@ new Demo("Scene Graph", (group) => {
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
 
-    const closing = new Events.Once<() => void>()
+    const closing = new OneTimeEvent<() => void>()
 
     function CreateButtons(label: string, horizontalAlignment: HorizontalAlignment, outX: number, inX: number, buttons: {
         readonly Label: string

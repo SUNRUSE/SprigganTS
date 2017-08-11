@@ -16,8 +16,8 @@ new Demo("Fonts", (group) => {
 
     let configurationId = 0
 
-    const width = FontBig.CalculateWidth(text)
-    const height = FontBig.CalculateHeight(text)
+    const width = FontBig.WidthVirtualPixels(text)
+    const height = FontBig.HeightVirtualPixels(text)
 
     const topLeft = new Sprite(group)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
