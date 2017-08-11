@@ -1,6 +1,6 @@
-new Demo("Events.Once", (group) => {
+new Demo("OneTimeEvent", (group) => {
     let subGroup: Group
-    let event: Events.Once<(value: number) => void>
+    let event: OneTimeEvent<(value: number) => void>
 
     let firstStart = true
     Start()
@@ -13,12 +13,12 @@ new Demo("Events.Once", (group) => {
             subGroup.Move(0, -HeightVirtualPixels)
             subGroup.MoveOver(0, 0, 0.25)
         }
-        event = new Events.Once()
+        event = new OneTimeEvent()
 
         for (let i = 1; i <= 4; i++) {
             const y = ButtonHeight * (i + 0.5) + i * 2
             FontBig.Write(subGroup, `Callback ${i}`, HorizontalAlignment.Left, VerticalAlignment.Middle, 0, y)
-            let x = FontBig.CalculateWidth(`Callback ${i}`) + 2
+            let x = FontBig.WidthVirtualPixels(`Callback ${i}`) + 2
 
             const listenGroup = new Group(subGroup, Listen)
             listenGroup.Move(x + ButtonNarrowWidth / 2, y)
