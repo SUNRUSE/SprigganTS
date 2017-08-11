@@ -91,11 +91,11 @@ declare const enum VerticalAlignment {
 
 declare class Viewport {
     /** A "root" of the scene graph, which can be docked to screen borders.  The size of the virtual screen.
-     * @param {?HorizonalAlignment} horizontalAlignment The horizontal alignment of the viewport relative to the screen or window.  Defaults to HorizontalAlignment.Middle.
-     * @param {?VerticalAlignment} verticalAlignment The vertical alignment of the viewport relative to the screen or window.  Defaults to VerticalAlignment.Middle.
+     * @param {?float} horizontalPositionSignedUnitInterval The horizontal alignment of the viewport relative to the screen or window; -1 is touching the left border, 0 centered, and 1 touching the right border.  Defaults to 0.
+     * @param {?float} verticalPositionSignedUnitInterval The vertical alignment of the viewport relative to the screen or window; -1 is touching the top border, 0 centered, and 1 touching the bottom border.  Defaults to 0.
      * @param {?boolean} crop When true, children of the viewport will be "cropped" to its borders, including click actions.  When false, the borders of the viewport do not crop its children.  Defaults to false.
     */
-    constructor(horizontalAlignment?: HorizontalAlignment, verticalAlignment?: VerticalAlignment, crop?: boolean)
+    constructor(horizontalPositionUnitInterval?: number, verticalPositionUnitInterval?: number, crop?: boolean)
 
     /** Pauses this Viewport and all its children; motion and animation will be paused until this Viewport is .Resume()-d.
      * Clicks will still trigger actions.
