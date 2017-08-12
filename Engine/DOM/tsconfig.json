@@ -1,6 +1,6 @@
 {
     "files": [
-        "Game/Entry.ts"
+        "Entry.ts"
     ],
     "compilerOptions": {
         "allowJs": false,
@@ -13,7 +13,7 @@
         "noUnusedLocals": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitThis": true,
-        "outFile": "Build/Index.js",
+        "outFile": "../../Temp/Scripts/Engine/DOM.js",
         "target": "es3"
     }
 }
