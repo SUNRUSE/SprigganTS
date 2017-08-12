@@ -27,7 +27,7 @@ declare class Viewport {
      * @param {?float} verticalPositionSignedUnitInterval The vertical alignment of the viewport relative to the screen or window; -1 is touching the top border, 0 centered, and 1 touching the bottom border.  Defaults to 0.
      * @param {?boolean} crop When true, children of the viewport will be "cropped" to its borders, including click actions.  When false, the borders of the viewport do not crop its children.  Defaults to false.
     */
-    constructor(horizontalPositionUnitInterval?: number, verticalPositionUnitInterval?: number, crop?: boolean)
+    constructor(horizontalPositionSignedUnitInterval?: number, verticalPositionSignedUnitInterval?: number, crop?: boolean)
 
     /** Pauses this Viewport and all its children; motion and animation will be paused until this Viewport is .Resume()-d.
      * Clicks will still trigger actions.
