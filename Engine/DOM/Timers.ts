@@ -38,7 +38,7 @@ namespace Timers {
     let shadeElement: HTMLDivElement | undefined
 
     export function InternalFocused() { return !shadeElement }
-    export const InternalFocusedChanged = new Events.Recurring<() => void>()
+    export const InternalFocusedChanged = new RecurringEvent<() => void>()
 
     function ResizeShade() {
         if (!shadeElement) return

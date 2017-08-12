@@ -19,7 +19,7 @@ namespace Display {
     }
 
     export type ResizedCallback = (screenWidthPixels: number, screenHeightPixels: number, scaleFactor: number) => void
-    export const Resized = new Events.Recurring<ResizedCallback>()
+    export const Resized = new RecurringEvent<ResizedCallback>()
 
     let RealWidthPixelsValue = document.body.clientWidth
     export function RealWidthPixels() {
