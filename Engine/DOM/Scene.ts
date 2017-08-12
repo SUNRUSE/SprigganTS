@@ -356,10 +356,10 @@ class Viewport extends SceneGraphBase {
     protected readonly OnPause: () => void
     protected readonly OnResume: () => void
 
-    private readonly HorizontalAlignment: HorizontalAlignment
-    private readonly VerticalAlignment: VerticalAlignment
+    private readonly HorizontalPositionSignedUnitInterval: number
+    private readonly VerticalPositionSignedUnitInterval: number
 
-    constructor(horizontalAlignment: HorizontalAlignment = "Middle", verticalAlignment: VerticalAlignment = "Middle", crop = true, onClick?: () => void) {
+    constructor(horizontalPositionSignedUnitInterval: number = 0, verticalPositionSignedUnitInterval: number = 0, crop = true, onClick?: () => void) {
         super()
         this.Element = document.createElement("div")
         this.Element.style.position = "absolute"
@@ -367,32 +367,8 @@ class Viewport extends SceneGraphBase {
         this.Element.style.pointerEvents = "none"
         if (onClick) this.Element.onclick = () => { if (!this.Disabled()) Timers.InternalInvoke(onClick) }
 
-        this.HorizontalAlignment = horizontalAlignment
-        this.VerticalAlignment = verticalAlignment
-
-        switch (horizontalAlignment) {
-            case "Left":
-                this.Element.style.left = "0"
-                break
-            case "Middle":
-                this.Element.style.left = "50%"
-                break
-            case "Right":
-                this.Element.style.right = "0"
-                break
-        }
-
-        switch (verticalAlignment) {
-            case "Top":
-                this.Element.style.top = "0"
-                break
-            case "Middle":
-                this.Element.style.top = "50%"
-                break
-            case "Bottom":
-                this.Element.style.bottom = "0"
-                break
-        }
+        this.HorizontalPositionSignedUnitInterval = horizontalPositionSignedUnitInterval
+        this.VerticalPositionSignedUnitInterval = verticalPositionSignedUnitInterval
 
         this.Children = new ElementWithChildren(this, this.Element)
         this.InternalAddChild = this.Children.AddChild
@@ -411,8 +387,8 @@ class Viewport extends SceneGraphBase {
         this.Element.style.width = `${WidthVirtualPixels * realPixelsPerVirtualPixel}px`
         this.Element.style.height = `${HeightVirtualPixels * realPixelsPerVirtualPixel}px`
 
-        if (this.HorizontalAlignment == "Middle") this.Element.style.marginLeft = `-${WidthVirtualPixels * realPixelsPerVirtualPixel / 2}px`
-        if (this.VerticalAlignment == "Middle") this.Element.style.marginTop = `-${HeightVirtualPixels * realPixelsPerVirtualPixel / 2}px`
+        this.Element.style.left = `${(Display.RealWidthPixels() - WidthVirtualPixels * realPixelsPerVirtualPixel) * (this.HorizontalPositionSignedUnitInterval * 0.5 + 0.5)}px`
+        this.Element.style.top = `${(Display.RealHeightPixels() - HeightVirtualPixels * realPixelsPerVirtualPixel) * (this.VerticalPositionSignedUnitInterval * 0.5 + 0.5)}px`
 
         this.Children.Rescale()
     }
