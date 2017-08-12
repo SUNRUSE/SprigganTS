@@ -1,3 +1,4 @@
+/// <reference path="Ambient.ts" />
 /// <reference path="LoadingMessage.ts" />
 /// <reference path="Misc.ts" />
 /// <reference path="Configuration.ts" />
