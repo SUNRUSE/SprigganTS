@@ -165,8 +165,8 @@ abstract class SceneGraphBase implements IPausable, IDeletable, IDisableable, IH
 }
 
 interface IMoveable extends IPausable {
-    readonly X: () => number
-    readonly Y: () => number
+    readonly VirtualPixelsFromLeft: () => number
+    readonly VirtualPixelsFromTop: () => number
     readonly Move: (leftPixels: number, topPixels: number) => void
     readonly MoveOver: (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => void
     readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
@@ -187,12 +187,12 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
         if (onClick) this.Element.onclick = () => { if (!partOf.Disabled()) Timers.InternalInvoke(onClick) }
     }
 
-    readonly X = () => {
+    readonly VirtualPixelsFromLeft = () => {
         if (this.Timer) return Mix(this.FromX, this.ToX, this.Timer.ElapsedUnitInterval())
         return this.ToX
     }
 
-    readonly Y = () => {
+    readonly VirtualPixelsFromTop = () => {
         if (this.Timer) return Mix(this.FromY, this.ToY, this.Timer.ElapsedUnitInterval())
         return this.ToY
     }
@@ -227,7 +227,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
             // IE10+, Edge, Firefox, Chrome.
             this.Element.offsetHeight // Forces a reflow; required for transitions to work.
             this.Element.style.transition = "initial"
-            this.SetElementLocation(this.X(), this.Y())
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
             this.Element.offsetHeight // Forces a reflow; required for transitions to work.
             if (this.Timer && !this.Timer.Paused() && Timers.InternalFocused()) {
                 const remainingSeconds = this.Timer.DurationSeconds - this.Timer.ElapsedSeconds()
@@ -239,7 +239,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
                 this.SetElementLocation(this.ToX, this.ToY)
             }
         } else {
-            this.SetElementLocation(this.X(), this.Y())
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         }
     }
 
@@ -259,16 +259,16 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
     readonly MoveOver = (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => {
         if (this.PartOf.Deleted()) return
 
-        this.Move(this.X(), this.Y())
+        this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         this.ToX = Math.round(leftPixels)
         this.ToY = Math.round(topPixels)
         if ("transition" in this.Element.style) {
             // IE10+, Edge, Firefox, Chrome.
             this.Timer = new Timers.Once(seconds, () => {
-                this.Move(this.X(), this.Y())
+                this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             }, () => {
-                this.Move(this.X(), this.Y())
+                this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
             }, undefined, this.Rescale, this.Rescale)
 
             if (this.PartOf.Paused())
@@ -278,17 +278,17 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
         } else {
             // IE9--.
             this.Timer = new Timers.Once(seconds, () => {
-                this.Move(this.X(), this.Y())
+                this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             }, () => {
-                this.Move(this.X(), this.Y())
+                this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
             }, this.Rescale, this.Rescale, this.Rescale)
             if (this.PartOf.Paused()) this.Timer.Pause()
         }
     }
 
     readonly MoveAt = (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => {
-        this.MoveOver(leftPixels, topPixels, Distance(leftPixels, topPixels, this.X(), this.Y()) / pixelsPerSecond, onArrivingIfUninterrupted)
+        this.MoveOver(leftPixels, topPixels, Distance(leftPixels, topPixels, this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop()) / pixelsPerSecond, onArrivingIfUninterrupted)
     }
 
     readonly Hide = () => {
@@ -435,8 +435,8 @@ class Group extends SceneGraphBase implements IMoveable {
     private readonly RemoveFromParent: () => void
 
     private readonly MoveableElement: MoveableElement
-    readonly X: () => number
-    readonly Y: () => number
+    readonly VirtualPixelsFromLeft: () => number
+    readonly VirtualPixelsFromTop: () => number
     readonly Move: (leftPixels: number, topPixels: number) => void
     readonly MoveOver: (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => void
     readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
@@ -450,8 +450,8 @@ class Group extends SceneGraphBase implements IMoveable {
         this.Parent = parent
 
         this.MoveableElement = new MoveableElement(this, UncacheGroup(), onClick)
-        this.X = this.MoveableElement.X
-        this.Y = this.MoveableElement.Y
+        this.VirtualPixelsFromLeft = this.MoveableElement.VirtualPixelsFromLeft
+        this.VirtualPixelsFromTop = this.MoveableElement.VirtualPixelsFromTop
         this.Move = this.MoveableElement.Move
         this.MoveOver = this.MoveableElement.MoveOver
         this.MoveAt = this.MoveableElement.MoveAt
@@ -498,8 +498,8 @@ class Sprite extends SceneGraphBase implements IMoveable {
     private readonly RemoveFromParent: () => void
 
     private readonly MoveableElement: MoveableElement
-    readonly X: () => number
-    readonly Y: () => number
+    readonly VirtualPixelsFromLeft: () => number
+    readonly VirtualPixelsFromTop: () => number
     readonly Move: (leftPixels: number, topPixels: number) => void
     readonly MoveOver: (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => void
     readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
@@ -514,8 +514,8 @@ class Sprite extends SceneGraphBase implements IMoveable {
 
         this.ImageElement = UncacheSprite()
         this.MoveableElement = new MoveableElement(this, this.ImageElement[0], onClick)
-        this.X = this.MoveableElement.X
-        this.Y = this.MoveableElement.Y
+        this.VirtualPixelsFromLeft = this.MoveableElement.VirtualPixelsFromLeft
+        this.VirtualPixelsFromTop = this.MoveableElement.VirtualPixelsFromTop
         this.Move = this.MoveableElement.Move
         this.MoveOver = this.MoveableElement.MoveOver
         this.MoveAt = this.MoveableElement.MoveAt
