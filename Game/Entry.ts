@@ -1,4 +1,3 @@
-/// <reference path="../Engine/DOM/Entry.ts" />
 /// <reference path="Fonts/Big.ts" />
 /// <reference path="Buttons.ts" />
 /// <reference path="Demo.ts" />
@@ -11,8 +10,4 @@
 /// <reference path="Demos/BouncingBalls.ts" />
 /// <reference path="DemoMenu.ts" />
 
-function StartGame() {
-    DemoMenu()
-}
-
-SetLoadingMessage("Starting scripts, please wait...")
+DemoMenu()
