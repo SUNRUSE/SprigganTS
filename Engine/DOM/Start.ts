@@ -6,7 +6,7 @@ onload = () => {
 
     Display.InternalInitialize()
 
-    Scene.LoadSprites(() => {
+    LoadSprites(() => {
         RemoveLoadingMessage()
         Timers.InternalInvoke(StartGame)
     })
