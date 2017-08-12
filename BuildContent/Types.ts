@@ -54,3 +54,5 @@ type PackedBackground = {
     readonly WidthPixels: number
     readonly HeightPixels: number
 }
+
+export { Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackground, PackedBackground }
