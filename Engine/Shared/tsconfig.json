@@ -1,7 +1,10 @@
 {
     "files": [
         "../Api.ts",
-        "Entry.ts"
+        "Misc.ts",
+        "Events.ts",
+        "Font.ts"
+        // NOTE: these are manually included by the DOM engine.
     ],
     "compilerOptions": {
         "allowJs": false,

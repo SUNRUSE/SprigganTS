@@ -1,6 +1,19 @@
 {
     "files": [
-        "Entry.ts"
+        "LoadingMessage.ts",
+        "Ambient.ts",
+        "../Enumerations.ts",
+        "../Shared/Misc.ts",
+        "../Shared/Events.ts",
+        "Misc.ts",
+        "Configuration.ts",
+        "Display.ts",
+        "Timers.ts",
+        "Content.ts",
+        "Background.ts",
+        "Scene.ts",
+        "../Shared/Font.ts",
+        "Start.ts"
     ],
     "compilerOptions": {
         "allowJs": false,
