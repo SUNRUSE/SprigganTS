@@ -1,7 +1,7 @@
 function DemoMenu() {
     const spacing = 2
 
-    const titleViewport = new Viewport(HorizontalAlignment.Middle, VerticalAlignment.Top, false)
+    const titleViewport = new Viewport(0, -1, false)
     let titleGroup = new Group(titleViewport)
     titleGroup.Move(WidthVirtualPixels / 2, ButtonHeight / 2)
     FontBig.Write(titleGroup, "SprigganTS Sample", HorizontalAlignment.Middle, VerticalAlignment.Middle)
@@ -35,14 +35,14 @@ function DemoMenu() {
         function Select() {
             buttonSprite.Play(Content.Buttons.Wide.Pressed)
 
-            const demoViewport = new Viewport(HorizontalAlignment.Middle, VerticalAlignment.Middle)
+            const demoViewport = new Viewport()
             const demoScrollingGroup = new Group(demoViewport)
             demoScrollingGroup.Move(0, HeightVirtualPixels)
             demoScrollingGroup.MoveAt(0, 0, 500)
             const demoGroup = new Group(demoScrollingGroup)
             const stopDemo = demoReference.Setup(demoGroup)
 
-            const homeButtonViewport = new Viewport(HorizontalAlignment.Left, VerticalAlignment.Top)
+            const homeButtonViewport = new Viewport(-1, -1)
             const homeButtonGroup = new Group(homeButtonViewport, ReturnHome)
             homeButtonGroup.Move(ButtonNarrowWidth / 2, -ButtonHeight / 2)
             const homeButtonSprite = new Sprite(homeButtonGroup)

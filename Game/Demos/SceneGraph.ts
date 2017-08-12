@@ -51,11 +51,11 @@ new Demo("Scene Graph", (group) => {
 
     const closing = new OneTimeEvent<() => void>()
 
-    function CreateButtons(label: string, horizontalAlignment: HorizontalAlignment, outX: number, inX: number, buttons: {
+    function CreateButtons(label: string, horizontalPositionSignedUnitInterval: number, outX: number, inX: number, buttons: {
         readonly Label: string
         readonly Action: () => void
     }[]) {
-        const menuViewport = new Viewport(horizontalAlignment, VerticalAlignment.Bottom)
+        const menuViewport = new Viewport(horizontalPositionSignedUnitInterval, 1)
         const menuGroup = new Group(menuViewport)
         menuGroup.Move(outX, 0)
         menuGroup.MoveOver(inX, 0, 0.5)
@@ -76,7 +76,7 @@ new Demo("Scene Graph", (group) => {
     const randomSizeX = 144
     const randomSizeY = 48
 
-    CreateButtons("Group", HorizontalAlignment.Left, -ButtonWideWidth / 2, ButtonWideWidth / 2, [{
+    CreateButtons("Group", -1, -ButtonWideWidth / 2, ButtonWideWidth / 2, [{
         Label: "Pause",
         Action: wrappingGroup.Pause
     }, {
@@ -142,7 +142,7 @@ new Demo("Scene Graph", (group) => {
         Action: wrappingGroup.Show
     }])
 
-    CreateButtons("Sprite", HorizontalAlignment.Right, WidthVirtualPixels + ButtonWideWidth / 2, WidthVirtualPixels - ButtonWideWidth / 2, [{
+    CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonWideWidth / 2, WidthVirtualPixels - ButtonWideWidth / 2, [{
         Label: "Pause",
         Action: sprite.Pause
     }, {
