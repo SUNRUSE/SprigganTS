@@ -8,4 +8,3 @@
 /// <reference path="Background.ts" />
 /// <reference path="Scene.ts" />
 /// <reference path="Start.ts" />
-/// <reference path="../../Temp/Content.ts" />
