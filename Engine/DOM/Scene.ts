@@ -584,3 +584,9 @@ class Sprite extends SceneGraphBase implements IMoveable {
         this.ImageElement[1].style.height = `${ContentSpritesHeight * realPixelsPerVirtualPixel}px`
     }
 }
+
+function AddStaticSprite(parent: Viewport | Group, frame: SpriteFrame, virtualPixelsFromLeft: number, virtualPixelsFromTop: number) {
+    const sprite = new Sprite(parent)
+    sprite.Loop(frame)
+    sprite.Move(virtualPixelsFromLeft, virtualPixelsFromTop)
+}
