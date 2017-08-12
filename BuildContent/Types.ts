@@ -47,12 +47,14 @@ type ImportedBackground = {
     readonly PngFilename: string
     readonly WidthPixels: number
     readonly HeightPixels: number
+    readonly DurationSeconds: number
 }
 
 type PackedBackground = {
     readonly Id: number
     readonly WidthPixels: number
     readonly HeightPixels: number
+    readonly DurationSeconds: number
 }
 
 export { Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackground, PackedBackground }
