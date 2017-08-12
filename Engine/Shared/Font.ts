@@ -1,51 +1,51 @@
 class Font {
-    readonly CharacterSpriteFrames: { [character: string]: SpriteFrame | SpriteFrame[] }
-    readonly LineSpacingPixels: number
-    readonly LineHeightPixels: number
-    readonly CharacterSpacingPixels: number
-    readonly DefaultCharacterWidth: number
-    readonly CharacterWidthOverrides: { [character: string]: number }
+    readonly CharacterSpriteFrames: { [character: string]: SpriteFrame }
+    readonly LineSpacingVirtualPixels: number
+    readonly CapHeightVirtualPixels: number
+    readonly KerningVirtualPixels: number
+    readonly DefaultCharacterWidthVirtualPixels: number
+    readonly CharacterWidthVirtualPixelsOverrides: { [character: string]: number }
 
     constructor(
-        characterSpriteFrames: { [character: string]: SpriteFrame | SpriteFrame[] },
-        lineSpacingPixels: number,
-        lineHeightPixels: number,
-        characterSpacingPixels: number,
-        defaultCharacterWidth: number,
-        characterWidthOverrides: { [character: string]: number }
+        characterSpriteFrames: { [character: string]: SpriteFrame },
+        lineSpacingVirtualPixels: number,
+        capHeightVirtualPixels: number,
+        kerningVirtualPixels: number,
+        defaultCharacterWidthVirtualPixels: number,
+        characterWidthVirtualPixelsOverrides: { [character: string]: number }
     ) {
         this.CharacterSpriteFrames = characterSpriteFrames
-        this.LineSpacingPixels = lineSpacingPixels
-        this.LineHeightPixels = lineHeightPixels
-        this.CharacterSpacingPixels = characterSpacingPixels
-        this.DefaultCharacterWidth = defaultCharacterWidth
-        this.CharacterWidthOverrides = characterWidthOverrides
+        this.LineSpacingVirtualPixels = lineSpacingVirtualPixels
+        this.CapHeightVirtualPixels = capHeightVirtualPixels
+        this.KerningVirtualPixels = kerningVirtualPixels
+        this.DefaultCharacterWidthVirtualPixels = defaultCharacterWidthVirtualPixels
+        this.CharacterWidthVirtualPixelsOverrides = characterWidthVirtualPixelsOverrides
     }
 
-    readonly Write = (to: Viewport | Group, text: string, horizontalAlignment: HorizontalAlignment = HorizontalAlignment.Left, verticalAlignment: VerticalAlignment = VerticalAlignment.Top, x = 0, y = 0) => {
+    Write(to: Viewport | Group, text: string, horizontalAlignment: HorizontalAlignment = HorizontalAlignment.Left, verticalAlignment: VerticalAlignment = VerticalAlignment.Top, leftVirtualPixels = 0, topVirtualPixels = 0): void {
         switch (verticalAlignment) {
             case VerticalAlignment.Middle:
-                y -= this.CalculateHeight(text) / 2
+                topVirtualPixels -= this.HeightVirtualPixels(text) / 2
                 break
             case VerticalAlignment.Bottom:
-                y -= this.CalculateHeight(text)
+                topVirtualPixels -= this.HeightVirtualPixels(text)
                 break
         }
         if (horizontalAlignment == HorizontalAlignment.Left) {
-            let trackX = x
+            let trackX = leftVirtualPixels
             for (let i = 0; i < text.length; i++) {
                 const character = text.charAt(i)
                 if (character == "\n") {
-                    trackX = x
-                    y += this.LineHeightPixels
-                    y += this.LineSpacingPixels
+                    trackX = leftVirtualPixels
+                    topVirtualPixels += this.CapHeightVirtualPixels
+                    topVirtualPixels += this.LineSpacingVirtualPixels
                 } else {
                     const spriteFrame = this.CharacterSpriteFrames[character]
-                    if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, y)
-                    let width = this.CharacterWidthOverrides[character]
-                    if (width === undefined) width = this.DefaultCharacterWidth
+                    if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, topVirtualPixels)
+                    let width = this.CharacterWidthVirtualPixelsOverrides[character]
+                    if (width === undefined) width = this.DefaultCharacterWidthVirtualPixels
                     trackX += width
-                    trackX += this.CharacterSpacingPixels
+                    trackX += this.KerningVirtualPixels
                 }
             }
         } else {
@@ -54,31 +54,31 @@ class Font {
             for (let i = 0; i <= text.length; i++) {
                 const character = i < text.length ? text.charAt(i) : "\n"
                 if (character == "\n") {
-                    let trackX = x - lineWidth / (horizontalAlignment == HorizontalAlignment.Middle ? 2 : 1)
+                    let trackX = leftVirtualPixels - lineWidth / (horizontalAlignment == HorizontalAlignment.Middle ? 2 : 1)
                     for (let j = lineStarted; j < i; j++) {
                         const drawCharacter = text.charAt(j)
                         const spriteFrame = this.CharacterSpriteFrames[drawCharacter]
-                        if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, y)
-                        let width = this.CharacterWidthOverrides[drawCharacter]
-                        if (width === undefined) width = this.DefaultCharacterWidth
+                        if (spriteFrame) AddStaticSprite(to, spriteFrame, trackX, topVirtualPixels)
+                        let width = this.CharacterWidthVirtualPixelsOverrides[drawCharacter]
+                        if (width === undefined) width = this.DefaultCharacterWidthVirtualPixels
                         trackX += width
-                        trackX += this.CharacterSpacingPixels
+                        trackX += this.KerningVirtualPixels
                     }
                     lineWidth = 0
                     lineStarted = i + 1
-                    y += this.LineHeightPixels
-                    y += this.LineSpacingPixels
+                    topVirtualPixels += this.CapHeightVirtualPixels
+                    topVirtualPixels += this.LineSpacingVirtualPixels
                 } else {
-                    let width = this.CharacterWidthOverrides[character]
-                    if (width === undefined) width = this.DefaultCharacterWidth
+                    let width = this.CharacterWidthVirtualPixelsOverrides[character]
+                    if (width === undefined) width = this.DefaultCharacterWidthVirtualPixels
                     lineWidth += width
-                    if (i != lineStarted) lineWidth += this.CharacterSpacingPixels
+                    if (i != lineStarted) lineWidth += this.KerningVirtualPixels
                 }
             }
         }
     }
 
-    readonly CalculateWidth = (text: string) => {
+    WidthVirtualPixels(text: string): number {
         let thisLine = 0
         let thisLineIncludingWhitespace = 0
         let firstCharacterOnLine = true
@@ -91,10 +91,10 @@ class Font {
                 thisLineIncludingWhitespace = 0
                 thisLine = 0
             } else {
-                let width = this.CharacterWidthOverrides[character]
-                if (width === undefined) width = this.DefaultCharacterWidth
+                let width = this.CharacterWidthVirtualPixelsOverrides[character]
+                if (width === undefined) width = this.DefaultCharacterWidthVirtualPixels
                 thisLineIncludingWhitespace += width
-                if (!firstCharacterOnLine) thisLineIncludingWhitespace += this.CharacterSpacingPixels
+                if (!firstCharacterOnLine) thisLineIncludingWhitespace += this.KerningVirtualPixels
                 firstCharacterOnLine = false
                 if (this.CharacterSpriteFrames[character]) thisLine = thisLineIncludingWhitespace
             }
@@ -102,7 +102,7 @@ class Font {
         return Math.max(thisLine, widest)
     }
 
-    readonly CalculateHeight = (text: string) => {
+    HeightVirtualPixels(text: string): number {
         let lines = 0
         let linesIncludingBlank = 1
         for (let i = 0; i < text.length; i++) {
@@ -113,10 +113,10 @@ class Font {
                 if (this.CharacterSpriteFrames[character]) lines = linesIncludingBlank
             }
         }
-        return lines * this.LineHeightPixels + (Math.max(0, lines - 1) * this.LineSpacingPixels)
+        return lines * this.CapHeightVirtualPixels + (Math.max(0, lines - 1) * this.LineSpacingVirtualPixels)
     }
 
-    readonly Wrap = (text: string, width: number) => {
+    Wrap(text: string, widthVirtualPixels: number): string {
         let lineWidth = 0
         let wordWidth = 0
         let word = ""
@@ -130,23 +130,23 @@ class Font {
                 output += "\n"
                 word = ""
             } else {
-                let characterWidth = this.CharacterWidthOverrides[character]
-                if (characterWidth === undefined) characterWidth = this.DefaultCharacterWidth
+                let characterWidth = this.CharacterWidthVirtualPixelsOverrides[character]
+                if (characterWidth === undefined) characterWidth = this.DefaultCharacterWidthVirtualPixels
                 if (this.CharacterSpriteFrames[character]) {
-                    if (lineWidth + wordWidth + characterWidth > width) {
+                    if (lineWidth + wordWidth + characterWidth > widthVirtualPixels) {
                         if (word || lineWidth) {
-                            if (lineWidth && wordWidth + characterWidth < width) {
+                            if (lineWidth && wordWidth + characterWidth < widthVirtualPixels) {
                                 output += "\n"
                                 word += character
-                                wordWidth += characterWidth + this.CharacterSpacingPixels
+                                wordWidth += characterWidth + this.KerningVirtualPixels
                             } else {
                                 output += word
                                 output += "\n"
                                 if (character != "-") output += "-"
                                 word = character
-                                let dashWidth = this.CharacterWidthOverrides["-"]
-                                if (dashWidth === undefined) dashWidth = this.DefaultCharacterWidth
-                                wordWidth = characterWidth + dashWidth + this.CharacterSpacingPixels
+                                let dashWidth = this.CharacterWidthVirtualPixelsOverrides["-"]
+                                if (dashWidth === undefined) dashWidth = this.DefaultCharacterWidthVirtualPixels
+                                wordWidth = characterWidth + dashWidth + this.KerningVirtualPixels
                             }
                         } else {
                             output += character
@@ -157,11 +157,11 @@ class Font {
                         if (IndexOf(["-", "+", "=", ";", ":", "@", "#", "~", ",", "."], character) != -1) {
                             output += word
                             output += character
-                            lineWidth += wordWidth + characterWidth + this.CharacterSpacingPixels
+                            lineWidth += wordWidth + characterWidth + this.KerningVirtualPixels
                             word = ""
                             wordWidth = 0
                         } else {
-                            wordWidth += characterWidth + this.CharacterSpacingPixels
+                            wordWidth += characterWidth + this.KerningVirtualPixels
                             word += character
                         }
                     }
@@ -172,12 +172,12 @@ class Font {
                         word = ""
                         wordWidth = 0
                     }
-                    if (lineWidth + characterWidth > width) {
+                    if (lineWidth + characterWidth > widthVirtualPixels) {
                         output += "\n"
                         lineWidth = 0
                     } else {
                         output += character
-                        lineWidth += characterWidth + this.CharacterSpacingPixels
+                        lineWidth += characterWidth + this.KerningVirtualPixels
                     }
                 }
             }
