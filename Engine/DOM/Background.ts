@@ -5,7 +5,7 @@ namespace Background {
             then(false)
             return false
         } else {
-            InternalLoadAndPrepareImage(`Backgrounds/${frame.FileNumber}.png`, frame.Width, frame.Height, element => {
+            InternalLoadAndPrepareImage(`backgrounds/${frame.FileNumber}.png`, frame.Width, frame.Height, element => {
                 element.style.position = "absolute"
                 // It's possible someone else already loaded it as we don't stop other "threads" caching the same background.
                 // Unlikely, but just throw our copy away if that's the case.
