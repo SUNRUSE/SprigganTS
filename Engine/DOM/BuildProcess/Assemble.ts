@@ -43,10 +43,10 @@ let Header: string
 
 function GenerateHeader() {
     console.info("Generating header...")
-    Header = `const WidthVirtualPixels = ${Configuration.VirtualWidth}
-const HeightVirtualPixels = ${Configuration.VirtualHeight}
-const ContentSpritesWidth = ${Build.PackingHeaders.sprite.AtlasWidthPixels}
-const ContentSpritesHeight = ${Build.PackingHeaders.sprite.AtlasHeightPixels}`
+    Header = `var WidthVirtualPixels = ${Configuration.VirtualWidth}
+var HeightVirtualPixels = ${Configuration.VirtualHeight}
+var ContentSpritesWidth = ${Build.PackingHeaders.sprite.AtlasWidthPixels}
+var ContentSpritesHeight = ${Build.PackingHeaders.sprite.AtlasHeightPixels}`
     ReadDOMEngine()
 }
 

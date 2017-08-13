@@ -89,7 +89,7 @@ function GenerateCodeFromContentTree(tree: ContentTreeDirectory, ambient: boolea
     if (ambient) {
         return `declare const Content: ${RecurseDirectory(tree, "")}`
     } else {
-        return `const Content = ${RecurseDirectory(tree, "")}`
+        return `var Content = ${RecurseDirectory(tree, "")}`
     }
 
     function RecurseChild(child: ContentTree, tabs: string) {
