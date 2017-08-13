@@ -12,6 +12,9 @@ import { ContentTypes } from "./ContentType"
 import { Error, EndsWith } from "./Misc"
 import { Build } from "./Types"
 
+const imagemin = require("imagemin")
+const imageminPngcrush = require("imagemin-pngcrush")
+
 const Build: Build = {
     LastModified: {},
     ImportedContent: {},
@@ -220,7 +223,55 @@ function Pack() {
     }
     function ContentTypeCompleted() {
         remainingContentTypes--
-        if (!remainingContentTypes) GenerateTypes()
+        if (!remainingContentTypes) MinifyImages()
+    }
+}
+
+function MinifyImages() {
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping image minification as not building for production")
+        GenerateTypes()
+    } else {
+        console.info("Finding images to minify...")
+
+        const images: string[] = []
+
+        const Recurse = function (directory: string, then: () => void) {
+            fs.readdir(directory, (err, filesOrDirectories) => {
+                Error(err)
+                function CheckNextFileOrDirectory() {
+                    const fileOrDirectory = filesOrDirectories.pop()
+                    if (!fileOrDirectory)
+                        then()
+                    else {
+                        const fullPath = path.join(directory, fileOrDirectory as string)
+                        fs.stat(fullPath, (err, stats) => {
+                            Error(err)
+                            if (stats.isFile()) {
+                                if (EndsWith(fullPath, ".png")) images.push(fullPath)
+                                CheckNextFileOrDirectory()
+                            } else if (stats.isDirectory()) Recurse(fullPath, CheckNextFileOrDirectory)
+                            else CheckNextFileOrDirectory()
+                        })
+                    }
+                }
+                CheckNextFileOrDirectory()
+            })
+        }
+
+        Recurse("Temp/Content/Packed", () => {
+            console.info("Minifying images...")
+            let remaining = images.length
+            for (const image of images) imagemin([image], path.dirname(image), { plugins: [imageminPngcrush({ reduce: true })] })
+                .catch(Error)
+                .then(() => {
+                    console.log(`Minified "${image}"`)
+                    remaining--
+                    if (!remaining) GenerateTypes()
+                })
+
+            if (!remaining) GenerateTypes()
+        })
     }
 }
 
