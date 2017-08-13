@@ -7,6 +7,7 @@ import fs = require("fs")
 const rimraf = require("rimraf")
 import mkdirp = require("mkdirp")
 import uglifyjs = require("uglify-js")
+const domprops = require("uglify-js/tools/domprops")
 
 DeleteExistingAssembledDirectory()
 
@@ -106,8 +107,12 @@ function MinifyScripts() {
         ConcatenatedScripts = uglifyjs.minify(ConcatenatedScripts, {
             compress: true,
             mangle: {
-                toplevel: true
-                /* TODO: properties cannot be mangled until UglifyJS #2276 is resolved. */
+                toplevel: true,
+                properties: {
+                    keep_quoted: true,
+                    builtins: true,
+                    reserved: domprops
+                }
             },
             ie8: true
         } as any /* TODO: type definitions missing options */).code
