@@ -7,7 +7,7 @@
     "production-typescript-game": "tsc -p ./Game",
     "production-assemble": "npm-run-all production-assemble-dom",
     "production-assemble-dom": "ts-node -P ./Engine/DOM/BuildProcess ./Engine/DOM/BuildProcess/Assemble.ts",
-    "development": "npm install && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble",
+    "development": "npm install && cross-env NODE_ENV=development npm run-script production-content && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble",
     "development-content": "nodemon -e json,wav,png,ase --watch Game --exec \"npm run-script production-content\"",
     "development-typescript": "npm-run-all --parallel development-typescript-engine-dom development-typescript-game",
     "development-typescript-engine-dom": "tsc -w -p ./Engine/DOM",
