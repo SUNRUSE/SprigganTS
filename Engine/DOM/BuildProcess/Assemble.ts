@@ -109,16 +109,28 @@ function CreateScript() {
     console.info("Writing \"Temp/Assembled/DOM/index.js\"...")
     fs.writeFile("Temp/Assembled/DOM/index.js", Concatenated, "utf8", err => {
         Error(err)
-        CopyHtml()
+        CreateHtml()
     })
 }
 
-function CopyHtml() {
-    console.info("Copying index.html...")
-    cpr("Build/Index.html", "Temp/Assembled/DOM/index.html", {}, err => {
-        Error(err)
-        CopySprites()
-    })
+function CreateHtml() {
+    console.info("Creating index.html...")
+    fs.writeFile("Temp/Assembled/DOM/index.html", `<html>
+
+<head>
+    <title>SprigganTS Sample</title>
+    <meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1, width=device-width, height=device-height, user-scalable=no">
+</head>
+
+<body style="background: black; color: white; font-family: sans-serif; user-select: none; cursor: default; overflow: hidden">
+    <div id="LoadingMessage" style="font-size: 0.5cm; position: absolute; top: 50%; margin-top: -0.5em; line-height: 1em; left: 0; text-align: center; width: 100%;">Loading, please wait...</div>
+    <script src="index.js"></script>
+</body>
+
+</html>`, "utf8", err => {
+            Error(err)
+            CopySprites()
+        })
 }
 
 function CopySprites() {
