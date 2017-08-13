@@ -62,4 +62,4 @@ type PackedBackgroundFrame = {
     readonly DurationSeconds: number
 }
 
-export { Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackgroundFrame, PackedBackgroundFrame }
+export { Configuration, Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackgroundFrame, PackedBackgroundFrame }
