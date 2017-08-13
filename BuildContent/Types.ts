@@ -14,6 +14,8 @@ type Build = {
         }
     }
 
+    PackingHeaders: { [contentTypeFirstExtension: string]: any }
+
     PackedContent: {
         [contentTypeFirstExtension: string]: {
             [contentName: string]: any
@@ -48,6 +50,11 @@ type PackedSpriteFrame =
         readonly DurationSeconds: number
     }
 
+type SpritePackingHeader = {
+    readonly AtlasWidthPixels: number
+    readonly AtlasHeightPixels: number
+}
+
 type ImportedBackgroundFrame =
     {
         readonly Empty: false
@@ -72,4 +79,6 @@ type PackedBackgroundFrame =
         readonly DurationSeconds: number
     }
 
-export { Configuration, Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackgroundFrame, PackedBackgroundFrame }
+type BackgroundPackingHeader = {}
+
+export { Configuration, Build, ImportedSpriteFrame, PackedSpriteFrame, SpritePackingHeader, ImportedBackgroundFrame, PackedBackgroundFrame, BackgroundPackingHeader }
