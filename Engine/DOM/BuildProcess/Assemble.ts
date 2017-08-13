@@ -6,6 +6,7 @@ import cpr = require("cpr")
 import fs = require("fs")
 const rimraf = require("rimraf")
 import mkdirp = require("mkdirp")
+import uglifyjs = require("uglify-js")
 
 DeleteExistingAssembledDirectory()
 
@@ -79,21 +80,38 @@ function ReadGame() {
     fs.readFile("Temp/Scripts/Game/index.js", "utf8", (err, data) => {
         Error(err)
         Game = data
-        Concatenate()
+        ConcatenateScripts()
     })
 }
 
-let Concatenated: string
+let ConcatenatedScripts: string
 
-function Concatenate() {
-    console.info("Concatenating...")
-    Concatenated = `${Header}
+function ConcatenateScripts() {
+    console.info("Concatenating scripts...")
+    ConcatenatedScripts = `${Header}
 ${DOMEngine}
 ${Content}
 function StartGame() {
 ${Game}
 }
 SetLoadingMessage("Starting scripts, please wait...")`
+    MinifyScripts()
+}
+
+function MinifyScripts() {
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping script minification as not building for production")
+    } else {
+        console.info("Minifying scripts...")
+        ConcatenatedScripts = uglifyjs.minify(ConcatenatedScripts, {
+            compress: true,
+            mangle: {
+                toplevel: true
+                /* TODO: properties cannot be mangled until UglifyJS #2276 is resolved. */
+            },
+            ie8: true
+        } as any /* TODO: type definitions missing options */).code
+    }
     CreateAssembledDirectory()
 }
 
@@ -107,7 +125,7 @@ function CreateAssembledDirectory() {
 
 function CreateScript() {
     console.info("Writing \"Temp/Assembled/DOM/index.js\"...")
-    fs.writeFile("Temp/Assembled/DOM/index.js", Concatenated, "utf8", err => {
+    fs.writeFile("Temp/Assembled/DOM/index.js", ConcatenatedScripts, "utf8", err => {
         Error(err)
         CreateHtml()
     })
