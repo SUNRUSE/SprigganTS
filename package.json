@@ -1,13 +1,13 @@
 {
   "scripts": {
-    "production": "npm install && npm-run-all production-content production-typescript production-assemble",
+    "production": "npm install && cross-env NODE_ENV=production npm-run-all production-content production-typescript production-assemble",
     "production-content": "ts-node -P ./BuildContent ./BuildContent/Entry.ts",
     "production-typescript": "npm-run-all production-typescript-engine-dom production-typescript-game",
     "production-typescript-engine-dom": "tsc -p ./Engine/DOM",
     "production-typescript-game": "tsc -p ./Game",
     "production-assemble": "npm-run-all production-assemble-dom",
     "production-assemble-dom": "ts-node -P ./Engine/DOM/BuildProcess ./Engine/DOM/BuildProcess/Assemble.ts",
-    "development": "npm install && npm-run-all --parallel development-content development-typescript development-assemble",
+    "development": "npm install && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble",
     "development-content": "nodemon -e json,wav,png,ase --watch Game --exec \"npm run-script production-content\"",
     "development-typescript": "npm-run-all --parallel development-typescript-engine-dom development-typescript-game",
     "development-typescript-engine-dom": "tsc -w -p ./Engine/DOM",
@@ -19,6 +19,7 @@
     "@types/mkdirp": "^0.3.29",
     "@types/node": "^8.0.7",
     "cpr": "^2.2.0",
+    "cross-env": "^5.0.5",
     "http-static": "0.0.8",
     "imagemin": "^5.3.1",
     "imagemin-pngcrush": "^5.1.0",

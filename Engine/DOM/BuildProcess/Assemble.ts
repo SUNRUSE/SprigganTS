@@ -118,12 +118,13 @@ function CreateHtml() {
     fs.writeFile("Temp/Assembled/DOM/index.html", `<html>
 
 <head>
-    <title>SprigganTS Sample</title>
+    <title>${process.env.NODE_ENV != "production" ? "DEVELOPMENT BUILD of " : ""}SprigganTS Sample</title>
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1, width=device-width, height=device-height, user-scalable=no">
 </head>
 
 <body style="background: black; color: white; font-family: sans-serif; user-select: none; cursor: default; overflow: hidden">
     <div id="LoadingMessage" style="font-size: 0.5cm; position: absolute; top: 50%; margin-top: -0.5em; line-height: 1em; left: 0; text-align: center; width: 100%;">Loading, please wait...</div>
+    ${process.env.NODE_ENV != "production" ? "<blink style=\"z-index: 1; font-size: 1cm; text-shadow: 0.0cm 0.0625cm 0.125cm black; position: absolute; left: 0; top: 0; animation: blink 1s step-end infinite\">DEVELOPMENT BUILD</blink><style>@keyframes blink {  67% { opacity: 0 }}</style>" : ""}
     <script src="index.js"></script>
 </body>
 
