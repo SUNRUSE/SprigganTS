@@ -1,4 +1,2 @@
 node_modules
-Build/*
-!Build/Index.html
 Temp

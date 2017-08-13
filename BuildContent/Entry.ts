@@ -1,13 +1,23 @@
-import { ContentType, Error, ContentTypes, EndsWith, Build } from "./Misc"
-import "./Sprite"
-import "./Background"
+require("./Sprite/Imports/Aseprite")
+require("./Sprite/Imports/Png")
+require("./Background/Imports/Aseprite")
+require("./Background/Imports/Png")
+import { GenerateContentTreeFromBuild, GenerateCodeFromContentTree } from "./Tree"
 
 import fs = require("fs")
 import path = require("path")
 const rimraf = require("rimraf")
+import mkdirp = require("mkdirp")
+import { ContentTypes } from "./ContentType"
+import { Error, EndsWith } from "./Misc"
+import { Build } from "./Types"
 
-new ContentType(".sound.flp", "Sound", (filename, then) => then(), then => then("", []))
-new ContentType(".music.flp", "Music", (filename, then) => then(), then => then("", []))
+const Build: Build = {
+    LastModified: {},
+    ImportedContent: {},
+    PackingHeaders: {},
+    PackedContent: {}
+}
 
 FindFiles()
 
@@ -26,9 +36,11 @@ function FindFiles() {
                     fs.stat(fullPath, (err, stats) => {
                         Error(err)
                         if (stats.isFile()) {
-                            for (const extension in ContentTypes) {
-                                if (EndsWith(fullPath, extension)) {
-                                    Build.LastModified[fullPath] = stats.mtime.getTime()
+                            for (const contentType of ContentTypes) {
+                                for (const contentTypeImport of contentType.ContentTypeImports) {
+                                    if (EndsWith(fullPath, `.${contentType.FirstExtension}.${contentTypeImport.SecondExtension}`)) {
+                                        Build.LastModified[fullPath] = stats.mtime.getTime()
+                                    }
                                 }
                             }
                             CheckNextFileOrDirectory()
@@ -44,18 +56,19 @@ function FindFiles() {
 
 let PreviousBuild: Build = {
     LastModified: {},
-    AdditionalGeneratedCode: {},
+    ImportedContent: {},
+    PackingHeaders: {},
     PackedContent: {}
 }
 
 function CheckForPreviousBuild() {
-    console.info("Checking for a previous build (Temp/LastBuild.json)...")
-    fs.readFile("Temp/LastBuild.json", "utf8", (err, data) => {
+    console.info("Checking for a previous build (Temp/Content/Index.json)...")
+    fs.readFile("Temp/Content/Index.json", "utf8", (err, data) => {
         if (err && err.code == "ENOENT") {
-            console.info("Previous build not completed, deleting the Temp directory...")
-            rimraf("Temp", (err: any) => {
+            console.info("Previous build not completed, deleting the \"Temp/Content\" directory...")
+            rimraf("Temp/Content", (err: any) => {
                 Error(err)
-                EnsureTempFolderExists()
+                CompareBuilds()
             })
         }
         else {
@@ -65,36 +78,18 @@ function CheckForPreviousBuild() {
                 failed = false
             } catch (e) { }
             if (failed) {
-                console.info("JSON file from previous build corrupted, deleting the Temp directory...")
-                rimraf("Temp", (err: any) => {
+                console.info("JSON file from previous build corrupted, deleting the \"Temp/Content\" directory...")
+                rimraf("Temp/Content", (err: any) => {
                     Error(err)
-                    EnsureTempFolderExists()
+                    CompareBuilds()
                 })
             } else {
-                console.info("Deleting Temp/LastBuild.json to mark build as incomplete...")
-                fs.unlink("Temp/LastBuild.json", (err) => {
+                console.info("Deleting \"Temp/Content/Index.json\" to mark build as incomplete...")
+                fs.unlink("Temp/Content/Index.json", (err) => {
                     Error(err)
-                    EnsureTempFolderExists()
+                    CompareBuilds()
                 })
             }
-        }
-    })
-}
-
-function EnsureTempFolderExists() {
-    console.info("Checking that Temp exists...")
-    fs.stat("Temp", (err, stats) => {
-        if (err && err.code == "ENOENT") {
-            console.info("Creating...")
-            fs.mkdir("Temp", (err) => {
-                Error(err)
-                console.info("Created.")
-                CompareBuilds()
-            })
-        } else {
-            Error(err)
-            console.info("The Temp directory already exists.")
-            CompareBuilds()
         }
     })
 }
@@ -111,9 +106,15 @@ function CompareBuilds() {
     }
 
     for (const filename in PreviousBuild.LastModified) if (Build.LastModified[filename]) {
-        if (PreviousBuild.LastModified[filename] == Build.LastModified[filename])
+        if (PreviousBuild.LastModified[filename] == Build.LastModified[filename]) {
             console.log(`"${filename}" has NOT been modified between ${PreviousBuild.LastModified[filename]} and ${Build.LastModified[filename]}.`)
-        else {
+            for (const contentType of ContentTypes) for (const contentTypeImport of contentType.ContentTypeImports) {
+                if (EndsWith(filename, `.${contentType.FirstExtension}.${contentTypeImport.SecondExtension}`)) {
+                    if (!Build.ImportedContent[contentType.FirstExtension]) Build.ImportedContent[contentType.FirstExtension] = {}
+                    if (!Build.ImportedContent[contentType.FirstExtension][filename]) Build.ImportedContent[contentType.FirstExtension][filename] = PreviousBuild.ImportedContent[contentType.FirstExtension][filename]
+                }
+            }
+        } else {
             console.log(`"${filename}" has been modified between ${PreviousBuild.LastModified[filename]} and ${Build.LastModified[filename]}.`)
             FilesModified.push(filename)
         }
@@ -134,9 +135,9 @@ function DeleteTempFoldersForDeletedOrModifiedContent() {
     function TakeNext() {
         const filename = remaining.pop()
         if (!filename) {
-            RunConversions()
+            ImportContent()
         } else {
-            const directory = `Temp/${filename}`
+            const directory = path.join("Temp", "Content", "Imported", filename)
             console.log(`Deleting "${directory}"...`)
             rimraf(directory, (err: any) => {
                 Error(err)
@@ -146,277 +147,100 @@ function DeleteTempFoldersForDeletedOrModifiedContent() {
     }
 }
 
-function RunConversions() {
-    console.info("Running conversions...")
-    const remaining = FilesCreated.concat(FilesModified)
-    TakeNext()
-    function TakeNext() {
-        const filename = remaining.pop()
-        if (!filename) {
-            Pack()
-        } else {
-            for (const extension in ContentTypes) {
-                if (EndsWith(filename, extension)) {
-                    console.log(`Converting "${filename}"...`)
-                    ContentTypes[extension].Convert(filename, TakeNext)
+function ImportContent() {
+    let remainingToImport = FilesModified.length + FilesCreated.length
+    if (!remainingToImport) {
+        console.info("There is nothing to import")
+        Pack()
+    } else {
+        console.info("Importing content...")
+        for (const filename of FilesModified.concat(FilesCreated)) {
+            mkdirp(path.join("Temp", "Content", "Imported", filename), (err) => {
+                Error(err)
+                for (const contentType of ContentTypes) {
+                    for (const contentTypeImport of contentType.ContentTypeImports) {
+                        if (EndsWith(filename, `.${contentType.FirstExtension}.${contentTypeImport.SecondExtension}`)) {
+                            contentTypeImport.Import(filename, imported => {
+                                Build.ImportedContent[contentType.FirstExtension] = Build.ImportedContent[contentType.FirstExtension] || {}
+                                Build.ImportedContent[contentType.FirstExtension][filename] = imported
+                                remainingToImport--
+                                console.info(`Imported "${filename}", ${remainingToImport} remaining...`)
+                                if (!remainingToImport) Pack()
+                            })
+                        }
+                    }
                 }
-            }
+            })
         }
     }
 }
 
 function Pack() {
     console.info("Checking for content types which require packing...")
-    const remaining = Object.keys(ContentTypes)
-    TakeNext()
-    function TakeNext() {
-        const extension = remaining.pop()
-        if (extension) {
-            let requiresPacking = false
+    let remainingContentTypes = ContentTypes.length
+    for (const contentType of ContentTypes) {
+        let changed = false
+        for (const contentTypeImport of contentType.ContentTypeImports) {
             for (const filename of FilesCreated.concat(FilesModified).concat(FilesDeleted)) {
-                if (!EndsWith(filename, extension)) continue
-                requiresPacking = true
-                break
+                if (EndsWith(filename, `.${contentType.FirstExtension}.${contentTypeImport.SecondExtension}`)) {
+                    changed = true
+                }
             }
-            if (!requiresPacking) {
-                console.info(`No content with extension ${extension} has changed, no packing required`)
-                Build.AdditionalGeneratedCode[extension] = PreviousBuild.AdditionalGeneratedCode[extension] || ""
-                Build.PackedContent[extension] = PreviousBuild.PackedContent[extension] || []
-                TakeNext()
-            } else {
-                console.info(`Content with extension ${extension} has changed, packing...`)
-                ContentTypes[extension].Pack((additionalGeneratedCode, packedContent) => {
-                    Build.AdditionalGeneratedCode[extension] = additionalGeneratedCode
-                    Build.PackedContent[extension] = packedContent
-                    TakeNext()
-                })
-            }
-        } else GenerateTypeScriptTree()
-    }
-}
-
-type ContentTreeDirectory = {
-    readonly Type: "Directory"
-    readonly Children: { [name: string]: ContentTree }
-}
-type ContentTree = ContentTreeDirectory | {
-    readonly Type: "Content"
-    readonly GeneratedCode: string
-    readonly TypeGeneratedCode: string
-}
-const root: ContentTreeDirectory = { Type: "Directory", Children: {} }
-
-function GenerateTypeScriptTree() {
-    console.info("Generating TypeScript tree...")
-    for (const extension in Build.PackedContent) for (const content of Build.PackedContent[extension]) {
-        const fragments: string[] = []
-        let remaining = content.Path
-        let currentFragment = ""
-        while (remaining) {
-            const character = remaining.slice(0, 1)
-            remaining = remaining.slice(1)
-            if (character == "/" || character == "\\") {
-                // Fonts can sometimes have a "/" or "\" character, which should be kept as a path (a///b == a / b).
-                if (currentFragment) {
-                    fragments.push(currentFragment)
-                    currentFragment = ""
-                } else {
-                    // This handles:
-                    // a/ = a /
-                    // a// = a //
-                    // a/// = a ///
-                    // a//// = a ////
-                    // a/b = a b
-                    // a//b = a b
-                    // a///b = a / b
-                    // a////b = a // b
-                    // a/////b = a /// b
-                    currentFragment = character
-                    while (remaining.slice(0, 1) == "/" || remaining.slice(0, 1) == "\\") {
-                        currentFragment += remaining.slice(0, 1)
-                        remaining = remaining.slice(1)
+            if (changed) break
+        }
+        if (!changed) {
+            console.info(`Content type ${contentType.FirstExtension} has not changed`)
+            Build.PackingHeaders[contentType.FirstExtension] = PreviousBuild.PackingHeaders[contentType.FirstExtension] || {}
+            Build.PackedContent[contentType.FirstExtension] = PreviousBuild.PackedContent[contentType.FirstExtension] || {}
+            ContentTypeCompleted()
+        } else {
+            console.info(`Content type ${contentType.FirstExtension} has changed, packing...`)
+            console.log("Deleting temporary directory...")
+            rimraf(path.join("Temp", "Content", "Packed", contentType.FirstExtension), (err: any) => {
+                Error(err)
+                console.log("Creating temporary directory...")
+                mkdirp(path.join("Temp", "Content", "Packed", contentType.FirstExtension), (err) => {
+                    Error(err)
+                    console.log("Collapsing content and running content-type-specific packing process...")
+                    const collapsed: { [contentName: string]: any } = {}
+                    for (const filename in Build.ImportedContent[contentType.FirstExtension]) {
+                        for (const contentName in Build.ImportedContent[contentType.FirstExtension][filename]) {
+                            collapsed[contentName] = Build.ImportedContent[contentType.FirstExtension][filename][contentName]
+                        }
                     }
-                    if (remaining) {
-                        if (currentFragment.length > 1) fragments.push(currentFragment.slice(0, -1))
-                    } else
-                        fragments.push(currentFragment)
-                    currentFragment = ""
-                }
-            } else currentFragment += character
-        }
-        if (currentFragment) fragments.push(currentFragment)
-
-        // Skip "Game".
-        let directory = root
-        for (const fragment of fragments.slice(1, -1)) {
-            const next = directory.Children[fragment]
-            if (next) {
-                if (next.Type != "Directory")
-                    Error(`Part of "${content.Path}" exists as both a directory and content; do you have directories which clash with file contents?`)
-                else
-                    directory = next
-            } else {
-                const next: ContentTreeDirectory = {
-                    Type: "Directory",
-                    Children: {}
-                }
-                directory.Children[fragment] = next
-                directory = next
-            }
-        }
-
-        if (directory.Children[fragments[fragments.length - 1]]) Error(`"${content.Path}" is defined more than once; do you have overlapping names?`)
-
-        directory.Children[fragments[fragments.length - 1]] = {
-            Type: "Content",
-            GeneratedCode: content.GeneratedCode,
-            TypeGeneratedCode: ContentTypes[extension].TypeGeneratedCode
-        }
-    }
-    GenerateTypeScriptSource()
-}
-
-let GeneratedTypeScriptSource = ""
-
-function GenerateTypeScriptSource() {
-    console.info("Generating TypeScript source...")
-
-    for (const extension in Build.AdditionalGeneratedCode) GeneratedTypeScriptSource += Build.AdditionalGeneratedCode[extension]
-
-    GeneratedTypeScriptSource += `\nconst Content = ${RecurseDirectory(root, "")}`
-
-    function RecurseChild(child: ContentTree, tabs: string) {
-        if (child.Type == "Directory")
-            return RecurseDirectory(child, tabs)
-        else
-            return child.GeneratedCode
-    }
-
-    function RecurseDirectory(directory: ContentTreeDirectory, tabs: string) {
-        const sequentialNumbers: ContentTree[] = []
-        while (directory.Children[sequentialNumbers.length]) sequentialNumbers.push(directory.Children[sequentialNumbers.length])
-        let output = ""
-        if (Object.keys(directory.Children).length == sequentialNumbers.length) {
-            output += "[\n"
-            for (const child of sequentialNumbers) {
-                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)}`
-                if (child != sequentialNumbers[sequentialNumbers.length - 1]) output += ","
-                output += "\n"
-            }
-            output += `${tabs}]`
-        } else {
-            output += "{\n"
-            let remaining = Object.keys(directory.Children).length
-            for (const child in directory.Children) {
-                // Invalid property names are quoted.
-                // Additionally, as Uglify will not mangle quoted named, single character names are quoted too.
-                // This should not make any difference to its compression efforts as it's just one charatcer, but means font characters will be preserved.
-                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
-                if (--remaining) output += ","
-                output += "\n"
-            }
-            output += `${tabs}}`
-        }
-        return output
-    }
-    DeleteExistingTypeScriptFile()
-}
-
-function DeleteExistingTypeScriptFile() {
-    console.info("Checking whether a TypeScript file already exists...")
-    fs.stat("Temp/Content.ts", (err) => {
-        if (err && err.code == "ENOENT") {
-            console.info("No TypeScript file exists.")
-            WriteTypeScriptFile()
-        } else {
-            Error(err)
-            fs.unlink("Temp/Content.ts", (err) => {
-                Error(err)
-                WriteTypeScriptFile()
+                    contentType.Pack(collapsed, (header, packed) => {
+                        console.info(`Content type ${contentType.FirstExtension} has been packed`)
+                        Build.PackingHeaders[contentType.FirstExtension] = header
+                        Build.PackedContent[contentType.FirstExtension] = packed
+                        ContentTypeCompleted()
+                    })
+                })
             })
         }
-    })
-}
-
-function WriteTypeScriptFile() {
-    console.info("Writing TypeScript...")
-    fs.writeFile("Temp/Content.ts", GeneratedTypeScriptSource, "utf8", (err) => {
-        Error(err)
-        GenerateTypeScriptTypes()
-    })
-}
-
-let GeneratedTypeScriptTypes = ""
-
-function GenerateTypeScriptTypes() {
-    console.info("Generating TypeScript types...")
-
-    GeneratedTypeScriptTypes += `declare const Content: ${RecurseDirectory(root, "")}`
-
-    function RecurseChild(child: ContentTree, tabs: string) {
-        if (child.Type == "Directory")
-            return RecurseDirectory(child, tabs)
-        else
-            return child.TypeGeneratedCode
     }
-
-    function RecurseDirectory(directory: ContentTreeDirectory, tabs: string) {
-        const sequentialNumbers: ContentTree[] = []
-        while (directory.Children[sequentialNumbers.length]) sequentialNumbers.push(directory.Children[sequentialNumbers.length])
-        let output = ""
-        if (Object.keys(directory.Children).length == sequentialNumbers.length) {
-            output += "[\n"
-            for (const child of sequentialNumbers) {
-                output += `${tabs}\t${RecurseChild(child, `${tabs}\t`)}`
-                if (child != sequentialNumbers[sequentialNumbers.length - 1]) output += ","
-                output += "\n"
-            }
-            output += `${tabs}]`
-        } else {
-            output += "{\n"
-            let remaining = Object.keys(directory.Children).length
-            for (const child in directory.Children) {
-                // Invalid property names are quoted.
-                // Additionally, as Uglify will not mangle quoted named, single character names are quoted too.
-                // This should not make any difference to its compression efforts as it's just one charatcer, but means font characters will be preserved.
-                output += `${tabs}\t${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
-                if (--remaining) output += ","
-                output += "\n"
-            }
-            output += `${tabs}}`
-        }
-        return output
+    function ContentTypeCompleted() {
+        remainingContentTypes--
+        if (!remainingContentTypes) GenerateTypes()
     }
-    DeleteExistingTypeScriptTypesFile()
 }
 
-function DeleteExistingTypeScriptTypesFile() {
-    console.info("Checking whether a TypeScript types file already exists...")
-    fs.stat("Temp/ContentTypes.ts", (err) => {
-        if (err && err.code == "ENOENT") {
-            console.info("No TypeScript file exists.")
-            WriteTypeScriptTypesFile()
-        } else {
-            Error(err)
-            fs.unlink("Temp/ContentTypes.ts", (err) => {
-                Error(err)
-                WriteTypeScriptTypesFile()
-            })
-        }
+function GenerateTypes() {
+    console.info("Generating types...")
+    const types = GenerateCodeFromContentTree(GenerateContentTreeFromBuild(Build), true, {
+        sprite: () => "SpriteFrame",
+        background: () => "BackgroundFrame"
+    })
+
+    console.info("Writing types to \"Temp/Content/Types.ts\"...")
+    fs.writeFile("Temp/Content/Types.ts", types, "utf8", (err) => {
+        Error(err);
+        WriteBuild()
     })
 }
 
-function WriteTypeScriptTypesFile() {
-    console.info("Writing TypeScript types...")
-    fs.writeFile("Temp/ContentTypes.ts", GeneratedTypeScriptTypes, "utf8", (err) => {
-        Error(err)
-        GenerateBuild()
-    })
-}
-
-function GenerateBuild() {
-    console.info("Writing build file...")
-    fs.writeFile("Temp/LastBuild.json", JSON.stringify(Build), "utf8", (err) => {
+function WriteBuild() {
+    console.info("Writing build file... (Temp/Content/Index.json)")
+    fs.writeFile("Temp/Content/Index.json", JSON.stringify(Build), "utf8", (err) => {
         Error(err);
         Done()
     })

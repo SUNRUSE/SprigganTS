@@ -6,11 +6,19 @@
     "suppressTaskName": true,
     "tasks": [
         {
-            "isBuildCommand": true,
-            "taskName": "npm",
+            "taskName": "Development build on changes",
+            "command": "npm",
             "args": [
                 "run-script",
-                "develop"
+                "development"
+            ]
+        },
+        {
+            "taskName": "Single production build",
+            "command": "npm",
+            "args": [
+                "run-script",
+                "production"
             ]
         }
     ]

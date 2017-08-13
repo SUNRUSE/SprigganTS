@@ -1,14 +1,19 @@
 {
   "scripts": {
-    "postinstall": "npm-run-all postinstall-content postinstall-typescript postinstall-uglify",
-    "postinstall-content": "ts-node BuildContent/Entry.ts",
-    "postinstall-typescript": "tsc -p .",
-    "postinstall-uglify": "uglifyjs Build/Index.js --compress --mangle --mangle-props keep_quoted --ie8 --toplevel --output Build/Index.min.js",
-    "develop": "npm install && npm-run-all --parallel develop-content develop-typescript develop-uglify develop-host",
-    "develop-content": "nodemon -e ase,flp --watch Game` --exec \"npm run-script postinstall-content\"",
-    "develop-typescript": "tsc -w -p .",
-    "develop-uglify": "nodemon --watch Build/Index.js --exec \"npm run-script postinstall-uglify\"",
-    "develop-host": "mkdirp Build && cd Build && http-static"
+    "production": "npm install && npm-run-all production-content production-typescript production-assemble",
+    "production-content": "ts-node -P ./BuildContent ./BuildContent/Entry.ts",
+    "production-typescript": "npm-run-all production-typescript-engine-dom production-typescript-game",
+    "production-typescript-engine-dom": "tsc -p ./Engine/DOM",
+    "production-typescript-game": "tsc -p ./Game",
+    "production-assemble": "npm-run-all production-assemble-dom",
+    "production-assemble-dom": "ts-node -P ./Engine/DOM/BuildProcess ./Engine/DOM/BuildProcess/Assemble.ts",
+    "development": "npm install && npm-run-all --parallel development-content development-typescript development-assemble",
+    "development-content": "nodemon -e json,wav,png,ase --watch Game --exec \"npm run-script production-content\"",
+    "development-typescript": "npm-run-all --parallel development-typescript-engine-dom development-typescript-game",
+    "development-typescript-engine-dom": "tsc -w -p ./Engine/DOM",
+    "development-typescript-game": "tsc -w -p ./Game",
+    "development-assemble": "npm-run-all --parallel development-assemble-dom",
+    "development-assemble-dom": "nodemon --watch Temp/Content/Index.json --watch Temp/Scripts/Engine/DOM.js --watch Temp/Scripts/Game/Index.js --exec \"npm run-script production-assemble-dom\""
   },
   "devDependencies": {
     "@types/mkdirp": "^0.3.29",
