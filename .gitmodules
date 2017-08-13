@@ -1,3 +1,3 @@
-[submodule "Engine/Native/duktape"]
-	path = Engine/Native/duktape
+[submodule "Engine/Native/Dependencies/Duktape"]
+	path = Engine/Native/Dependencies/Duktape
 	url = https://github.com/jameswilddev/duktape-latest.git
