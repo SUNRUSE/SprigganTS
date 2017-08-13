@@ -28,7 +28,7 @@ function UncacheSprite(): CachedSprite {
         output[0].style.left = "0px"
         output[0].style.top = "0px"
     }
-    output[0].style.visibility = "initial"
+    output[0].style.visibility = "inherit"
     return output
 }
 
@@ -52,7 +52,7 @@ function UncacheGroup(): HTMLDivElement {
         output.style.top = "0px"
         output.style.left = "0px"
     }
-    output.style.visibility = "initial"
+    output.style.visibility = "inherit"
     return output
 }
 
