@@ -86,18 +86,10 @@ function GenerateContentTreeFromBuild(build: Build): ContentTreeDirectory {
 function GenerateCodeFromContentTree(tree: ContentTreeDirectory, ambient: boolean, codeGenerators: { [firstExtension: string]: (packedContent: any) => string }): string {
     console.info("Generating code from content tree...")
 
-    let output = ""
-
-    let first = true
-    for (const child in tree.Children) {
-        if (!/^[A-Za-z_][0-9A-Za-z_]+$/.test(child)) Error(`Content or directories named \"${child}\" cannot be in the root as this is not a valid JavaScript identifier`)
-        if (!first) output += "\n\n"
-        first = false
-        if (ambient) {
-            output += `declare const ${child}: ${RecurseChild(tree.Children[child], "")}`
-        } else {
-            output += `const ${child} = ${RecurseChild(tree.Children[child], "")}`
-        }
+    if (ambient) {
+        return `declare const Content: ${RecurseDirectory(tree, "")}`
+    } else {
+        return `const Content = ${RecurseDirectory(tree, "")}`
     }
 
     function RecurseChild(child: ContentTree, tabs: string) {
@@ -134,7 +126,6 @@ function GenerateCodeFromContentTree(tree: ContentTreeDirectory, ambient: boolea
         }
         return recursedOutput
     }
-    return output
 }
 
 export { ContentTree, ContentTreeDirectory, GenerateContentTreeFromBuild, GenerateCodeFromContentTree }
