@@ -175,7 +175,7 @@ interface IMoveable extends IPausable {
 class MoveableElement implements IMoveable, IDeletable, IHideable {
     private readonly PartOf: SceneGraphBase
     readonly Element: HTMLDivElement
-    private Timer: Timers.Once | undefined = undefined
+    private Timer: Timer | undefined = undefined
     private FromX = 0
     private FromY = 0
     private ToX = 0
@@ -184,7 +184,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
     constructor(partOf: SceneGraphBase, element: HTMLDivElement, onClick?: () => void) {
         this.PartOf = partOf
         this.Element = element
-        if (onClick) this.Element.onclick = () => { if (!partOf.Disabled()) Timers.InternalInvoke(onClick) }
+        if (onClick) this.Element.onclick = () => { if (!partOf.Disabled()) InternalInvoke(onClick) }
     }
 
     readonly VirtualPixelsFromLeft = () => {
@@ -229,7 +229,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
             this.Element.style.transition = "initial"
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
             this.Element.offsetHeight // Forces a reflow; required for transitions to work.
-            if (this.Timer && !this.Timer.Paused() && Timers.InternalFocused()) {
+            if (this.Timer && !this.Timer.Paused() && InternalFocused()) {
                 const remainingSeconds = this.Timer.DurationSeconds - this.Timer.ElapsedSeconds()
                 if ("transform" in this.Element.style) {
                     this.Element.style.transition = `transform ${remainingSeconds}s linear`
@@ -264,7 +264,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
         this.ToY = Math.round(topPixels)
         if ("transition" in this.Element.style) {
             // IE10+, Edge, Firefox, Chrome.
-            this.Timer = new Timers.Once(seconds, () => {
+            this.Timer = new Timer(seconds, () => {
                 this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             }, () => {
@@ -277,7 +277,7 @@ class MoveableElement implements IMoveable, IDeletable, IHideable {
                 this.Rescale()
         } else {
             // IE9--.
-            this.Timer = new Timers.Once(seconds, () => {
+            this.Timer = new Timer(seconds, () => {
                 this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             }, () => {
@@ -365,7 +365,7 @@ class Viewport extends SceneGraphBase {
         this.Element.style.position = "absolute"
         this.Element.style.overflow = crop ? "hidden" : "visible"
         this.Element.style.pointerEvents = "none"
-        if (onClick) this.Element.onclick = () => { if (!this.Disabled()) Timers.InternalInvoke(onClick) }
+        if (onClick) this.Element.onclick = () => { if (!this.Disabled()) InternalInvoke(onClick) }
 
         this.HorizontalPositionSignedUnitInterval = horizontalPositionSignedUnitInterval
         this.VerticalPositionSignedUnitInterval = verticalPositionSignedUnitInterval
@@ -376,7 +376,7 @@ class Viewport extends SceneGraphBase {
         this.OnResume = this.Children.Resume
         Display.RootElement.appendChild(this.Element)
 
-        Timers.InternalFocusedChanged.Listen(this.Rescale)
+        InternalFocusedChanged.Listen(this.Rescale)
         Display.Resized.Listen(this.Rescale)
         this.Rescale()
     }
@@ -394,7 +394,7 @@ class Viewport extends SceneGraphBase {
     }
 
     protected readonly OnDeletion = () => {
-        Timers.InternalFocusedChanged.Unlisten(this.Rescale)
+        InternalFocusedChanged.Unlisten(this.Rescale)
         Display.Resized.Unlisten(this.Rescale)
         Display.RootElement.removeChild(this.Element)
         this.Children.Delete()
@@ -532,7 +532,7 @@ class Sprite extends SceneGraphBase implements IMoveable {
     protected readonly OnShow = () => this.MoveableElement.Show()
     protected readonly GetParentHidden = () => this.Parent.Hidden()
 
-    private AnimationTimer: Timers.Once | undefined = undefined
+    private AnimationTimer: Timer | undefined = undefined
 
     readonly Play = (animation: SpriteFrame | SpriteFrame[], onCompletionIfUninterrupted?: () => void) => {
         if (this.Deleted()) return
@@ -543,7 +543,7 @@ class Sprite extends SceneGraphBase implements IMoveable {
         if (animation instanceof SpriteFrame) {
             this.SetFrame(animation)
             if (onCompletionIfUninterrupted == null) return
-            this.AnimationTimer = new Timers.Once(animation.DurationSeconds, onCompletionIfUninterrupted)
+            this.AnimationTimer = new Timer(animation.DurationSeconds, onCompletionIfUninterrupted)
             if (this.Paused()) this.AnimationTimer.Pause()
         } else {
             let frame = 0
@@ -551,9 +551,9 @@ class Sprite extends SceneGraphBase implements IMoveable {
                 this.SetFrame(animation[frame])
                 if (frame == animation.length - 1) {
                     if (!onCompletionIfUninterrupted) return
-                    this.AnimationTimer = new Timers.Once(animation[frame].DurationSeconds, onCompletionIfUninterrupted)
+                    this.AnimationTimer = new Timer(animation[frame].DurationSeconds, onCompletionIfUninterrupted)
                 } else {
-                    this.AnimationTimer = new Timers.Once(animation[frame].DurationSeconds, showNext)
+                    this.AnimationTimer = new Timer(animation[frame].DurationSeconds, showNext)
                     frame++
                 }
                 if (this.Paused()) this.AnimationTimer.Pause()

@@ -8,6 +8,6 @@ onload = () => {
 
     LoadSprites(() => {
         RemoveLoadingMessage()
-        Timers.InternalInvoke(StartGame)
+        InternalInvoke(StartGame)
     })
 }

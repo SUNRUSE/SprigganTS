@@ -17,7 +17,7 @@ namespace Background {
     }
 
     let PausedValue = false
-    let Timer: Timers.Once | undefined = undefined
+    let AnimationTimer: Timer | undefined = undefined
     let ActiveFrame: BackgroundFrame | undefined = undefined
     let SetId = 0
 
@@ -59,7 +59,7 @@ namespace Background {
                     loaded++
                     if (loaded == backgroundReference.length) {
                         if (requiresInvoke)
-                            Timers.InternalInvoke(ShowNext)
+                            InternalInvoke(ShowNext)
                         else
                             ShowNext()
                     } else {
@@ -70,8 +70,8 @@ namespace Background {
 
             function ShowNext() {
                 SetActiveFrame(backgroundReference[frame])
-                Timer = new Timers.Once(backgroundReference[frame].DurationSeconds, ShowNext)
-                if (PausedValue) Timer.Pause()
+                AnimationTimer = new Timer(backgroundReference[frame].DurationSeconds, ShowNext)
+                if (PausedValue) AnimationTimer.Pause()
                 frame = (frame + 1) % backgroundReference.length
             }
         }
@@ -82,12 +82,12 @@ namespace Background {
     }
 
     export function Pause() {
-        if (Timer) Timer.Pause()
+        if (AnimationTimer) AnimationTimer.Pause()
         PausedValue = true
     }
 
     export function Resume() {
-        if (Timer) Timer.Resume()
+        if (AnimationTimer) AnimationTimer.Resume()
         PausedValue = false
     }
 
@@ -97,9 +97,9 @@ namespace Background {
     }
 
     function SetActiveFrame(frame: BackgroundFrame | undefined) {
-        if (Timer) {
-            Timer.Cancel()
-            Timer = undefined
+        if (AnimationTimer) {
+            AnimationTimer.Cancel()
+            AnimationTimer = undefined
         }
         if (frame) {
             if (ActiveFrame) {
