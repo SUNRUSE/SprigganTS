@@ -48,18 +48,28 @@ type PackedSpriteFrame =
         readonly DurationSeconds: number
     }
 
-type ImportedBackgroundFrame = {
-    readonly PngFilename: string
-    readonly WidthPixels: number
-    readonly HeightPixels: number
-    readonly DurationSeconds: number
-}
+type ImportedBackgroundFrame =
+    {
+        readonly Empty: false
+        readonly PngFilename: string
+        readonly WidthPixels: number
+        readonly HeightPixels: number
+        readonly DurationSeconds: number
+    } | {
+        readonly Empty: true
+        readonly DurationSeconds: number
+    }
 
-type PackedBackgroundFrame = {
-    readonly Id: number
-    readonly WidthPixels: number
-    readonly HeightPixels: number
-    readonly DurationSeconds: number
-}
+type PackedBackgroundFrame =
+    {
+        readonly Empty: false
+        readonly Id: number
+        readonly WidthPixels: number
+        readonly HeightPixels: number
+        readonly DurationSeconds: number
+    } | {
+        readonly Empty: true
+        readonly DurationSeconds: number
+    }
 
 export { Configuration, Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackgroundFrame, PackedBackgroundFrame }
