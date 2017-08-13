@@ -48,18 +48,18 @@ type PackedSpriteFrame =
         readonly DurationSeconds: number
     }
 
-type ImportedBackground = {
+type ImportedBackgroundFrame = {
     readonly PngFilename: string
     readonly WidthPixels: number
     readonly HeightPixels: number
     readonly DurationSeconds: number
 }
 
-type PackedBackground = {
+type PackedBackgroundFrame = {
     readonly Id: number
     readonly WidthPixels: number
     readonly HeightPixels: number
     readonly DurationSeconds: number
 }
 
-export { Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackground, PackedBackground }
+export { Build, ImportedSpriteFrame, PackedSpriteFrame, ImportedBackgroundFrame, PackedBackgroundFrame }
