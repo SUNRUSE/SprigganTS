@@ -83,7 +83,7 @@ function GenerateContentTreeFromBuild(build: Build): ContentTreeDirectory {
     return output
 }
 
-function GenerateCodeFromContentTree(tree: ContentTreeDirectory, codeGenerators: { [firstExtension: string]: (packedContent: any) => string }): string {
+function GenerateCodeFromContentTree(tree: ContentTreeDirectory, ambient: boolean, codeGenerators: { [firstExtension: string]: (packedContent: any) => string }): string {
     console.info("Generating code from content tree...")
 
     let output = ""
@@ -93,7 +93,11 @@ function GenerateCodeFromContentTree(tree: ContentTreeDirectory, codeGenerators:
         if (!/^[A-Za-z_][0-9A-Za-z_]+$/.test(child)) Error(`Content or directories named \"${child}\" cannot be in the root as this is not a valid JavaScript identifier`)
         if (!first) output += "\n\n"
         first = false
-        output += `declare const ${child}: ${RecurseChild(tree.Children[child], "")}`
+        if (ambient) {
+            output += `declare const ${child}: ${RecurseChild(tree.Children[child], "")}`
+        } else {
+            output += `const ${child} = ${RecurseChild(tree.Children[child], "")}`
+        }
     }
 
     function RecurseChild(child: ContentTree, tabs: string) {
@@ -122,7 +126,7 @@ function GenerateCodeFromContentTree(tree: ContentTreeDirectory, codeGenerators:
                 // Invalid property names are quoted.
                 // Additionally, as Uglify will not mangle quoted names, single character names are quoted too.
                 // This should not make any difference to its compression efforts as it's just one character, but means font characters will be preserved.
-                recursedOutput += `${tabs}\treadonly ${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
+                recursedOutput += `${tabs}\t${ambient ? "readonly" : ""} ${/^[A-Za-z_][0-9A-Za-z_]+$/.test(child) ? child : JSON.stringify(child)}: ${RecurseChild(directory.Children[child], `${tabs}\t`)}`
                 if (--remaining) recursedOutput += ","
                 recursedOutput += "\n"
             }
