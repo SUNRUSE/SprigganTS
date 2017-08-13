@@ -1,3 +1,8 @@
+type Configuration = {
+    VirtualWidth: number
+    VirtualHeight: number
+}
+
 type Build = {
     LastModified: { [filename: string]: number }
 
