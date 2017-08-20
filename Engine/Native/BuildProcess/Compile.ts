@@ -26,6 +26,13 @@ switch (process.platform) {
         gccArguments.push("-lopengl32", "-lgdi32")
         break
 
+    case "linux":
+        console.info("Compiling for linux...")
+        gccArguments.unshift("./Engine/Native/Linux.c")
+        gccArguments.push("-o", "./Temp/Assembled/Native/spriggantsnativeengine")
+        gccArguments.push("-lGL", "-lX11")
+        break
+
     default: Error(`Unable to compile for platform "${process.platform}"`)
 }
 
