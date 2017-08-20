@@ -57,6 +57,6 @@ The table is laid out in column-major order, i.e. the first attribute of every b
 Its columns are:
 
 - Unsigned 16-bit integers specifying the background frame ID, or 65535 if the background frame is empty; see below for how this is used.
-- Unsigned 16-bit integers specifying the number of milliseconds the sprite frame should be displayed for when part of an animation.
+- Unsigned 16-bit integers specifying the number of milliseconds the background frame should be displayed for when part of an animation.
 
 There is then a chunk for every background frame ID, containing the PNG to display.
