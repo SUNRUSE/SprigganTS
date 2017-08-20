@@ -11,7 +11,7 @@
     "production-assemble": "npm-run-all production-assemble-dom production-assemble-native",
     "production-assemble-dom": "ts-node -P ./Engine/DOM/BuildProcess ./Engine/DOM/BuildProcess/Assemble.ts",
     "production-assemble-native": "ts-node -P ./Engine/Native/BuildProcess ./Engine/Native/BuildProcess/Assemble.ts",
-    "development": "cross-env NODE_ENV=development npm run-script production-content && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble",
+    "development": "cross-env NODE_ENV=development npm run-script production-content && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble development-host",
     "development-content": "nodemon -e json,wav,png,ase --watch Game --exec \"npm run-script production-content\"",
     "development-typescript": "npm-run-all --parallel development-typescript-engine-dom development-typescript-engine-shared development-typescript-game",
     "development-typescript-engine-dom": "tsc -w -p ./Engine/DOM",
@@ -21,7 +21,9 @@
     "development-compile-native": "nodemon -e c,h --watch Engine/Native --exec \"npm run-script production-compile-native\"",
     "development-assemble": "npm-run-all --parallel development-assemble-dom development-assemble-native",
     "development-assemble-dom": "nodemon --watch Temp/Content/Index.json --watch Temp/Scripts/Engine/DOM.js --watch Temp/Scripts/Game/Index.js --exec \"npm run-script production-assemble-dom\"",
-    "development-assemble-native": "nodemon --watch Temp/Content/Index.json --watch Temp/Scripts/Engine/Shared.js --watch Temp/Scripts/Game/Index.js --exec \"npm run-script production-assemble-native\""
+    "development-assemble-native": "nodemon --watch Temp/Content/Index.json --watch Temp/Scripts/Engine/Shared.js --watch Temp/Scripts/Game/Index.js --exec \"npm run-script production-assemble-native\"",
+    "development-host": "npm-run-all --parallel development-host-dom",
+    "development-host-dom": "mkdirp Temp/Assembled/DOM && cd Temp/Assembled/DOM && http-static"
   },
   "devDependencies": {
     "@types/mkdirp": "^0.3.29",
