@@ -112,7 +112,7 @@ let Game: string
 
 function ReadGame() {
     console.info("Reading game JavaScript...")
-    fs.readFile("Temp/Scripts/Game/index.js", "utf8", (err, data) => {
+    fs.readFile("Temp/Scripts/Game/Index.js", "utf8", (err, data) => {
         Error(err)
         Game = data
         ConcatenateScripts()
