@@ -38,7 +38,7 @@ The second chunk is the title of the game.
 
 The third chunk is the JavaScript source code to run as a game, compressed using DEFLATE if the file is from a production build.
 
-The fourth chunk is a table of sprite frame data, compressed using DEFLATE if the file is from a production build, then the PNG of the sprite atlas.
+The fourth chunk is a table of sprite frame data, compressed using DEFLATE if the file is from a production build.
 The table is laid out in column-major order, i.e. the first attribute of every sprite frame, then the second attribute of every sprite frame.
 Its columns are:
 
@@ -50,7 +50,9 @@ Its columns are:
 - Signed 16-bit integers specifying the number of pixels offset the sprite frame down; if 2, the top border of the sprite should be 2 pixels down of the origin.
 - Unsigned 16-bit integers specifying the number of milliseconds the sprite frame should be displayed for when part of an animation.
 
-The fifth chunk is a table of sprite frame data, compressed using DEFLATE if the file is from a production build.
+The fifth chunk is the PNG of the sprite atlas.
+
+The sixth chunk is a table of background frame data, compressed using DEFLATE if the file is from a production build.
 The table is laid out in column-major order, i.e. the first attribute of every background frame, then the second attribute of every background frame.
 Its columns are:
 
