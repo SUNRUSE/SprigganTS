@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "production": "cross-env NODE_ENV=production npm-run-all production-content production-typescript production-assemble",
+    "production": "npm install && cross-env NODE_ENV=production npm-run-all production-content production-typescript production-assemble",
     "production-content": "ts-node -P ./BuildContent ./BuildContent/Entry.ts",
     "production-typescript": "npm-run-all production-typescript-engine-dom production-typescript-engine-shared production-typescript-game",
     "production-typescript-engine-dom": "tsc -p ./Engine/DOM",
@@ -11,7 +11,7 @@
     "production-assemble": "npm-run-all production-assemble-dom production-assemble-native",
     "production-assemble-dom": "ts-node -P ./Engine/DOM/BuildProcess ./Engine/DOM/BuildProcess/Assemble.ts",
     "production-assemble-native": "ts-node -P ./Engine/Native/BuildProcess ./Engine/Native/BuildProcess/Assemble.ts",
-    "development": "cross-env NODE_ENV=development npm run-script production-content && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble development-host",
+    "development": "npm install && cross-env NODE_ENV=development npm run-script production-content && cross-env NODE_ENV=development npm-run-all --parallel development-content development-typescript development-assemble development-host",
     "development-content": "nodemon -e json,wav,png,ase --watch Game --exec \"npm run-script production-content\"",
     "development-typescript": "npm-run-all --parallel development-typescript-engine-dom development-typescript-engine-shared development-typescript-game",
     "development-typescript-engine-dom": "tsc -w -p ./Engine/DOM",
