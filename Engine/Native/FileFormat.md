@@ -5,7 +5,7 @@ All values are encoded in little-endian.
 All strings are UTF-8, without a byte-order-mark.
 
 It consists of a series of "chunks", which are themselves binary blobs.
-The file begins with an unsigned 16-bit integer specifying the number of chunks.
+The file begins with an unsigned 32-bit integer specifying the number of chunks.
 This is followed by an unsigned 32-bit integer specifying the size of each chunk in order.
 The rest of the file consists of the bytes of these chunks, in order.
 
