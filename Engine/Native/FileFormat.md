@@ -12,7 +12,7 @@ The rest of the file consists of the bytes of these chunks, in order.
 The first chunk contains metadata; a list of unsigned 16-bit integers, specifying, in order:
 
 - A set of flags.  These are, in order from most significant to least significant bit:
-    + Whether the file is from a production build (2147483648 = production, 0 = development).
+    + Whether the file is from a production build (32768 = production, 0 = development).
     + Currently ignored.
     + Currently ignored.
     + Currently ignored.

@@ -84,7 +84,7 @@ function GenerateHeader() {
     UniqueBackgroundIds = Math.max.apply(Math, BackgroundFrameIds)
     UniqueBackgroundIds = UniqueBackgroundIds == -Infinity ? 0 : UniqueBackgroundIds + 1
     Chunks.push(Uint16Array.from([
-        2147483648,
+        process.env.NODE_ENV == "production" ? 32768 : 0,
         Configuration.VirtualWidth,
         Configuration.VirtualHeight,
         SpriteFrameAtlasLeftPixels.length,
