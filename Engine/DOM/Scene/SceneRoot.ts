@@ -25,7 +25,7 @@ class SceneRoot extends SceneObject {
         if ("transition" in this.Element.style) {
             return false
         } else {
-            // IE9--.
+            // IE9-.
             let any = false
             for (const child of this.Children) if (child.Tick()) any = true
             return any

@@ -47,7 +47,7 @@ abstract class MovingSceneObject extends SceneObject {
             else
                 this.RefreshMotion()
         } else {
-            // IE9--.
+            // IE9-.
             this.MotionTimer = new Timer(durationSeconds, () => {
                 this.MotionTimer = undefined
                 this.Move(virtualPixelsFromLeft, virtualPixelsFromTop)
