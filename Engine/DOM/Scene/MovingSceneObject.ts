@@ -23,6 +23,7 @@ abstract class MovingSceneObject extends SceneObject {
             this.MotionTimer = undefined
         }
         if (this.MotionCallback) {
+            Remove(TickCallbacks, this.MotionCallback)
             this.MotionCallback = undefined
         }
         this.FromVirtualPixelsFromLeft = virtualPixelsFromLeft
@@ -146,6 +147,12 @@ abstract class MovingSceneObject extends SceneObject {
             this.MotionTimer.Cancel()
             this.MotionTimer = undefined
         }
+
+        if (this.MotionCallback) {
+            Remove(TickCallbacks, this.MotionCallback)
+            this.MotionCallback = undefined
+        }
+
         this.OnMovingSceneObjectDelete()
     }
 
