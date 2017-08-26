@@ -372,3 +372,8 @@ declare function Save(name: string, data: Json): void
  * @returns {T | undefined} The loaded JSON, if any; undefined is returned if the JSON cannot be found or parsed.
  */
 declare function Load<T extends Json>(name: string): T | undefined
+
+/** Determines whether Save and Load are available.
+ * @returns {boolean} True if Save and Load are available, else, false.
+ */
+declare function SaveAndLoadAvailable(): boolean

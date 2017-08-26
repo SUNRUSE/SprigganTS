@@ -6,7 +6,12 @@ new Demo("Save and Load", (group) => {
     data.OpenedTimes++
     const saved = Save("Name", data)
 
-    let text = `This demo has been opened ${data.OpenedTimes} time(s).\n\nThis persists between runs.`
+    let text = ""
+    if (SaveAndLoadAvailable())
+        text += "Save and load should be available."
+    else
+        text += "Save and load are not available."
+    text += `\n\nThis demo has been opened ${data.OpenedTimes} time(s).\n\nThis should persist between runs.`
     if (!loaded) text += "\n\nA previous save could not be loaded."
     if (!saved) text += "\n\nThis information could not be saved."
 
