@@ -58,7 +58,6 @@ function FocusLost(localEvent: Event) {
         shadeElement.style.left = "0"
         shadeElement.style.top = "0"
         ResizeShade()
-        Display.Resized.Listen(ResizeShade)
 
         shadeElement.style.background = "black"
         if ("opacity" in shadeElement.style) {
@@ -93,7 +92,6 @@ function FocusRegained() {
         const shadeElementReference = shadeElement
         setTimeout(() => document.body.removeChild(shadeElementReference), 150)
         shadeElement = undefined
-        Display.Resized.Unlisten(ResizeShade)
 
         InternalFocusedChanged.Raise()
         TimeAtLastInvoke = undefined

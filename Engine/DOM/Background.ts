@@ -21,11 +21,11 @@ namespace Background {
     let ActiveFrame: BackgroundFrame | undefined = undefined
     let SetId = 0
 
-    Display.Resized.Listen(() => {
-        if (ActiveFrame) Rescale(ActiveFrame)
-    })
+    export function Resize() {
+        if (ActiveFrame) ApplyFrame(ActiveFrame)
+    }
 
-    function Rescale(frame: BackgroundFrame) {
+    function ApplyFrame(frame: BackgroundFrame) {
         const element = Cache[frame.FileNumber]
         const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
         element.style.width = `${frame.Width * realPixelsPerVirtualPixel}px`
@@ -107,7 +107,7 @@ namespace Background {
             } else {
                 SceneRoot.Instance.Element.insertBefore(Cache[frame.FileNumber], SceneRoot.Instance.Element.firstChild)
             }
-            Rescale(frame)
+            ApplyFrame(frame)
         } else {
             if (ActiveFrame) SceneRoot.Instance.Element.removeChild(Cache[ActiveFrame.FileNumber])
         }

@@ -1,6 +1,5 @@
 namespace Display {
     export type ResizedCallback = (screenWidthPixels: number, screenHeightPixels: number, scaleFactor: number) => void
-    export const Resized = new RecurringEvent<ResizedCallback>()
 
     let RealWidthPixelsValue = document.body.clientWidth
     export function RealWidthPixels() {
@@ -20,6 +19,7 @@ namespace Display {
         RealWidthPixelsValue = document.body.clientWidth
         RealHeightPixelsValue = document.body.clientHeight
         SceneRoot.Instance.Rescale()
-        Resized.Raise(RealWidthPixels(), RealHeightPixels(), RealPixelsPerVirtualPixel())
+        ResizeShade()
+        Background.Resize()
     }
 }
