@@ -4,7 +4,6 @@ abstract class MovingSceneObject extends SceneObject {
     private ToVirtualPixelsFromLeft = 0
     private ToVirtualPixelsFromTop = 0
     private MotionTimer?: Timer
-    private MotionCallback?: () => void
 
     VirtualPixelsFromLeft(): number {
         if (!this.MotionTimer) return this.FromVirtualPixelsFromLeft
@@ -21,10 +20,6 @@ abstract class MovingSceneObject extends SceneObject {
         if (this.MotionTimer) {
             this.MotionTimer.Cancel()
             this.MotionTimer = undefined
-        }
-        if (this.MotionCallback) {
-            Remove(TickCallbacks, this.MotionCallback)
-            this.MotionCallback = undefined
         }
         this.FromVirtualPixelsFromLeft = virtualPixelsFromLeft
         this.FromVirtualPixelsFromTop = virtualPixelsFromTop
@@ -54,16 +49,10 @@ abstract class MovingSceneObject extends SceneObject {
         } else {
             // IE9--.
             this.MotionTimer = new Timer(durationSeconds, () => {
-                Remove(TickCallbacks, this.MotionCallback)
-                this.MotionCallback = undefined
                 this.MotionTimer = undefined
                 this.Move(virtualPixelsFromLeft, virtualPixelsFromTop)
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             })
-
-            if (this.MotionCallback) Remove(TickCallbacks, this.MotionCallback)
-            this.MotionCallback = () => this.RefreshMotion()
-            TickCallbacks.push(this.MotionCallback)
 
             if (this.Paused()) this.MotionTimer.Pause()
         }
@@ -110,7 +99,6 @@ abstract class MovingSceneObject extends SceneObject {
         if (this.MotionTimer) {
             this.MotionTimer.Pause()
             this.RefreshMotion()
-            if (this.MotionCallback) Remove(TickCallbacks, this.MotionCallback)
         }
         this.OnMovingSceneObjectPause()
     }
@@ -121,7 +109,6 @@ abstract class MovingSceneObject extends SceneObject {
         if (this.MotionTimer) {
             this.MotionTimer.Resume()
             this.RefreshMotion()
-            if (this.MotionCallback) TickCallbacks.push(this.MotionCallback)
         }
         this.OnMovingSceneObjectResume()
     }
@@ -135,6 +122,16 @@ abstract class MovingSceneObject extends SceneObject {
 
     protected OnMovingSceneObjectRescale(): void { }
 
+    Tick(): boolean {
+        let any = false
+        if (this.MotionTimer && !this.MotionTimer.Paused()) {
+            any = true
+            this.RefreshMotion()
+        }
+        for (const child of this.Children) if (child.Tick()) any = true
+        return any
+    }
+
     protected OnDelete(): void {
         if ("transform" in this.Element.style) {
             this.Element.style.transform = "translate(0px, 0px)"
@@ -146,11 +143,6 @@ abstract class MovingSceneObject extends SceneObject {
         if (this.MotionTimer) {
             this.MotionTimer.Cancel()
             this.MotionTimer = undefined
-        }
-
-        if (this.MotionCallback) {
-            Remove(TickCallbacks, this.MotionCallback)
-            this.MotionCallback = undefined
         }
 
         this.OnMovingSceneObjectDelete()

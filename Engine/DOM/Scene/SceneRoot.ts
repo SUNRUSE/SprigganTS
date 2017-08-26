@@ -19,4 +19,16 @@ class SceneRoot extends SceneObject {
         this.Element.style.width = `${Display.RealWidthPixels()}px`
         this.Element.style.height = `${Display.RealHeightPixels()}px`
     }
+
+    Tick(): boolean {
+        // IE10+, Edge, Firefox, Chrome.
+        if ("transition" in this.Element.style) {
+            return false
+        } else {
+            // IE9--.
+            let any = false
+            for (const child of this.Children) if (child.Tick()) any = true
+            return any
+        }
+    }
 }

@@ -1,8 +1,6 @@
 let TimeAtLastInvoke: number | undefined = undefined
 let CurrentTime = 0
 
-const TickCallbacks: (() => void)[] = []
-
 type CallbackQueueItem = {
     readonly At: number
     readonly Call: () => void
@@ -140,14 +138,14 @@ function InternalInvoke(callback?: () => void) {
     }
 
     CurrentTime = newCurrentTime
-    for (const tickCallback of TickCallbacks.slice()) tickCallback()
+    const futureTickRequired = SceneRoot.Instance.Tick()
 
     if (Timeout !== undefined) {
         clearTimeout(Timeout)
         Timeout = undefined
     }
 
-    if (TickCallbacks.length) {
+    if (futureTickRequired) {
         if ("requestAnimationFrame" in window) {
             if (AnimationFrame === undefined) {
                 AnimationFrame = requestAnimationFrame(() => {

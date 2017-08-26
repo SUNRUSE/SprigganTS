@@ -1,6 +1,6 @@
 abstract class SceneObject {
     private readonly Parent?: SceneObject
-    private readonly Children: SceneObject[] = []
+    protected readonly Children: SceneObject[] = []
     readonly StaticSprites: StaticSprite[] = []
     readonly Element: HTMLDivElement
     private LocallyDeletedValue = false
@@ -111,6 +111,8 @@ abstract class SceneObject {
     }
 
     protected abstract OnRescale(): void
+
+    abstract Tick(): boolean
 
     Delete(): void {
         if (this.LocallyDeletedValue) return

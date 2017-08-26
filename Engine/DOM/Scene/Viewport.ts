@@ -35,4 +35,10 @@ class Viewport extends SceneObject {
     protected OnDelete(): void {
         CachedViewports.push(this.Element)
     }
+
+    Tick(): boolean {
+        let any = false
+        for (const child of this.Children) if (child.Tick()) any = true
+        return any
+    }
 }
