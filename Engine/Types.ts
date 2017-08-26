@@ -21,3 +21,10 @@ declare const enum VerticalAlignment {
     /** The object is aligned to the bottom edge. */
     Bottom
 }
+
+// This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
+/** This type is part of Json, and is required to implement Json under TypeScript. */
+interface JsonArray extends Array<Json> { }
+
+/** Defines types which can be serialized to JSON. */
+type Json = string | number | boolean | JsonArray | { [x: string]: Json; } | null

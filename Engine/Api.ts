@@ -1,4 +1,4 @@
-/// <reference path="Enumerations.ts" />
+/// <reference path="Types.ts" />
 
 /** A sprite frame, imported from non-code content. */
 declare abstract class SpriteFrame { }
@@ -359,13 +359,6 @@ declare class RecurringTimer {
      */
     Stop(): RecurringTimer
 }
-
-// This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
-/** This type is part of Json, and is required to implement Json under TypeScript. */
-interface JsonArray extends Array<Json> { }
-
-/** Defines types which can be serialized to JSON. */
-type Json = string | number | boolean | JsonArray | { [x: string]: Json; } | null
 
 /** Persists JSON which can then be Load-ed later on, even after the game/device have restarted.
  * @param {string} name The name to save the JSON under.

@@ -2,7 +2,7 @@
     "files": [
         "LoadingMessage.ts",
         "Ambient.ts",
-        "../Enumerations.ts",
+        "../Types.ts",
         "../Shared/Misc.ts",
         "../Shared/Events.ts",
         "Misc.ts",
