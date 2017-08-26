@@ -19,7 +19,7 @@ class Sprite extends MovingSceneObject {
         super(parent, onClick)
         if (this.Deleted()) return
         this.Rescale()
-        this.ImageElement = this.Element.firstElementChild as HTMLImageElement
+        this.ImageElement = this.Element.firstChild as HTMLImageElement
     }
 
     protected CreateElement(): HTMLDivElement {
