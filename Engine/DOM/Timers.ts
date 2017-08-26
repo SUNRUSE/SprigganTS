@@ -185,27 +185,17 @@ function InternalInvoke(callback?: () => void) {
     Recursing = false
 }
 
-type OnceCallback = (elapsedSeconds: number, elapsedUnitInterval: number) => void
-
 class Timer {
     private CompletedValue = false
     private StartedAt: number
     private CancelledElapsed: number | undefined = undefined
     private PausedElapsed: number | undefined = undefined
     private CallbackQueueItem: CallbackQueueItem
-    private readonly TickCallback: (() => void) | undefined
 
     public readonly DurationSeconds: number
 
-    private readonly OnCancellation?: OnceCallback
-    private readonly OnPause?: OnceCallback
-    private readonly OnResume?: OnceCallback
-
-    constructor(durationSeconds: number, onCompletion?: () => void, onCancellation?: OnceCallback, onTick?: OnceCallback, onPause?: OnceCallback, onResume?: OnceCallback) {
+    constructor(durationSeconds: number, onCompletionIfUninterrupted: () => void) {
         this.DurationSeconds = durationSeconds
-        this.OnCancellation = onCancellation
-        this.OnPause = onPause
-        this.OnResume = onResume
 
         this.StartedAt = CurrentTime
 
@@ -213,16 +203,10 @@ class Timer {
             At: CurrentTime + durationSeconds,
             Call: () => {
                 this.CompletedValue = true
-                if (onCompletion) onCompletion()
-                if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
+                onCompletionIfUninterrupted()
             }
         }
         AddToCallbackQueue(this.CallbackQueueItem)
-
-        if (onTick) {
-            this.TickCallback = () => onTick(this.ElapsedSeconds(), this.ElapsedUnitInterval())
-            TickCallbacks.push(this.TickCallback)
-        }
     }
 
     readonly Cancelled = () => this.CancelledElapsed !== undefined
@@ -240,64 +224,54 @@ class Timer {
         return this.ElapsedSeconds() / this.DurationSeconds
     }
 
-    readonly Cancel = () => {
-        if (this.Cancelled() || this.Completed()) return
+    Cancel(): Timer {
+        if (this.Cancelled() || this.Completed()) return this
         this.CancelledElapsed = this.ElapsedSeconds()
-        if (this.OnCancellation) this.OnCancellation(this.ElapsedSeconds(), this.ElapsedUnitInterval())
         if (!this.Paused()) {
             Remove(CallbackQueue, this.CallbackQueueItem)
-            if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
         }
+        return this
     }
 
-    readonly Pause = () => {
-        if (this.Paused() || this.Cancelled() || this.Completed()) return
+    Pause(): Timer {
+        if (this.Paused() || this.Cancelled() || this.Completed()) return this
         this.PausedElapsed = this.ElapsedSeconds()
         Remove(CallbackQueue, this.CallbackQueueItem)
-        if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
-        if (this.OnPause) this.OnPause(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+        return this
     }
 
-    readonly Resume = () => {
-        if (this.Cancelled() || this.Completed()) return
-        if (this.PausedElapsed === undefined) return
+    Resume(): Timer {
+        if (this.Cancelled() || this.Completed()) return this
+        if (this.PausedElapsed === undefined) return this
         this.StartedAt = CurrentTime - this.PausedElapsed
         this.CallbackQueueItem = {
             At: CurrentTime + this.DurationSeconds - this.PausedElapsed,
             Call: this.CallbackQueueItem.Call
         }
         AddToCallbackQueue(this.CallbackQueueItem)
-        if (this.TickCallback) TickCallbacks.push(this.TickCallback)
         this.PausedElapsed = undefined
-        if (this.OnResume) this.OnResume(this.ElapsedSeconds(), this.ElapsedUnitInterval())
+        return this
     }
 }
-
-type RecurringIntervalCallback = (completedLoopsInclusive: number, totalElapsedSeconds: number) => void
-type RecurringCallback = (elapsedSecondsThisLoop: number, elapsedUnitIntervalThisLoop: number, completedLoopsInclusive: number, totalElapsedSeconds: number, totalElapsedUnitInterval: number) => void
 
 class RecurringTimer {
     readonly IntervalSeconds: number
 
     private CallbackQueueItem: CallbackQueueItem
-    private readonly TickCallback?: () => void
-    private readonly OnStop?: RecurringCallback
-    private readonly OnPause?: RecurringCallback
-    private readonly OnResume?: RecurringCallback
 
     private StoppedValue = false
     private PausedElapsed?: number
     private ThisLoopStartedAt: number
     private CompletedLoopsValue = 0
 
-    constructor(intervalSeconds: number, onInterval?: RecurringIntervalCallback, onStop?: RecurringCallback, onTick?: RecurringCallback, onPause?: RecurringCallback, onResume?: RecurringCallback) {
+    constructor(intervalSeconds: number, onInterval: () => void) {
         this.IntervalSeconds = intervalSeconds
         this.ThisLoopStartedAt = CurrentTime
 
         const onIntervalHandler = () => {
             this.ThisLoopStartedAt = CurrentTime
             this.CompletedLoopsValue++
-            if (onInterval) onInterval(this.CompletedLoops(), this.TotalElapsedSeconds())
+            onInterval()
             this.CallbackQueueItem = {
                 At: CurrentTime + intervalSeconds,
                 Call: onIntervalHandler
@@ -311,14 +285,6 @@ class RecurringTimer {
         }
 
         AddToCallbackQueue(this.CallbackQueueItem)
-
-        if (onTick) {
-            this.TickCallback = () => onTick(this.ElapsedSecondsThisLoop(), this.ElapsedUnitIntervalThisLoop(), this.CompletedLoops(), this.TotalElapsedSeconds(), this.TotalElapsedUnitInterval())
-            TickCallbacks.push(this.TickCallback)
-        }
-        this.OnStop = onStop
-        this.OnPause = onPause
-        this.OnResume = onResume
     }
 
     readonly Stopped = () => this.StoppedValue
@@ -338,34 +304,31 @@ class RecurringTimer {
 
     readonly TotalElapsedUnitInterval = () => this.TotalElapsedSeconds() / this.IntervalSeconds
 
-    readonly Stop = () => {
-        if (this.Stopped()) return
+    Stop(): RecurringTimer {
+        if (this.Stopped()) return this
         this.StoppedValue = true
         if (!this.Paused()) {
             Remove(CallbackQueue, this.CallbackQueueItem)
-            if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
         }
-        if (this.OnStop) this.OnStop(this.ElapsedSecondsThisLoop(), this.ElapsedUnitIntervalThisLoop(), this.CompletedLoops(), this.TotalElapsedSeconds(), this.TotalElapsedUnitInterval())
+        return this
     }
 
-    readonly Pause = () => {
-        if (this.Stopped() || this.Paused()) return
+    Pause(): RecurringTimer {
+        if (this.Stopped() || this.Paused()) return this
         this.PausedElapsed = this.ElapsedSecondsThisLoop()
-        if (this.OnPause) this.OnPause(this.ElapsedSecondsThisLoop(), this.ElapsedUnitIntervalThisLoop(), this.CompletedLoops(), this.TotalElapsedSeconds(), this.TotalElapsedUnitInterval())
         Remove(CallbackQueue, this.CallbackQueueItem)
-        if (this.TickCallback) Remove(TickCallbacks, this.TickCallback)
+        return this
     }
 
-    readonly Resume = () => {
-        if (this.Stopped() || this.PausedElapsed === undefined) return
+    Resume(): RecurringTimer {
+        if (this.Stopped() || this.PausedElapsed === undefined) return this
         this.ThisLoopStartedAt = CurrentTime - this.PausedElapsed
         this.CallbackQueueItem = {
             At: this.ThisLoopStartedAt + this.IntervalSeconds,
             Call: this.CallbackQueueItem.Call
         }
         AddToCallbackQueue(this.CallbackQueueItem)
-        if (this.TickCallback) TickCallbacks.push(this.TickCallback)
         this.PausedElapsed = undefined
-        if (this.OnResume) this.OnResume(this.ElapsedSecondsThisLoop(), this.ElapsedUnitIntervalThisLoop(), this.CompletedLoops(), this.TotalElapsedSeconds(), this.TotalElapsedUnitInterval())
+        return this
     }
 }
