@@ -138,7 +138,8 @@ function CreateScript() {
 
 function CreateHtml() {
     console.info("Creating index.html...")
-    fs.writeFile("Temp/Assembled/DOM/index.html", `<html>
+    fs.writeFile("Temp/Assembled/DOM/index.html", `<!DOCTYPE html>
+<html>
 
 <head>
     <title>${process.env.NODE_ENV != "production" ? "DEVELOPMENT BUILD of " : ""}SprigganTS Sample</title>
