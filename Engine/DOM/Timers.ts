@@ -39,8 +39,8 @@ const InternalFocusedChanged = new RecurringEvent<() => void>()
 
 function ResizeShade() {
     if (!shadeElement) return
-    shadeElement.style.width = `${document.body.clientWidth}px`
-    shadeElement.style.height = `${document.body.clientHeight}px`
+    shadeElement.style.width = `${document.documentElement.clientWidth}px`
+    shadeElement.style.height = `${document.documentElement.clientHeight}px`
 }
 
 function FocusLost(localEvent: Event) {
