@@ -13,7 +13,7 @@ function LoadSprites(then: () => void) {
         SetLoadingMessage("Caching viewports...")
         setTimeout(() => {
             while (CachedViewports.length < NumberOfInitiallyCachedViewports) CachedViewports.push(CreateViewport())
-            SetLoadingMessage("Caching !sprites...")
+            SetLoadingMessage("Caching sprites...")
             setTimeout(() => {
                 while (CachedSprites.length < NumberOfInitiallyCachedSprites) CachedSprites.push(CreateSprite())
                 SetLoadingMessage("Caching groups...")
@@ -26,6 +26,6 @@ function LoadSprites(then: () => void) {
                     }, 0)
                 }, 0)
             }, 0)
-        }, 1000)
+        }, 0)
     }, () => SetLoadingMessage("Failed to load sprites.  Please try refreshing this page."))
 }
