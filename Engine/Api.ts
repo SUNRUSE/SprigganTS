@@ -61,8 +61,10 @@ declare class Viewport {
     */
     Enable(): Viewport
 
-    /** Removes this Viewport and all its children from the scene graph. */
-    Delete(): void
+    /** Removes this Viewport and all its children from the scene graph.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Delete(...).Something(...)).
+     */
+    Delete(): Viewport
 }
 
 declare class Group {
@@ -138,8 +140,10 @@ declare class Group {
     */
     MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Group
 
-    /** Removes this Group and all its children from the scene graph. */
-    Delete(): void
+    /** Removes this Group and all its children from the scene graph.
+     * @returns {Group} This Group, for chaining method calls "fluently" (.Delete(...).VirtualPixelsFromLeft(...)).
+     */
+    Delete(): Group
 
     /** Plays a Sound from this Group, using positional audio if available.
      * @param {Sound} sound The Sound to play.
@@ -239,8 +243,10 @@ declare class Sprite {
     */
     MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Sprite
 
-    /** Removes this Sprite from the scene graph. */
-    Delete(): void
+    /** Removes this Sprite from the scene graph.
+     * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Delete(...).VirtualPixelsFromLeft(...)).
+     */
+    Delete(): Sprite
 
     /** Plays a Sound from this Sprite, using positional audio if available.
      * @param {Sound} sound The Sound to play.
@@ -315,14 +321,20 @@ declare class Timer {
      */
     constructor(durationSeconds: number, onCompletionIfUninterrupted: () => void)
 
-    /** Pauses this Timer if not paused or cancelled or completed. */
-    Pause(): void
+    /** Pauses this Timer if not paused or cancelled or completed.
+     * @returns {Timer} This Timer, for chaining method calls "fluently" (.Pause(...).DurationSeconds).
+     */
+    Pause(): Timer
 
-    /** Resumes this Timer if paused and not cancelled or completed. */
-    Resume(): void
+    /** Resumes this Timer if paused and not cancelled or completed.
+     * @returns {Timer} This Timer, for chaining method calls "fluently" (.Resume(...).DurationSeconds).
+     */
+    Resume(): Timer
 
-    /** Cancels this Timer, effectively pausing it permanently. */
-    Cancel(): void
+    /** Cancels this Timer, effectively pausing it permanently.
+     * @returns {Timer} This Timer, for chaining method calls "fluently" (.Cancel(...).DurationSeconds).
+     */
+    Cancel(): Timer
 }
 
 declare class RecurringTimer {
@@ -332,14 +344,20 @@ declare class RecurringTimer {
     */
     constructor(intervalSeconds: number, onInterval: () => void)
 
-    /** Pauses this RecurringTimer if not paused or stopped */
-    Pause(): void
+    /** Pauses this RecurringTimer if not paused or stopped.
+     * @returns {RecurringTimer} This RecurringTimer, for chaining method calls "fluently" (.Pause(...).DurationSeconds).
+     */
+    Pause(): RecurringTimer
 
-    /** Resumes this RecurringTimer if paused and not stopped. */
-    Resume(): void
+    /** Resumes this RecurringTimer if paused and not stopped.
+     * @returns {RecurringTimer} This RecurringTimer, for chaining method calls "fluently" (.Resume(...).DurationSeconds).
+     */
+    Resume(): RecurringTimer
 
-    /** Stops this RecurringTimer, effectively pausing it permanently. */
-    Stop(): void
+    /** Stops this RecurringTimer, effectively pausing it permanently.
+     * @returns {RecurringTimer} This RecurringTimer, for chaining method calls "fluently" (.Stop(...).DurationSeconds).
+     */
+    Stop(): RecurringTimer
 }
 
 // This is a workaround for JSON https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
