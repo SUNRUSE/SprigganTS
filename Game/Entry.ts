@@ -7,6 +7,7 @@
 /// <reference path="Demos/Backgrounds.ts" />
 /// <reference path="Demos/Fonts.ts" />
 /// <reference path="Demos/Wrapping.ts" />
+/// <reference path="Demos/SaveLoad.ts" />
 /// <reference path="Demos/BouncingBalls.ts" />
 /// <reference path="DemoMenu.ts" />
 

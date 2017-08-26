@@ -363,11 +363,12 @@ declare class RecurringTimer {
 /** Persists JSON which can then be Load-ed later on, even after the game/device have restarted.
  * @param {string} name The name to save the JSON under.
  * @param {Json} data The data to save.
+ * @returns {boolean} True if the data was saved, else, false.
  */
 declare function Save(name: string, data: Json): void
 
-/** Restores previously Save-d JSON.
+/** Restores previously Save-d JSON.  Note that this cannot typecheck the contents of the Save-d JSON.
  * @param {string} name The name to load JSON from.
- * @returns {T | undefined} The loaded JSON, if any; undefined is returned if the JSON cannot be found.
+ * @returns {T | undefined} The loaded JSON, if any; undefined is returned if the JSON cannot be found or parsed.
  */
 declare function Load<T extends Json>(name: string): T | undefined
