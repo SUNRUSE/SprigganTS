@@ -13,10 +13,10 @@ new Demo("Backgrounds", (group) => {
         Action: () => Background.Pause()
     }, {
         Label: "Resume",
-        Action: () => Background.Resume
+        Action: () => Background.Resume()
     }, {
         Label: "Remove",
-        Action: () => Background.Remove
+        Action: () => Background.Remove()
     }]
 
     for (const button of buttons) {
