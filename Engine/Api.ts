@@ -124,19 +124,19 @@ declare class Group {
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Group to the right of the parent scene object's origin.
      * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Group below the parent scene object's origin.
      * @param {float} durationSeconds The number of seconds to take to reach the destination.
-     * @param {?function} onArrival An optional callback to execute if and when this Group reaches the specified destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Group reaches the specified destination.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrival?: () => void): Group
+    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): Group
 
     /** Moves this Group from its current location to a specified location at a set speed.  Initially paused if this Group is .Pause()-d.
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Group to the right of the parent scene object's origin.
      * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Group below the parent scene object's origin.
      * @param {float} pixelsPerSecond The number of pixels to cover per second.
-     * @param {?function} onArrival An optional callback to execute if and when this Group reaches the specified destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Group reaches the specified destination.
      * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrival?: () => void): Group
+    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Group
 
     /** Removes this Group and all its children from the scene graph. */
     Delete(): void
@@ -193,10 +193,10 @@ declare class Sprite {
 
     /** Plays a non-looping animation.  If no subsequent animation is played, the last frame remains visible.  Initially paused if this Sprite is .Pause()-d.
      * @param {SpriteFrame | SpriteFrame[]} animation An animation of one or more frames to play.
-     * @param {?function} onCompletion An optional callback to execute if and when the animation completes.
+     * @param {?function} onCompletionIfUninterrupted An optional callback to execute if and when the animation completes.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
      */
-    Play(animation: SpriteFrame | SpriteFrame[], onCompletion?: () => void): Sprite
+    Play(animation: SpriteFrame | SpriteFrame[], onCompletionIfUninterrupted?: () => void): Sprite
 
     /** Plays a looping animation.  Initially paused if this Sprite is .Pause()-d.
      * @param {SpriteFrame | SpriteFrame[]} animation An animation of one or more frames to play.
@@ -225,19 +225,19 @@ declare class Sprite {
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Sprite to the right of the parent scene object's origin.
      * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Sprite below the parent scene object's origin.
      * @param {float} durationSeconds The number of seconds to take to reach the destination.
-     * @param {?function} onArrival An optional callback to execute if and when this Sprite reaches the specified destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Sprite reaches the specified destination.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrival?: () => void): Sprite
+    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): Sprite
 
     /** Moves this Sprite from its current location to a specified location at a set speed.  Initially paused if this Sprite is .Pause()-d.
      * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Sprite to the right of the parent scene object's origin.
      * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Sprite below the parent scene object's origin.
      * @param {float} pixelsPerSecond The number of pixels to cover per second.
-     * @param {?function} onArrival An optional callback to execute if and when this Sprite reaches the specified destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Sprite reaches the specified destination.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrival?: () => void): Sprite
+    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Sprite
 
     /** Removes this Sprite from the scene graph. */
     Delete(): void
@@ -311,9 +311,9 @@ declare namespace Music {
 declare class Timer {
     /** A timer which fires one time after a specified delay.
      * @param {float} durationSeconds The number of seconds to wait before executing the callback.
-     * @param {Function} onCompletion The function to call when the delay has passed.
+     * @param {Function} onCompletionIfUninterrupted The function to call when the delay has passed.
      */
-    constructor(durationSeconds: number, onCompletion: () => void)
+    constructor(durationSeconds: number, onCompletionIfUninterrupted: () => void)
 
     /** Pauses this Timer if not paused or cancelled or completed. */
     Pause(): void
