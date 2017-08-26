@@ -286,15 +286,6 @@ declare namespace Background {
     function Resume(): void
 }
 
-/** The types of transitions which may be applied. */
-declare const enum TransitionType {
-    /** The screen fades to black to perform a transition. */
-    FadeToBlack,
-
-    /** The screen fades to white to perform a transition. */
-    FadeToWhite
-}
-
 /** Enters a transition, used to change scene.  An error will occur if this is called while a previous transition is in progress.  Input is blocked while entering or exiting a transition.
  * @param {TransitionType} type The TransitionType to perform.
  * @param {float} enterDurationSeconds The number of seconds to spend entering the transition.

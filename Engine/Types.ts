@@ -28,3 +28,12 @@ interface JsonArray extends Array<Json> { }
 
 /** Defines types which can be serialized to JSON. */
 type Json = string | number | boolean | JsonArray | { [x: string]: Json; } | null
+
+/** The types of transitions which may be applied. */
+declare const enum TransitionType {
+    /** The screen fades to black to perform a transition. */
+    FadeToBlack,
+
+    /** The screen fades to white to perform a transition. */
+    FadeToWhite
+}
