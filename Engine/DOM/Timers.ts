@@ -70,8 +70,7 @@ function FocusLost(localEvent: Event) {
         }
         document.body.appendChild(shadeElement)
 
-        InternalInvoke()
-        InternalFocusedChanged.Raise()
+        InternalInvoke(() => SceneRoot.Instance.Pause())
 
         if (AnimationFrame !== undefined) {
             window.cancelAnimationFrame(AnimationFrame)
@@ -100,7 +99,7 @@ function FocusRegained() {
 
         InternalFocusedChanged.Raise()
         TimeAtLastInvoke = undefined
-        InternalInvoke()
+        InternalInvoke(() => SceneRoot.Instance.Resume())
     }
 }
 

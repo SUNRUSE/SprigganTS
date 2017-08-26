@@ -103,13 +103,13 @@ namespace Background {
         }
         if (frame) {
             if (ActiveFrame) {
-                Display.RootElement.replaceChild(Cache[frame.FileNumber], Cache[ActiveFrame.FileNumber])
+                SceneRoot.Instance.Element.replaceChild(Cache[frame.FileNumber], Cache[ActiveFrame.FileNumber])
             } else {
-                Display.RootElement.insertBefore(Cache[frame.FileNumber], Display.RootElement.firstChild)
+                SceneRoot.Instance.Element.insertBefore(Cache[frame.FileNumber], SceneRoot.Instance.Element.firstChild)
             }
             Rescale(frame)
         } else {
-            if (ActiveFrame) Display.RootElement.removeChild(Cache[ActiveFrame.FileNumber])
+            if (ActiveFrame) SceneRoot.Instance.Element.removeChild(Cache[ActiveFrame.FileNumber])
         }
         ActiveFrame = frame
     }

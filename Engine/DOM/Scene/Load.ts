@@ -10,13 +10,21 @@ function LoadSprites(then: () => void) {
         element.style.position = "absolute"
         element.style.pointerEvents = "all"
         Sprites = element
-        SetLoadingMessage("Caching! sprites...")
+        SetLoadingMessage("Caching viewports...")
         setTimeout(() => {
-            while (CachedSprites.length < NumberOfInitiallyCachedSprites) CachedSprites.push(CreateSprite())
-            SetLoadingMessage("Caching groups...")
+            while (CachedViewports.length < NumberOfInitiallyCachedViewports) CachedViewports.push(CreateViewport())
+            SetLoadingMessage("Caching !sprites...")
             setTimeout(() => {
-                while (CachedGroups.length < NumberOfInitiallyCachedGroups) CachedGroups.push(CreateGroup())
-                then()
+                while (CachedSprites.length < NumberOfInitiallyCachedSprites) CachedSprites.push(CreateSprite())
+                SetLoadingMessage("Caching groups...")
+                setTimeout(() => {
+                    while (CachedGroups.length < NumberOfInitiallyCachedGroups) CachedGroups.push(CreateGroup())
+                    SetLoadingMessage("Caching static sprites...")
+                    setTimeout(() => {
+                        while (CachedStaticSprites.length < NumberOfInitiallyCachedSprites) CachedStaticSprites.push(new StaticSprite())
+                        then()
+                    }, 0)
+                }, 0)
             }, 0)
         }, 1000)
     }, () => SetLoadingMessage("Failed to load sprites.  Please try refreshing this page."))

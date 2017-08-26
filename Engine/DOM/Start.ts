@@ -4,8 +4,6 @@ onload = () => {
     document.onselectstart = function () { return false };
     (document.body.style as any).MozUserSelect = "none"
 
-    Display.InternalInitialize()
-
     LoadSprites(() => {
         RemoveLoadingMessage()
         InternalInvoke(StartGame)

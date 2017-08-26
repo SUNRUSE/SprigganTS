@@ -1,62 +1,24 @@
-class Group extends SceneGraphBase implements IMoveable {
-    private readonly Parent: Viewport | Group
-    private readonly RemoveFromParent: () => void
+function CreateGroup(): HTMLDivElement {
+    const element = document.createElement("div")
+    element.style.position = "absolute"
+    element.style.pointerEvents = "none"
+    return element
+}
 
-    private readonly MoveableElement: MoveableElement
-    readonly VirtualPixelsFromLeft: () => number
-    readonly VirtualPixelsFromTop: () => number
-    readonly Move: (leftPixels: number, topPixels: number) => void
-    readonly MoveOver: (leftPixels: number, topPixels: number, seconds: number, onArrivingIfUninterrupted?: () => void) => void
-    readonly MoveAt: (leftPixels: number, topPixels: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void) => void
+const CachedGroups: HTMLDivElement[] = []
 
-    private readonly Children: ElementWithChildren
-    readonly InternalAddChild: (child: Child) => () => void
-
+class Group extends MovingSceneObject {
     constructor(parent: Viewport | Group, onClick?: () => void) {
-        super()
-
-        this.Parent = parent
-
-        this.MoveableElement = new MoveableElement(this, UncacheGroup(), onClick)
-        this.VirtualPixelsFromLeft = this.MoveableElement.VirtualPixelsFromLeft
-        this.VirtualPixelsFromTop = this.MoveableElement.VirtualPixelsFromTop
-        this.Move = this.MoveableElement.Move
-        this.MoveOver = this.MoveableElement.MoveOver
-        this.MoveAt = this.MoveableElement.MoveAt
-
-        this.Children = new ElementWithChildren(this, this.MoveableElement.Element)
-        this.InternalAddChild = this.Children.AddChild
-
-        this.RemoveFromParent = parent.InternalAddChild({
-            Rescale: () => {
-                this.MoveableElement.Rescale()
-                this.Children.Rescale()
-            },
-            Element: this.MoveableElement.Element,
-            Reference: this
-        })
+        super(parent, onClick)
         if (this.Deleted()) return
+        this.Rescale()
     }
 
-    protected readonly OnDeletion = () => {
-        this.RemoveFromParent()
-        this.MoveableElement.Delete()
-        this.Children.Delete()
-        CacheGroup(this.MoveableElement.Element)
+    protected CreateElement(): HTMLDivElement {
+        return CachedGroups.pop() || CreateGroup()
     }
 
-    protected readonly OnPause = () => {
-        this.MoveableElement.Pause()
-        this.Children.Pause()
+    protected OnMovingSceneObjectDelete(): void {
+        CachedGroups.push(this.Element)
     }
-
-    protected readonly OnResume = () => {
-        this.MoveableElement.Resume()
-        this.Children.Resume()
-    }
-
-    protected readonly GetParentDisabled = () => this.Parent.Disabled()
-    protected readonly OnHide = () => this.MoveableElement.Hide()
-    protected readonly OnShow = () => this.MoveableElement.Show()
-    protected readonly GetParentHidden = () => this.Parent.Hidden()
 }
