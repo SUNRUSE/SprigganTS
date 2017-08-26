@@ -45,7 +45,7 @@ new Demo("Scene Graph", (group) => {
     const sprite = new Sprite(wrappingGroup, () => {
         const clickSprite = new Sprite(wrappingGroup)
         clickSprite.Move(sprite.VirtualPixelsFromLeft(), sprite.VirtualPixelsFromTop())
-        clickSprite.Play(Content.Demos.SceneGraph.Clicked, clickSprite.Delete)
+        clickSprite.Play(Content.Demos.SceneGraph.Clicked, () => clickSprite.Delete())
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
 
@@ -70,7 +70,7 @@ new Demo("Scene Graph", (group) => {
             buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
             FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, 0)
         }
-        closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, menuViewport.Delete))
+        closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, () => menuViewport.Delete()))
     }
 
     const randomSizeX = 144
@@ -78,10 +78,10 @@ new Demo("Scene Graph", (group) => {
 
     CreateButtons("Group", -1, -ButtonWideWidth / 2, ButtonWideWidth / 2, [{
         Label: "Pause",
-        Action: wrappingGroup.Pause
+        Action: () => wrappingGroup.Pause()
     }, {
         Label: "Resume",
-        Action: wrappingGroup.Resume
+        Action: () => wrappingGroup.Resume()
     }, {
         Label: "Move",
         Action: () => {
@@ -130,24 +130,24 @@ new Demo("Scene Graph", (group) => {
         }
     }, {
         Label: "Disable",
-        Action: wrappingGroup.Disable
+        Action: () => wrappingGroup.Disable()
     }, {
         Label: "Enable",
-        Action: wrappingGroup.Enable
+        Action: () => wrappingGroup.Enable()
     }, {
         Label: "Hide",
-        Action: wrappingGroup.Hide
+        Action: () => wrappingGroup.Hide()
     }, {
         Label: "Show",
-        Action: wrappingGroup.Show
+        Action: () => wrappingGroup.Show()
     }])
 
     CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonWideWidth / 2, WidthVirtualPixels - ButtonWideWidth / 2, [{
         Label: "Pause",
-        Action: sprite.Pause
+        Action: () => sprite.Pause()
     }, {
         Label: "Resume",
-        Action: sprite.Resume
+        Action: () => sprite.Resume()
     }, {
         Label: "Move",
         Action: () => {
@@ -177,16 +177,16 @@ new Demo("Scene Graph", (group) => {
         }
     }, {
         Label: "Disable",
-        Action: sprite.Disable
+        Action: () => sprite.Disable()
     }, {
         Label: "Enable",
-        Action: sprite.Enable
+        Action: () => sprite.Enable()
     }, {
         Label: "Hide",
-        Action: sprite.Hide
+        Action: () => sprite.Hide()
     }, {
         Label: "Show",
-        Action: sprite.Show
+        Action: () => sprite.Show()
     }])
 
     return closing.Raise

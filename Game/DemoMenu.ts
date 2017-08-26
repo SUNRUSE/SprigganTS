@@ -52,10 +52,10 @@ function DemoMenu() {
 
             function ReturnHome() {
                 stopDemo()
-                demoScrollingGroup.MoveAt(0, HeightVirtualPixels, 500, demoViewport.Delete)
+                demoScrollingGroup.MoveAt(0, HeightVirtualPixels, 500, () => demoViewport.Delete())
                 homeButtonSprite.Play(Content.Buttons.Narrow.Pressed)
-                titleGroup.MoveAt(WidthVirtualPixels / 2, ButtonHeight / 2, 125, titleViewport.Delete)
-                homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, -ButtonHeight / 2, 125, homeButtonViewport.Delete)
+                titleGroup.MoveAt(WidthVirtualPixels / 2, ButtonHeight / 2, 125, () => titleViewport.Delete())
+                homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, -ButtonHeight / 2, 125, () => homeButtonViewport.Delete())
                 DemoMenu()
             }
 
