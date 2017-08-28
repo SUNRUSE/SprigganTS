@@ -20,6 +20,7 @@ namespace Display {
         RealHeightPixelsValue = document.documentElement.clientHeight
         SceneRoot.Instance.Rescale()
         ResizeShade()
+        ResizeTransition()
         Background.Resize()
     }
 }

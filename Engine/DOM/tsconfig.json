@@ -20,6 +20,7 @@
         "Scene/Group.ts",
         "Scene/Sprite.ts",
         "Scene/StaticSprite.ts",
+        "Transition.ts",
         "../Shared/Font.ts",
         "Start.ts"
     ],

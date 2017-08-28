@@ -67,7 +67,10 @@ function FocusLost(localEvent: Event) {
         }
         document.body.appendChild(shadeElement)
 
-        InternalInvoke(() => SceneRoot.Instance.Pause())
+        InternalInvoke(() => {
+            SceneRoot.Instance.Pause()
+            PauseTransition()
+        })
 
         if (AnimationFrame !== undefined) {
             window.cancelAnimationFrame(AnimationFrame)
@@ -95,7 +98,10 @@ function FocusRegained() {
 
         InternalFocusedChanged.Raise()
         TimeAtLastInvoke = undefined
-        InternalInvoke(() => SceneRoot.Instance.Resume())
+        InternalInvoke(() => {
+            SceneRoot.Instance.Resume()
+            ResumeTransition()
+        })
     }
 }
 
@@ -136,7 +142,9 @@ function InternalInvoke(callback?: () => void) {
     }
 
     CurrentTime = newCurrentTime
-    const futureTickRequired = SceneRoot.Instance.Tick()
+    const futureTickRequiredByScene = SceneRoot.Instance.Tick()
+    const futureTickRequiredByTransition = TickTransition()
+    const futureTickRequired = futureTickRequiredByScene || futureTickRequiredByTransition
 
     if (Timeout !== undefined) {
         clearTimeout(Timeout)
