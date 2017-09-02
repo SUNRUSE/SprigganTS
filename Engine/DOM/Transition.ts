@@ -33,7 +33,7 @@ class TransitionInstance {
             this.WrappingElement.appendChild(element)
             // IE10+, Edge, Firefox, Chrome.
             if ("transition" in document.body.style) {
-                this.ForceStyleRefresh(element)
+                ForceStyleRefresh(element)
                 this.SetTransition(element, animation.Entry, entryDurationSeconds)
                 this.ApplyDynamicProperties(element, animation.Entry, 1)
             }
@@ -51,7 +51,7 @@ class TransitionInstance {
                 this.ApplyDynamicProperties(element.Element, element.Animation.Exit, 0)
                 // IE10+, Edge, Firefox, Chrome.
                 if ("transition" in document.body.style) {
-                    this.ForceStyleRefresh(element.Element)
+                    ForceStyleRefresh(element.Element)
                     this.SetTransition(element.Element, element.Animation.Exit, exitDurationSeconds)
                     this.ApplyDynamicProperties(element.Element, element.Animation.Exit, 1)
                 }
@@ -62,10 +62,6 @@ class TransitionInstance {
             document.body.removeChild(this.WrappingElement)
             CurrentTransition = undefined
         }).Pause()
-    }
-
-    private ForceStyleRefresh(element: HTMLDivElement): void {
-        window.getComputedStyle(element, undefined).getPropertyValue("left")
     }
 
     private ApplyStaticProperties(element: HTMLDivElement, properties: { [name: string]: string }): void {

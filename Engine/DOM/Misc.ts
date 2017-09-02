@@ -43,3 +43,7 @@ function InternalLoadAndPrepareImage(url: string, widthPixels: number, heightPix
     if (onError) element.onerror = onError
     element.src = url
 }
+
+function ForceStyleRefresh(element: HTMLDivElement): void {
+    window.getComputedStyle(element, undefined).getPropertyValue("left")
+}

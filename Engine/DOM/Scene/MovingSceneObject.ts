@@ -78,10 +78,10 @@ abstract class MovingSceneObject extends SceneObject {
     private RefreshMotion(): void {
         if ("transition" in this.Element.style) {
             // IE10+, Edge, Firefox, Chrome.
-            this.Element.offsetHeight // Forces a reflow; required for transitions to work.
+            ForceStyleRefresh(this.Element)
             this.Element.style.transition = "initial"
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
-            this.Element.offsetHeight // Forces a reflow; required for transitions to work.
+            ForceStyleRefresh(this.Element)
             if (this.MotionTimer && !this.Paused()) {
                 const remainingSeconds = this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds()
                 if ("transform" in this.Element.style) {
