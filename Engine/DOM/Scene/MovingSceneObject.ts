@@ -30,9 +30,21 @@ abstract class MovingSceneObject extends SceneObject {
     MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): this {
         if (this.Deleted()) return this
 
-        this.Move(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
-        this.ToVirtualPixelsFromLeft = Math.round(virtualPixelsFromLeft)
-        this.ToVirtualPixelsFromTop = Math.round(virtualPixelsFromTop)
+        let interruptedVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
+        let interruptedVirtualPixelsFromTop = this.VirtualPixelsFromTop()
+        virtualPixelsFromLeft = Math.round(virtualPixelsFromLeft)
+        virtualPixelsFromTop = Math.round(virtualPixelsFromTop)
+
+        // Workaround for Edge issue 13560407.
+        if (interruptedVirtualPixelsFromLeft != virtualPixelsFromLeft && interruptedVirtualPixelsFromTop == virtualPixelsFromTop) {
+            interruptedVirtualPixelsFromTop += 0.00001
+        } else if (interruptedVirtualPixelsFromTop != virtualPixelsFromTop && interruptedVirtualPixelsFromLeft == virtualPixelsFromLeft) {
+            interruptedVirtualPixelsFromLeft += 0.00001
+        }
+
+        this.Move(interruptedVirtualPixelsFromLeft, interruptedVirtualPixelsFromTop)
+        this.ToVirtualPixelsFromLeft = virtualPixelsFromLeft
+        this.ToVirtualPixelsFromTop = virtualPixelsFromTop
 
         if ("transition" in this.Element.style) {
             // IE10+, Edge, Firefox, Chrome.
