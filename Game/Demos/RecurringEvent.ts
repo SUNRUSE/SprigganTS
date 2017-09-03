@@ -81,7 +81,8 @@ new Demo("RecurringEvent", (group) => {
         FontBig.Write(resetGroup, "Reset", HorizontalAlignment.Middle, VerticalAlignment.Middle)
         function Reset() {
             resetSprite.Play(Content.Buttons.Narrow.Pressed)
-            subGroup.MoveOver(0, HeightVirtualPixels, 0.25, () => subGroup.Delete())
+            const subgroupToDelete = subGroup
+            subGroup.MoveOver(0, HeightVirtualPixels, 0.25, () => subgroupToDelete.Delete())
             Start()
         }
     }
