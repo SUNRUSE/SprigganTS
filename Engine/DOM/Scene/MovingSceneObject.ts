@@ -6,43 +6,63 @@ abstract class MovingSceneObject extends SceneObject {
     private MotionTimer?: Timer
 
     VirtualPixelsFromLeft(): number {
-        if (!this.MotionTimer) return this.FromVirtualPixelsFromLeft
+        if (!this.MotionTimer) return this.ToVirtualPixelsFromLeft
         return Mix(this.FromVirtualPixelsFromLeft, this.ToVirtualPixelsFromLeft, this.MotionTimer.ElapsedUnitInterval())
     }
 
     VirtualPixelsFromTop(): number {
-        if (!this.MotionTimer) return this.FromVirtualPixelsFromTop
+        if (!this.MotionTimer) return this.ToVirtualPixelsFromTop
         return Mix(this.FromVirtualPixelsFromTop, this.ToVirtualPixelsFromTop, this.MotionTimer.ElapsedUnitInterval())
     }
 
     Move(virtualPixelsFromLeft: number, virtualPixelsFromTop: number): this {
         if (this.Deleted()) return this
         if (this.MotionTimer) {
+            if ("transition" in this.Element.style) {
+                this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+                this.Element.style.transition = "initial"
+                ForceStyleRefresh(this.Element)
+            }
             this.MotionTimer.Cancel()
             this.MotionTimer = undefined
         }
-        this.FromVirtualPixelsFromLeft = virtualPixelsFromLeft
-        this.FromVirtualPixelsFromTop = virtualPixelsFromTop
-        this.RefreshMotion()
+        this.ToVirtualPixelsFromLeft = virtualPixelsFromLeft
+        this.ToVirtualPixelsFromTop = virtualPixelsFromTop
+        this.SetElementLocation(virtualPixelsFromLeft, virtualPixelsFromTop)
+        if ("transition" in this.Element.style) ForceStyleRefresh(this.Element)
         return this
     }
 
     MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): this {
         if (this.Deleted()) return this
 
-        let interruptedVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
-        let interruptedVirtualPixelsFromTop = this.VirtualPixelsFromTop()
         virtualPixelsFromLeft = Math.round(virtualPixelsFromLeft)
         virtualPixelsFromTop = Math.round(virtualPixelsFromTop)
 
-        // Workaround for Edge issue 13560407.
-        if (interruptedVirtualPixelsFromLeft != virtualPixelsFromLeft && interruptedVirtualPixelsFromTop == virtualPixelsFromTop) {
-            interruptedVirtualPixelsFromTop += 0.00001
-        } else if (interruptedVirtualPixelsFromTop != virtualPixelsFromTop && interruptedVirtualPixelsFromLeft == virtualPixelsFromLeft) {
-            interruptedVirtualPixelsFromLeft += 0.00001
-        }
+        if (this.MotionTimer) {
+            if (!this.MotionTimer.Paused() && "transition" in this.Element.style) {
+                let interruptedVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
+                let interruptedVirtualPixelsFromTop = this.VirtualPixelsFromTop()
 
-        this.Move(interruptedVirtualPixelsFromLeft, interruptedVirtualPixelsFromTop)
+                // Workaround for Edge issue 13560407.
+                if (interruptedVirtualPixelsFromLeft != virtualPixelsFromLeft && interruptedVirtualPixelsFromTop == virtualPixelsFromTop) {
+                    interruptedVirtualPixelsFromTop += 0.00001
+                } else if (interruptedVirtualPixelsFromTop != virtualPixelsFromTop && interruptedVirtualPixelsFromLeft == virtualPixelsFromLeft) {
+                    interruptedVirtualPixelsFromLeft += 0.00001
+                }
+
+                this.SetElementLocation(interruptedVirtualPixelsFromLeft, interruptedVirtualPixelsFromTop)
+                this.Element.style.transition = "initial"
+                ForceStyleRefresh(this.Element)
+            }
+            this.FromVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
+            this.FromVirtualPixelsFromTop = this.VirtualPixelsFromTop()
+            this.MotionTimer.Cancel()
+            this.MotionTimer = undefined
+        } else {
+            this.FromVirtualPixelsFromLeft = this.ToVirtualPixelsFromLeft
+            this.FromVirtualPixelsFromTop = this.ToVirtualPixelsFromTop
+        }
         this.ToVirtualPixelsFromLeft = virtualPixelsFromLeft
         this.ToVirtualPixelsFromTop = virtualPixelsFromTop
 
@@ -50,14 +70,17 @@ abstract class MovingSceneObject extends SceneObject {
             // IE10+, Edge, Firefox, Chrome.
             this.MotionTimer = new Timer(durationSeconds, () => {
                 this.MotionTimer = undefined
-                this.Move(virtualPixelsFromLeft, virtualPixelsFromTop)
+                this.Element.style.transition = "initial"
+                ForceStyleRefresh(this.Element)
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             })
 
             if (this.Paused())
                 this.MotionTimer.Pause()
-            else
-                this.RefreshMotion()
+            else {
+                this.SetTransition(durationSeconds)
+                this.SetElementLocation(virtualPixelsFromLeft, virtualPixelsFromTop)
+            }
         } else {
             // IE9-.
             this.MotionTimer = new Timer(durationSeconds, () => {
@@ -67,6 +90,7 @@ abstract class MovingSceneObject extends SceneObject {
             })
 
             if (this.Paused()) this.MotionTimer.Pause()
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         }
         return this
     }
@@ -75,28 +99,15 @@ abstract class MovingSceneObject extends SceneObject {
         return this.MoveOver(virtualPixelsFromLeft, virtualPixelsFromTop, Distance(virtualPixelsFromLeft, virtualPixelsFromTop, this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop()) / pixelsPerSecond, onArrivingIfUninterrupted)
     }
 
-    private RefreshMotion(): void {
-        if ("transition" in this.Element.style) {
-            // IE10+, Edge, Firefox, Chrome.
-            ForceStyleRefresh(this.Element)
-            this.Element.style.transition = "initial"
-            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
-            ForceStyleRefresh(this.Element)
-            if (this.MotionTimer && !this.Paused()) {
-                const remainingSeconds = this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds()
-                if ("transform" in this.Element.style) {
-                    this.Element.style.transition = `transform ${remainingSeconds}s linear`
-                } else {
-                    this.Element.style.transition = `top ${remainingSeconds}s linear, left ${remainingSeconds}s linear`
-                }
-                this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
-            }
+    private SetTransition(durationSeconds: number): void {
+        if ("transform" in this.Element.style) {
+            this.Element.style.transition = `transform ${durationSeconds}s linear`
         } else {
-            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+            this.Element.style.transition = `top ${durationSeconds}s linear, left ${durationSeconds}s linear`
         }
     }
 
-    private SetElementLocation(virtualPixelsFromLeft: number, virtualPixelsFromTop: number) {
+    private SetElementLocation(virtualPixelsFromLeft: number, virtualPixelsFromTop: number): void {
         virtualPixelsFromLeft *= Display.RealPixelsPerVirtualPixel()
         virtualPixelsFromTop *= Display.RealPixelsPerVirtualPixel()
         if ("transform" in this.Element.style) {
@@ -110,7 +121,13 @@ abstract class MovingSceneObject extends SceneObject {
     protected OnPause(): void {
         if (this.MotionTimer) {
             this.MotionTimer.Pause()
-            this.RefreshMotion()
+            if ("transition" in this.Element.style) {
+                this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+                this.Element.style.transition = "initial"
+                ForceStyleRefresh(this.Element)
+            } else {
+                this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+            }
         }
         this.OnMovingSceneObjectPause()
     }
@@ -120,7 +137,10 @@ abstract class MovingSceneObject extends SceneObject {
     protected OnResume(): void {
         if (this.MotionTimer) {
             this.MotionTimer.Resume()
-            this.RefreshMotion()
+            if ("transition" in this.Element.style) {
+                this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds())
+                this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
+            }
         }
         this.OnMovingSceneObjectResume()
     }
@@ -128,7 +148,15 @@ abstract class MovingSceneObject extends SceneObject {
     protected OnMovingSceneObjectResume(): void { }
 
     protected OnRescale(): void {
-        this.RefreshMotion()
+        if (this.MotionTimer && !this.MotionTimer.Paused() && "transition" in this.Element.style) {
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+            this.Element.style.transition = "initial"
+            ForceStyleRefresh(this.Element)
+            this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds())
+            this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
+        } else {
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+        }
         this.OnMovingSceneObjectRescale()
     }
 
@@ -136,23 +164,19 @@ abstract class MovingSceneObject extends SceneObject {
 
     Tick(): boolean {
         let any = false
-        if (this.MotionTimer && !this.MotionTimer.Paused()) {
+        if (this.MotionTimer && !this.MotionTimer.Paused() && !("transition" in this.Element.style)) {
             any = true
-            this.RefreshMotion()
+            this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         }
         for (const child of this.Children) if (child.Tick()) any = true
         return any
     }
 
     protected OnDelete(): void {
-        if ("transform" in this.Element.style) {
-            this.Element.style.transform = "translate(0px, 0px)"
-        } else {
-            this.Element.style.left = "0px"
-            this.Element.style.top = "0px"
-        }
+        this.SetElementLocation(0, 0)
 
         if (this.MotionTimer) {
+            if ("transition" in this.Element.style) this.Element.style.transition = "initial"
             this.MotionTimer.Cancel()
             this.MotionTimer = undefined
         }
