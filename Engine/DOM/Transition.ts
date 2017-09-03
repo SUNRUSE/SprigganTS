@@ -1,141 +1,91 @@
-let CurrentTransition: TransitionInstance | undefined = undefined
+class TransitionStepRectangleInstance {
+    private readonly Timer: Timer
+    private readonly From: TransitionStepRectangleKeyFrame
+    private readonly To: TransitionStepRectangleKeyFrame
+    private readonly Element: HTMLDivElement
 
-class TransitionInstance {
-    private readonly Entry: Timer
-    private readonly Exit: Timer
-    private Paused = false
-
-    private readonly WrappingElement: HTMLDivElement
-
-    private readonly Elements: {
-        readonly Element: HTMLDivElement
-        readonly Animation: TransitionAnimation
-    }[] = []
-
-    constructor(animations: TransitionAnimation[], entryDurationSeconds: number, exitDurationSeconds: number, call: () => void) {
-        this.WrappingElement = document.createElement("div")
-        this.WrappingElement.style.position = "absolute"
-        this.WrappingElement.style.left = "0"
-        this.WrappingElement.style.top = "0"
-        this.WrappingElement.style.width = `${Display.RealWidthPixels()}px`
-        this.WrappingElement.style.height = `${Display.RealHeightPixels()}px`
-        document.body.appendChild(this.WrappingElement)
-
-        for (const animation of animations) {
-            const element = document.createElement("div")
-            element.style.position = "absolute"
-            element.style.left = "0"
-            element.style.top = "0"
-            element.style.right = "0"
-            element.style.bottom = "0"
-            this.ApplyStaticProperties(element, animation.Initial)
-            this.ApplyDynamicProperties(element, animation.Entry, 0)
-            this.WrappingElement.appendChild(element)
-            // IE10+, Edge, Firefox, Chrome.
-            if ("transition" in document.body.style) {
-                ForceStyleRefresh(element)
-                this.SetTransition(element, animation.Entry, entryDurationSeconds)
-                this.ApplyDynamicProperties(element, animation.Entry, 1)
-            }
-            this.Elements.push({
-                Element: element,
-                Animation: animation
-            })
+    constructor(wrappingElement: HTMLDivElement, timer: Timer, from: TransitionStepRectangleKeyFrame, to: TransitionStepRectangleKeyFrame) {
+        this.From = from
+        this.To = to
+        this.Timer = timer
+        this.Element = document.createElement("div")
+        this.Element.style.position = "absolute"
+        this.SetStyle(0)
+        wrappingElement.appendChild(this.Element)
+        if ("transition" in this.Element.style) {
+            ForceStyleRefresh(this.Element)
+            this.SetTransition(timer.DurationSeconds)
+            this.SetStyle(1)
         }
-
-        this.Entry = new Timer(entryDurationSeconds, () => {
-            call()
-            for (const element of this.Elements) {
-                element.Element.style.transition = "initial"
-                this.ApplyStaticProperties(element.Element, element.Animation.EntryToExit)
-                this.ApplyDynamicProperties(element.Element, element.Animation.Exit, 0)
-                // IE10+, Edge, Firefox, Chrome.
-                if ("transition" in document.body.style) {
-                    ForceStyleRefresh(element.Element)
-                    this.SetTransition(element.Element, element.Animation.Exit, exitDurationSeconds)
-                    this.ApplyDynamicProperties(element.Element, element.Animation.Exit, 1)
-                }
-            }
-            this.Exit.Resume()
-        })
-        this.Exit = new Timer(exitDurationSeconds, () => {
-            document.body.removeChild(this.WrappingElement)
-            CurrentTransition = undefined
-        }).Pause()
     }
 
-    private ApplyStaticProperties(element: HTMLDivElement, properties: { [name: string]: string }): void {
-        for (const name in properties) (element.style as any)[name] = properties[name]
+    SetTransition(seconds: number): void {
+        this.Element.style.transition = `left ${seconds}s linear, right ${seconds}s linear, top ${seconds}s linear, bottom ${seconds}s linear, opacity ${seconds}s linear, background ${seconds}s linear`
     }
 
-    private ApplyDynamicProperties(element: HTMLDivElement, properties: { [name: string]: (progress: number) => string }, progress: number): void {
-        for (const name in properties) (element.style as any)[name] = properties[name](progress)
-    }
-
-    private SetTransition(element: HTMLDivElement, source: { [name: string]: any }, durationSeconds: number): void {
-        let value = ""
-        let first = true
-        for (const name in source) {
-            if (first)
-                first = false
-            else
-                value += ", "
-
-            value += `${name} ${durationSeconds}s linear`
+    SetStyle(progress: number): void {
+        this.Element.style.left = `${Mix(this.From.LeftSignedUnitInterval, this.To.LeftSignedUnitInterval, progress) * 50 + 50}%`
+        this.Element.style.right = `${Mix(this.From.RightSignedUnitInterval, this.To.RightSignedUnitInterval, progress) * -50 + 50}%`
+        this.Element.style.top = `${Mix(this.From.TopSignedUnitInterval, this.To.TopSignedUnitInterval, progress) * 50 + 50}%`
+        this.Element.style.bottom = `${Mix(this.From.BottomSignedUnitInterval, this.To.BottomSignedUnitInterval, progress) * -50 + 50}%`
+        function RgbChannel(from: number, to: number) {
+            return Math.max(0, Math.min(255, Math.round(Mix(from, to, progress) * 255)))
         }
-        element.style.transition = value
-    }
-
-    Tick(): void {
-        if (!this.Entry.Completed()) {
-            for (const element of this.Elements) this.ApplyDynamicProperties(element.Element, element.Animation.Entry, this.Entry.ElapsedUnitInterval())
-        } else {
-            for (const element of this.Elements) this.ApplyDynamicProperties(element.Element, element.Animation.Exit, this.Exit.ElapsedUnitInterval())
-        }
+        this.Element.style.background = `rgb(${RgbChannel(this.From.RedUnitInterval, this.To.RedUnitInterval)}, ${RgbChannel(this.From.GreenUnitInterval, this.To.GreenUnitInterval)}, ${RgbChannel(this.From.BlueUnitInterval, this.To.BlueUnitInterval)})`
+        this.Element.style.opacity = `${Mix(this.From.OpacityUnitInterval, this.To.OpacityUnitInterval, progress)}`
+        this.Element.style.filter = `alpha(opacity=${Mix(this.From.OpacityUnitInterval, this.To.OpacityUnitInterval, progress) * 100})`
     }
 
     Pause(): void {
-        if (this.Paused) return
-        this.Paused = true
-        if ("transition" in document.body.style) {
-            // IE10+, Edge, Firefox, Chrome.
-            if (!this.Entry.Completed()) {
-                for (const element of this.Elements) {
-                    this.ApplyDynamicProperties(element.Element, element.Animation.Entry, this.Entry.ElapsedUnitInterval())
-                    element.Element.style.transition = "initial"
-                }
-            } else {
-                for (const element of this.Elements) {
-                    this.ApplyDynamicProperties(element.Element, element.Animation.Exit, this.Exit.ElapsedUnitInterval())
-                    element.Element.style.transition = "initial"
-                }
-            }
-        } else {
-            // IE9-.
-            this.Tick()
+        this.Tick()
+        if ("transition" in this.Element.style) {
+            this.Element.style.transition = "initial"
+            ForceStyleRefresh(this.Element)
         }
     }
 
     Resume(): void {
-        if (!this.Paused) return
-        this.Paused = false
-        if ("transition" in document.body.style) {
-            // IE10+, Edge, Firefox, Chrome.
-            if (!this.Entry.Completed()) {
-                for (const element of this.Elements) {
-                    this.SetTransition(element.Element, element.Animation.Entry, this.Entry.DurationSeconds - this.Entry.ElapsedSeconds())
-                    this.ApplyDynamicProperties(element.Element, element.Animation.Entry, 1)
-                }
-            } else {
-                for (const element of this.Elements) {
-                    this.SetTransition(element.Element, element.Animation.Exit, this.Exit.DurationSeconds - this.Exit.ElapsedSeconds())
-                    this.ApplyDynamicProperties(element.Element, element.Animation.Exit, 1)
-                }
-            }
+        if ("transition" in this.Element.style) {
+            this.SetTransition(this.Timer.DurationSeconds - this.Timer.ElapsedSeconds())
+            this.SetStyle(1)
         } else {
-            // IE9-.
             this.Tick()
         }
+    }
+
+    Tick(): void {
+        this.SetStyle(this.Timer.ElapsedUnitInterval())
+    }
+}
+
+class TransitionStepInstance {
+    private readonly WrappingElement: HTMLDivElement
+    private readonly Rectangles: TransitionStepRectangleInstance[] = []
+
+    constructor(step: TransitionStep, call: () => void) {
+        this.WrappingElement = document.createElement("div")
+        this.WrappingElement.style.position = "absolute"
+        this.WrappingElement.style.left = "0px"
+        this.WrappingElement.style.top = "0px"
+        this.Resize()
+        document.body.appendChild(this.WrappingElement)
+        const timer = new Timer(step.DurationSeconds, () => {
+            call()
+            document.body.removeChild(this.WrappingElement)
+        })
+        for (const rectangle of step.Rectangles) this.Rectangles.push(new TransitionStepRectangleInstance(this.WrappingElement, timer, rectangle.From, rectangle.To))
+    }
+
+    Pause(): void {
+        for (const rectangle of this.Rectangles) rectangle.Pause()
+    }
+
+    Resume(): void {
+        for (const rectangle of this.Rectangles) rectangle.Resume()
+    }
+
+    Tick(): void {
+        for (const rectangle of this.Rectangles) rectangle.Tick()
     }
 
     Resize(): void {
@@ -144,52 +94,53 @@ class TransitionInstance {
     }
 }
 
-type TransitionAnimation = {
-    readonly Initial: { [name: string]: string }
-    readonly Entry: { [name: string]: (progress: number) => string }
-    readonly EntryToExit: { [name: string]: string }
-    readonly Exit: { [name: string]: (progress: number) => string }
+class TransitionInstance {
+    private readonly EntryInstance: TransitionStepInstance
+    private readonly Exit: TransitionStep
+    private ExitInstance: TransitionStepInstance | undefined
+
+    constructor(entry: TransitionStep, exit: TransitionStep, call: () => void) {
+        this.Exit = exit
+        this.EntryInstance = new TransitionStepInstance(entry, () => {
+            call()
+            this.ExitInstance = new TransitionStepInstance(exit, () => CurrentTransition = undefined)
+        })
+    }
+
+    Resize(): void {
+        if (this.ExitInstance)
+            this.ExitInstance.Resize()
+        else
+            this.EntryInstance.Resize()
+    }
+
+    Pause(): void {
+        if (this.ExitInstance)
+            this.ExitInstance.Pause()
+        else
+            this.EntryInstance.Pause()
+    }
+
+    Resume(): void {
+        if (this.ExitInstance)
+            this.ExitInstance.Resume()
+        else
+            this.EntryInstance.Resume()
+    }
+
+    Tick(): void {
+        if (this.ExitInstance)
+            this.ExitInstance.Tick()
+        else
+            this.EntryInstance.Tick()
+    }
 }
 
-const FadeToBlackTransitionCssProperties: TransitionAnimation[] = [{
-    Initial: { background: "black" },
-    Entry: {
-        opacity: progress => `${progress}`,
-        filter: progress => `alpha(opacity=${progress * 100})`
-    },
-    EntryToExit: {},
-    Exit: {
-        opacity: progress => `${1 - progress}`,
-        filter: progress => `alpha(opacity=${(1 - progress) * 100})`
-    }
-}]
+let CurrentTransition: TransitionInstance | undefined
 
-const FadeToWhiteTransitionCssProperties: TransitionAnimation[] = [{
-    Initial: { background: "white" },
-    Entry: {
-        opacity: progress => `${progress}`,
-        filter: progress => `alpha(opacity=${progress * 100})`
-    },
-    EntryToExit: {},
-    Exit: {
-        opacity: progress => `${1 - progress}`,
-        filter: progress => `alpha(opacity=${(1 - progress) * 100})`
-    }
-}]
-
-function Transition(type: TransitionType, entryDurationSeconds: number, exitDurationSeconds: number, call: () => void): void {
+function Transition(entry: TransitionStep, exit: TransitionStep, call: () => void): void {
     if (CurrentTransition) throw "Cannot enter a transition while entering or exiting a previous transition"
-    let selected: TransitionAnimation[]
-    switch (type) {
-        case TransitionType.FadeToBlack:
-            selected = FadeToBlackTransitionCssProperties
-            break
-        case TransitionType.FadeToWhite:
-            selected = FadeToWhiteTransitionCssProperties
-            break
-        default: throw "Unexpected TransitionType"
-    }
-    CurrentTransition = new TransitionInstance(selected, entryDurationSeconds, exitDurationSeconds, call)
+    CurrentTransition = new TransitionInstance(entry, exit, call)
 }
 
 function TickTransition(): boolean {

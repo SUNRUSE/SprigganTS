@@ -287,12 +287,11 @@ declare namespace Background {
 }
 
 /** Enters a transition, used to change scene.  An error will occur if this is called while a previous transition is in progress.  Input is blocked while entering or exiting a transition.
- * @param {TransitionType} type The TransitionType to perform.
- * @param {float} entryDurationSeconds The number of seconds to spend entering the transition.
- * @param {float} exitDurationSeconds The number of seconds to spend entering the transition.
+ * @param {TransitionStep} type The TransitionStep to show while entering the transition.
+ * @param {TransitionStep} type The TransitionStep to show while exiting the transition.
  * @param {Function} call A function to call between the enter and exit phases of the transition; perform the actual scene change here.
  */
-declare function Transition(type: TransitionType, entryDurationSeconds: number, exitDurationSeconds: number, call: () => void): void
+declare function Transition(entry: TransitionStep, exit: TransitionStep, call: () => void): void
 
 /** A single looping track. */
 declare namespace Music {
