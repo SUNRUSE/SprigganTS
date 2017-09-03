@@ -62,12 +62,12 @@ new Demo("Scene Graph", (group) => {
         FontBig.Write(menuGroup, label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, HeightVirtualPixels - (buttons.length + 0.5) * ButtonHeight)
         for (const button of buttons) {
             const buttonGroup = new Group(menuGroup, () => {
-                buttonSprite.Play(Content.Buttons.Wide.Pressed)
+                buttonSprite.Play(Content.Buttons.Narrow.Pressed)
                 button.Action()
             })
             buttonGroup.Move(0, HeightVirtualPixels - (buttons.length - 1 - IndexOf(buttons, button) + 0.5) * ButtonHeight)
             const buttonSprite = new Sprite(buttonGroup)
-            buttonSprite.Loop(Content.Buttons.Wide.Unpressed)
+            buttonSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, 0)
         }
         closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, () => menuViewport.Delete()))
@@ -76,7 +76,7 @@ new Demo("Scene Graph", (group) => {
     const randomSizeX = 144
     const randomSizeY = 48
 
-    CreateButtons("Group", -1, -ButtonWideWidth / 2, ButtonWideWidth / 2, [{
+    CreateButtons("Group", -1, -ButtonNarrowWidth / 2, ButtonNarrowWidth / 2, [{
         Label: "Pause",
         Action: () => wrappingGroup.Pause()
     }, {
@@ -142,7 +142,7 @@ new Demo("Scene Graph", (group) => {
         Action: () => wrappingGroup.Show()
     }])
 
-    CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonWideWidth / 2, WidthVirtualPixels - ButtonWideWidth / 2, [{
+    CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonNarrowWidth / 2, WidthVirtualPixels - ButtonNarrowWidth / 2, [{
         Label: "Pause",
         Action: () => sprite.Pause()
     }, {
