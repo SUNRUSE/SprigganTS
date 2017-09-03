@@ -7,8 +7,9 @@ function InternalLoadAndPrepareImage(url: string, widthPixels: number, heightPix
         loaded = true
         SetLoadingMessage("Processing sprites...")
         if ("imageRendering" in element.style) {
-            (element.style as any).imageRendering = "pixelated"; // Chrome.
-            (element.style as any).imageRendering = "-moz-crisp-edges" // Firefox.
+            (element.style as any).imageRendering = "-moz-crisp-edges"; // Firefox.
+            (element.style as any).imageRendering = "-webkit-optimize-contrast"; // Safari.
+            (element.style as any).imageRendering = "pixelated" // Chrome.
         } else if ("msInterpolationMode" in element.style) {
             (element.style as any).msInterpolationMode = "nearest-neighbor" // IE.
         } else if (navigator.userAgent.indexOf("Nintendo 3DS") == -1) { // The 3DS actually uses nearest-neighbor anyway, and takes a long time to resize the sprite sheet.
