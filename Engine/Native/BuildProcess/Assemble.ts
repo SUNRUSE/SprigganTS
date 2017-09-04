@@ -91,7 +91,7 @@ function GenerateHeader() {
         BackgroundFrameIds.length,
         UniqueBackgroundIds
     ]).buffer)
-    Chunks.push(Buffer.from("SprigganTS Sample", "utf8"))
+    Chunks.push(Buffer.from(Configuration.Name, "utf8"))
     Header = `var WidthVirtualPixels = ${Configuration.VirtualWidth}
 var HeightVirtualPixels = ${Configuration.VirtualHeight}`
     ReadSharedEngine()

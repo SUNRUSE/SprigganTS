@@ -1,4 +1,5 @@
 type Configuration = {
+    Name: string
     VirtualWidth: number
     VirtualHeight: number
 }
