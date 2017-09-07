@@ -1,5 +1,6 @@
 import fs = require("fs")
 import path = require("path")
+const pngjs = require("pngjs")
 const imagemin = require("imagemin")
 const imageminPngcrush = require("imagemin-pngcrush")
 
@@ -67,4 +68,26 @@ function MinifyImages(root: string, then: () => void) {
     }
 }
 
-export { Error, EndsWith, RemoveExtension, MinifyImages }
+function ScaleUpToFakeNearestNeighbor(inputPngFilename: string, outputPngFilename: string, magnification: number, then: () => void): void {
+    const inputPng = new pngjs.PNG()
+    fs.createReadStream(inputPngFilename).on("error", Error).pipe(inputPng).on("error", Error).on("parsed", () => {
+        const outputPng = new pngjs.PNG({
+            width: inputPng.width * magnification,
+            height: inputPng.height * magnification
+        })
+        for (let y = 0; y < inputPng.width; y++)
+            for (let x = 0; x < inputPng.width; x++)
+                for (let channel = 0; channel < 4; channel++)
+                    for (let y2 = 0; y2 < magnification; y2++)
+                        for (let x2 = 0; x2 < magnification; x2++)
+                            outputPng.data[(y * magnification + y2) * outputPng.width * 4 + (x * magnification + x2) * 4 + channel] = inputPng.data[y * inputPng.width * 4 + x * 4 + channel]
+        const writeStream = fs.createWriteStream(outputPngFilename)
+        outputPng.pack().pipe(writeStream)
+        writeStream.on("error", Error).on("close", () => {
+            console.log(`Scaled "${inputPngFilename}" by "${magnification}" and saved the result to "${outputPngFilename}"`)
+            then()
+        })
+    })
+}
+
+export { Error, EndsWith, RemoveExtension, MinifyImages, ScaleUpToFakeNearestNeighbor }
