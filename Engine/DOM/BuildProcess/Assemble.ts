@@ -1,4 +1,4 @@
-import { Error } from "./../../../BuildContent/Misc"
+import { Error, MinifyImages } from "./../../../BuildContent/Misc"
 import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame } from "./../../../BuildContent/Types"
 import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../../../BuildContent/Tree"
 
@@ -205,7 +205,7 @@ function GenerateFavicons() {
                 console.log(`Written ${writtenImages}/${Favicons.images.length} images and ${writtenFiles}/${Favicons.files.length} files`)
                 if (writtenImages != Favicons.images.length) return
                 if (writtenFiles < Favicons.files.length) return
-                CreateHtml()
+                MinifyImages("Temp/Assembled/DOM", CreateHtml)
             }
         })
     }
