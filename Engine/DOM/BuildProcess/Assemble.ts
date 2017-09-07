@@ -1,4 +1,4 @@
-import { Error, MinifyImages } from "./../../../BuildContent/Misc"
+import { Error, MinifyImages, ScaleUpToFakeNearestNeighbor } from "./../../../BuildContent/Misc"
 import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame } from "./../../../BuildContent/Types"
 import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../../../BuildContent/Tree"
 
@@ -160,53 +160,59 @@ function GenerateFavicons() {
         CreateHtml()
     } else {
         console.info("Generating favicons...")
-        favicons("./Game/icon.png", {
-            appName: Configuration.Name,
-            appDescription: null,
-            developerName: null,
-            developerUrl: null,
-            background: "#000",
-            theme_color: "#000",
-            path: "",
-            display: "standalone",
-            orientation: "landscape",
-            start_url: "/",
-            version: "1.0",
-            logging: false,
-            online: false,
-            preferOnline: false,
-            icons: {
-                android: true,
-                appleIcon: true,
-                appleStartup: true,
-                coast: { offset: 25 },
-                favicons: true,
-                firefox: true,
-                windows: true,
-                yandex: true
-            }
-        }, (err: any, response: any) => {
-            Error(err)
-            Favicons = response
-            let writtenImages = 0
-            let writtenFiles = 0
-            for (const image of Favicons.images) fs.writeFile(path.join("Temp/Assembled/DOM", image.name), image.contents, err => {
+        ScaleUpToFakeNearestNeighbor("./Game/icon.png", "./Temp/Assembled/DOM/scaled-icon.png", 20, () => {
+            favicons("./Temp/Assembled/DOM/scaled-icon.png", {
+                appName: Configuration.Name,
+                appDescription: null,
+                developerName: null,
+                developerUrl: null,
+                background: "#000",
+                theme_color: "#000",
+                path: "",
+                display: "standalone",
+                orientation: "landscape",
+                start_url: "/",
+                version: "1.0",
+                logging: false,
+                online: false,
+                preferOnline: false,
+                icons: {
+                    android: true,
+                    appleIcon: true,
+                    appleStartup: true,
+                    coast: { offset: 25 },
+                    favicons: true,
+                    firefox: true,
+                    windows: true,
+                    yandex: true
+                }
+            }, (err: any, response: any) => {
                 Error(err)
-                writtenImages++
-                CheckDone()
+                console.log("Done, deleing temporary image used for scaling...")
+                fs.unlink("./Temp/Assembled/DOM/scaled-icon.png", err => {
+                    Error(err)
+                    Favicons = response
+                    let writtenImages = 0
+                    let writtenFiles = 0
+                    for (const image of Favicons.images) fs.writeFile(path.join("Temp/Assembled/DOM", image.name), image.contents, err => {
+                        Error(err)
+                        writtenImages++
+                        CheckDone()
+                    })
+                    for (const file of Favicons.files) fs.writeFile(path.join("Temp/Assembled/DOM", file.name), file.contents, "utf8", err => {
+                        Error(err)
+                        writtenFiles++
+                        CheckDone()
+                    })
+                    CheckDone()
+                    function CheckDone() {
+                        console.log(`Written ${writtenImages}/${Favicons.images.length} images and ${writtenFiles}/${Favicons.files.length} files`)
+                        if (writtenImages != Favicons.images.length) return
+                        if (writtenFiles < Favicons.files.length) return
+                        MinifyImages("Temp/Assembled/DOM", CreateHtml)
+                    }
+                })
             })
-            for (const file of Favicons.files) fs.writeFile(path.join("Temp/Assembled/DOM", file.name), file.contents, "utf8", err => {
-                Error(err)
-                writtenFiles++
-                CheckDone()
-            })
-            CheckDone()
-            function CheckDone() {
-                console.log(`Written ${writtenImages}/${Favicons.images.length} images and ${writtenFiles}/${Favicons.files.length} files`)
-                if (writtenImages != Favicons.images.length) return
-                if (writtenFiles < Favicons.files.length) return
-                MinifyImages("Temp/Assembled/DOM", CreateHtml)
-            }
         })
     }
 }
