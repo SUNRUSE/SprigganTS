@@ -31,6 +31,7 @@
     "@types/uglify-js": "^2.6.29",
     "cpr": "^2.2.0",
     "cross-env": "^5.0.5",
+    "favicons": "^4.8.6",
     "http-static": "0.0.8",
     "imagemin": "^5.3.1",
     "imagemin-pngcrush": "^5.1.0",

@@ -4,10 +4,12 @@ import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../
 
 import cpr = require("cpr")
 import fs = require("fs")
+import path = require("path")
 const rimraf = require("rimraf")
 import mkdirp = require("mkdirp")
 import uglifyjs = require("uglify-js")
 const domprops = require("uglify-js/tools/domprops")
+const favicons = require("favicons")
 
 DeleteExistingAssembledDirectory()
 
@@ -132,8 +134,81 @@ function CreateScript() {
     console.info("Writing \"Temp/Assembled/DOM/index.js\"...")
     fs.writeFile("Temp/Assembled/DOM/index.js", ConcatenatedScripts, "utf8", err => {
         Error(err)
-        CreateHtml()
+        GenerateFavicons()
     })
+}
+
+let Favicons: {
+    readonly images: {
+        readonly name: string
+        readonly contents: Buffer
+    }[]
+    readonly files: {
+        readonly name: string
+        readonly contents: string
+    }[]
+    readonly html: string[]
+} = {
+        images: [],
+        files: [],
+        html: []
+    }
+
+function GenerateFavicons() {
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping favicon generation as not building for production")
+        CreateHtml()
+    } else {
+        console.info("Generating favicons...")
+        favicons("./Game/icon.png", {
+            appName: Configuration.Name,
+            appDescription: null,
+            developerName: null,
+            developerUrl: null,
+            background: "#000",
+            theme_color: "#000",
+            path: "",
+            display: "standalone",
+            orientation: "landscape",
+            start_url: "/",
+            version: "1.0",
+            logging: false,
+            online: false,
+            preferOnline: false,
+            icons: {
+                android: true,
+                appleIcon: true,
+                appleStartup: true,
+                coast: { offset: 25 },
+                favicons: true,
+                firefox: true,
+                windows: true,
+                yandex: true
+            }
+        }, (err: any, response: any) => {
+            Error(err)
+            Favicons = response
+            let writtenImages = 0
+            let writtenFiles = 0
+            for (const image of Favicons.images) fs.writeFile(path.join("Temp/Assembled/DOM", image.name), image.contents, err => {
+                Error(err)
+                writtenImages++
+                CheckDone()
+            })
+            for (const file of Favicons.files) fs.writeFile(path.join("Temp/Assembled/DOM", file.name), file.contents, "utf8", err => {
+                Error(err)
+                writtenFiles++
+                CheckDone()
+            })
+            CheckDone()
+            function CheckDone() {
+                console.log(`Written ${writtenImages}/${Favicons.images.length} images and ${writtenFiles}/${Favicons.files.length} files`)
+                if (writtenImages != Favicons.images.length) return
+                if (writtenFiles < Favicons.files.length) return
+                CreateHtml()
+            }
+        })
+    }
 }
 
 function CreateHtml() {
@@ -142,6 +217,7 @@ function CreateHtml() {
 <html>
 
 <head>
+    ${Favicons.html.join("\n")}
     <title>${process.env.NODE_ENV != "production" ? "DEVELOPMENT BUILD of " : ""}${Configuration.Name}</title>
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1, width=device-width, height=device-height, user-scalable=no">
 </head>
