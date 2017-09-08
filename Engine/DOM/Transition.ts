@@ -10,16 +10,17 @@ class TransitionStepRectangleInstance {
         this.Timer = timer
         this.Element = document.createElement("div")
         this.Element.style.position = "absolute"
-        this.SetStyle(0)
+        this.SetStyle(("transition" in this.Element.style) ? this.Timer.ElapsedUnitIntervalForTransitions() : 0)
         wrappingElement.appendChild(this.Element)
         if ("transition" in this.Element.style) {
             ForceStyleRefresh(this.Element)
-            this.SetTransition(timer.DurationSeconds)
+            this.SetTransition(timer.DurationSeconds - timer.ElapsedSecondsForTransitions())
             this.SetStyle(1)
         }
     }
 
     SetTransition(seconds: number): void {
+        if (seconds < 0) seconds = 0
         this.Element.style.transition = `left ${seconds}s linear, right ${seconds}s linear, top ${seconds}s linear, bottom ${seconds}s linear, opacity ${seconds}s linear, background ${seconds}s linear`
     }
 
@@ -46,7 +47,9 @@ class TransitionStepRectangleInstance {
 
     Resume(): void {
         if ("transition" in this.Element.style) {
-            this.SetTransition(this.Timer.DurationSeconds - this.Timer.ElapsedSeconds())
+            this.SetStyle(this.Timer.ElapsedUnitIntervalForTransitions())
+            ForceStyleRefresh(this.Element)
+            this.SetTransition(this.Timer.DurationSeconds - this.Timer.ElapsedSecondsForTransitions())
             this.SetStyle(1)
         } else {
             this.Tick()

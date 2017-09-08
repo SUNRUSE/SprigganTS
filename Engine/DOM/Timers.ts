@@ -1,4 +1,5 @@
 let TimeAtLastInvoke: number | undefined = undefined
+let RunningTowardsTime = 0
 let CurrentTime = 0
 
 type CallbackQueueItem = {
@@ -127,24 +128,24 @@ function InternalInvoke(callback?: () => void) {
             delta = Math.min(0.125, delta)
         }
     }
-    const newCurrentTime = CurrentTime + delta
+    RunningTowardsTime = CurrentTime + delta
     TimeAtLastInvoke = time
 
     if (callback) {
-        CurrentTime = newCurrentTime
+        CurrentTime = RunningTowardsTime
         if (CallbackQueue.length && CallbackQueue[0].At < CurrentTime) CurrentTime = CallbackQueue[0].At
         callback()
     }
 
     while (true) {
-        if (!CallbackQueue.length || CallbackQueue[0].At > newCurrentTime) break
+        if (!CallbackQueue.length || CallbackQueue[0].At > RunningTowardsTime) break
         const item = CallbackQueue.shift()
         if (!item) break // Impossible, but TypeScript cannot know it.
         CurrentTime = item.At
         item.Call()
     }
 
-    CurrentTime = newCurrentTime
+    CurrentTime = RunningTowardsTime
     const futureTickRequiredByScene = SceneRoot.Instance.Tick()
     const futureTickRequiredByTransition = TickTransition()
     const futureTickRequired = futureTickRequiredByScene || futureTickRequiredByTransition
@@ -229,6 +230,17 @@ class Timer {
     readonly ElapsedUnitInterval = () => {
         if (this.DurationSeconds == 0) return 1
         return this.ElapsedSeconds() / this.DurationSeconds
+    }
+
+    readonly ElapsedSecondsForTransitions = () => {
+        if (this.PausedElapsed !== undefined) return this.PausedElapsed
+        if (this.CancelledElapsed !== undefined) return this.CancelledElapsed
+        return Math.min(this.DurationSeconds, ((+new Date()) / 1000) - (TimeAtLastInvoke || 0 /* this cannot be undefined here, but TypeScript cannot know that. */) + RunningTowardsTime - this.StartedAt)
+    }
+
+    readonly ElapsedUnitIntervalForTransitions = () => {
+        if (this.DurationSeconds == 0) return 1
+        return this.ElapsedSecondsForTransitions() / this.DurationSeconds
     }
 
     Cancel(): Timer {

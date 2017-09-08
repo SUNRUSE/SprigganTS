@@ -15,11 +15,21 @@ abstract class MovingSceneObject extends SceneObject {
         return Mix(this.FromVirtualPixelsFromTop, this.ToVirtualPixelsFromTop, this.MotionTimer.ElapsedUnitInterval())
     }
 
+    private VirtualPixelsFromLeftForTransitions(): number {
+        if (!this.MotionTimer) return this.ToVirtualPixelsFromLeft
+        return Mix(this.FromVirtualPixelsFromLeft, this.ToVirtualPixelsFromLeft, this.MotionTimer.ElapsedUnitIntervalForTransitions())
+    }
+
+    private VirtualPixelsFromTopForTransitions(): number {
+        if (!this.MotionTimer) return this.ToVirtualPixelsFromTop
+        return Mix(this.FromVirtualPixelsFromTop, this.ToVirtualPixelsFromTop, this.MotionTimer.ElapsedUnitIntervalForTransitions())
+    }
+
     Move(virtualPixelsFromLeft: number, virtualPixelsFromTop: number): this {
         if (this.Deleted()) return this
         if (this.MotionTimer) {
             if ("transition" in this.Element.style) {
-                this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
+                this.SetElementLocation(this.VirtualPixelsFromLeftForTransitions(), this.VirtualPixelsFromTopForTransitions())
                 this.Element.style.transition = "initial"
                 ForceStyleRefresh(this.Element)
             }
@@ -40,21 +50,6 @@ abstract class MovingSceneObject extends SceneObject {
         virtualPixelsFromTop = Math.round(virtualPixelsFromTop)
 
         if (this.MotionTimer) {
-            if (!this.MotionTimer.Paused() && "transition" in this.Element.style) {
-                let interruptedVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
-                let interruptedVirtualPixelsFromTop = this.VirtualPixelsFromTop()
-
-                // Workaround for Edge issue 13560407.
-                if (interruptedVirtualPixelsFromLeft != virtualPixelsFromLeft && interruptedVirtualPixelsFromTop == virtualPixelsFromTop) {
-                    interruptedVirtualPixelsFromTop += 0.00001
-                } else if (interruptedVirtualPixelsFromTop != virtualPixelsFromTop && interruptedVirtualPixelsFromLeft == virtualPixelsFromLeft) {
-                    interruptedVirtualPixelsFromLeft += 0.00001
-                }
-
-                this.SetElementLocation(interruptedVirtualPixelsFromLeft, interruptedVirtualPixelsFromTop)
-                this.Element.style.transition = "initial"
-                ForceStyleRefresh(this.Element)
-            }
             this.FromVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
             this.FromVirtualPixelsFromTop = this.VirtualPixelsFromTop()
             this.MotionTimer.Cancel()
@@ -75,10 +70,14 @@ abstract class MovingSceneObject extends SceneObject {
                 if (onArrivingIfUninterrupted) onArrivingIfUninterrupted()
             })
 
-            if (this.Paused())
+            this.SetElementLocation(this.VirtualPixelsFromLeftForTransitions(), this.VirtualPixelsFromTopForTransitions())
+            this.Element.style.transition = "initial"
+            ForceStyleRefresh(this.Element)
+
+            if (this.Paused()) {
                 this.MotionTimer.Pause()
-            else {
-                this.SetTransition(durationSeconds)
+            } else {
+                this.SetTransition(durationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
                 this.SetElementLocation(virtualPixelsFromLeft, virtualPixelsFromTop)
             }
         } else {
@@ -100,6 +99,7 @@ abstract class MovingSceneObject extends SceneObject {
     }
 
     private SetTransition(durationSeconds: number): void {
+        if (durationSeconds < 0) durationSeconds = 0
         if ("transform" in this.Element.style) {
             this.Element.style.transition = `transform ${durationSeconds}s linear`
         } else {
@@ -138,7 +138,9 @@ abstract class MovingSceneObject extends SceneObject {
         if (this.MotionTimer) {
             this.MotionTimer.Resume()
             if ("transition" in this.Element.style) {
-                this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds())
+                this.SetElementLocation(this.VirtualPixelsFromLeftForTransitions(), this.VirtualPixelsFromTopForTransitions())
+                ForceStyleRefresh(this.Element)
+                this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
                 this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
             }
         }
@@ -152,7 +154,7 @@ abstract class MovingSceneObject extends SceneObject {
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
             this.Element.style.transition = "initial"
             ForceStyleRefresh(this.Element)
-            this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSeconds())
+            this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
             this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
         } else {
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
