@@ -69,6 +69,7 @@ function FocusLost(localEvent: Event) {
 
         InternalInvoke(() => {
             SceneRoot.Instance.Pause()
+            SceneRoot.Instance.Disable()
             PauseTransition()
         })
 
@@ -100,6 +101,8 @@ function FocusRegained() {
         TimeAtLastInvoke = undefined
         InternalInvoke(() => {
             SceneRoot.Instance.Resume()
+            SceneRoot.Instance.Enable()
+            // If we are mid-transition, the scene root will be disabled again by this.
             ResumeTransition()
         })
     }

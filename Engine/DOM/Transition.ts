@@ -100,10 +100,14 @@ class TransitionInstance {
     private ExitInstance: TransitionStepInstance | undefined
 
     constructor(entry: TransitionStep, exit: TransitionStep, call: () => void) {
+        SceneRoot.Instance.Disable()
         this.Exit = exit
         this.EntryInstance = new TransitionStepInstance(entry, () => {
             call()
-            this.ExitInstance = new TransitionStepInstance(exit, () => CurrentTransition = undefined)
+            this.ExitInstance = new TransitionStepInstance(exit, () => {
+                CurrentTransition = undefined
+                SceneRoot.Instance.Enable()
+            })
         })
     }
 
@@ -164,5 +168,6 @@ function PauseTransition(): void {
 
 function ResumeTransition(): void {
     if (!CurrentTransition) return
+    SceneRoot.Instance.Disable()
     CurrentTransition.Resume()
 }
