@@ -1,6 +1,6 @@
 
 import { ImportedBackgroundFrame } from "./../../Types"
-import { Error } from "./../../Misc"
+import { Error, ScaleUpToFakeNearestNeighbor, RemoveExtension } from "./../../Misc"
 
 import cpr = require("cpr")
 import fs = require("fs")
@@ -11,12 +11,14 @@ function PrepareBackgroundFramePng(filename: string, durationSeconds: number, tr
     fs.createReadStream(filename).on("error", Error).pipe(untrimmedPng).on("error", Error).on("parsed", () => {
         cpr(filename, trimmedFilename, {}, err => {
             Error(err)
-            then({
-                Empty: false,
-                PngFilename: trimmedFilename,
-                WidthPixels: untrimmedPng.width,
-                HeightPixels: untrimmedPng.height,
-                DurationSeconds: durationSeconds
+            ScaleUpToFakeNearestNeighbor(trimmedFilename, `${RemoveExtension(trimmedFilename)}Prescaled.png`, 4, () => {
+                then({
+                    Empty: false,
+                    PngFilename: trimmedFilename,
+                    WidthPixels: untrimmedPng.width,
+                    HeightPixels: untrimmedPng.height,
+                    DurationSeconds: durationSeconds
+                })
             })
         })
     })

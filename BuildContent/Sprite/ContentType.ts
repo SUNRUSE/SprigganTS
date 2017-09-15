@@ -1,5 +1,5 @@
 import { ImportedSpriteFrame, PackedSpriteFrame, SpritePackingHeader } from "./../Types"
-import { Error } from "./../Misc"
+import { Error, ScaleUpFromMemoryToFakeNearestNeighbor } from "./../Misc"
 import { ContentType } from "./../ContentType"
 
 import fs = require("fs")
@@ -317,30 +317,32 @@ const SpriteContentType = new ContentType<ImportedSpriteFrame, PackedSpriteFrame
             const writeStream = fs.createWriteStream("Temp/Content/Packed/sprite/Atlas.png")
             atlas.pack().pipe(writeStream)
             writeStream.on("error", Error).on("close", () => {
-                console.log("Listing packed content...")
-                const collapsed: { [contentName: string]: PackedSpriteFrame } = {}
-                for (const packed of packedFrames) {
-                    for (const user of packed.Unpacked.Users) {
-                        collapsed[user.ContentName] = {
-                            Empty: false,
-                            AtlasLeftPixels: packed.Left + 1,
-                            AtlasTopPixels: packed.Top + 1,
-                            WidthPixels: packed.Unpacked.Png.width - 2,
-                            HeightPixels: packed.Unpacked.Png.height - 2,
-                            OffsetLeftPixels: user.OffsetLeftPixels,
-                            OffsetTopPixels: user.OffsetTopPixels,
-                            DurationSeconds: user.DurationSeconds
+                ScaleUpFromMemoryToFakeNearestNeighbor(atlas, "Temp/Content/Packed/sprite/AtlasPrescaled.png", 4, () => {
+                    console.log("Listing packed content...")
+                    const collapsed: { [contentName: string]: PackedSpriteFrame } = {}
+                    for (const packed of packedFrames) {
+                        for (const user of packed.Unpacked.Users) {
+                            collapsed[user.ContentName] = {
+                                Empty: false,
+                                AtlasLeftPixels: packed.Left + 1,
+                                AtlasTopPixels: packed.Top + 1,
+                                WidthPixels: packed.Unpacked.Png.width - 2,
+                                HeightPixels: packed.Unpacked.Png.height - 2,
+                                OffsetLeftPixels: user.OffsetLeftPixels,
+                                OffsetTopPixels: user.OffsetTopPixels,
+                                DurationSeconds: user.DurationSeconds
+                            }
                         }
                     }
-                }
-                for (const contentName in imported) if (imported[contentName].Empty) collapsed[contentName] = {
-                    Empty: true,
-                    DurationSeconds: imported[contentName].DurationSeconds
-                }
-                then({
-                    AtlasWidthPixels: atlasWidth,
-                    AtlasHeightPixels: atlasHeight
-                }, collapsed)
+                    for (const contentName in imported) if (imported[contentName].Empty) collapsed[contentName] = {
+                        Empty: true,
+                        DurationSeconds: imported[contentName].DurationSeconds
+                    }
+                    then({
+                        AtlasWidthPixels: atlasWidth,
+                        AtlasHeightPixels: atlasHeight
+                    }, collapsed)
+                })
             })
         }
     }

@@ -1,6 +1,6 @@
 import { ImportedBackgroundFrame, PackedBackgroundFrame, BackgroundPackingHeader } from "./../Types"
 import { ContentType } from "./../ContentType"
-import { Error } from "./../Misc"
+import { Error, RemoveExtension } from "./../Misc"
 
 import fs = require("fs")
 import path = require("path")
@@ -84,7 +84,10 @@ const BackgroundContentType = new ContentType<ImportedBackgroundFrame, PackedBac
                     packedFrames.push(match)
                     cpr(importedFrame.PngFilename, path.join("Temp", "Content", "Packed", "background", `${id}.png`), {}, err => {
                         Error(err)
-                        FrameCompleted()
+                        cpr(`${RemoveExtension(importedFrame.PngFilename)}Prescaled.png`, path.join("Temp", "Content", "Packed", "background", `${id}prescaled.png`), {}, err => {
+                            Error(err)
+                            FrameCompleted()
+                        })
                     })
                 }
             })

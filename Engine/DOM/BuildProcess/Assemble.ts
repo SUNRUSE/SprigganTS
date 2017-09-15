@@ -244,7 +244,10 @@ function CopySprites() {
     console.info("Copying sprites...")
     cpr("Temp/Content/Packed/sprite/Atlas.png", "Temp/Assembled/DOM/sprites.png", {}, err => {
         Error(err)
-        CopyBackgrounds()
+        cpr("Temp/Content/Packed/sprite/AtlasPrescaled.png", "Temp/Assembled/DOM/spritesprescaled.png", {}, err => {
+            Error(err)
+            CopyBackgrounds()
+        })
     })
 }
 
