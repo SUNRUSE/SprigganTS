@@ -4,7 +4,7 @@ let Sprites: HTMLImageElement | undefined = undefined
 // You should not need to call this yourself.
 function LoadSprites(then: () => void) {
     SetLoadingMessage("Loading sprites...")
-    InternalLoadAndPrepareImage("sprites.png", ContentSpritesWidth, ContentSpritesHeight, element => {
+    InternalLoadAndPrepareImage("sprites.png", "spritesprescaled.png", ContentSpritesWidth, ContentSpritesHeight, element => {
         element.style.touchAction = "manipulation" // Improves responsiveness on IE/Edge on touchscreens.
         element.style.webkitBackfaceVisibility = "hidden" // Prevents a "pop" on Chrome when all transitions have finished.
         element.style.position = "absolute"
