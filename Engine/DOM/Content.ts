@@ -31,3 +31,25 @@ class BackgroundFrame {
         this.DurationSeconds = durationSeconds
     }
 }
+
+class Sound {
+    readonly StartSeconds: number
+    readonly DurationSeconds: number
+    readonly Gain: number
+
+    constructor(startSeconds: number, durationSeconds: number, gain: number) {
+        this.StartSeconds = startSeconds
+        this.DurationSeconds = durationSeconds
+        this.Gain = gain
+    }
+}
+
+class Music {
+    readonly Id: number
+    readonly Gain: number
+
+    constructor(id: number, gain: number) {
+        this.Id = id
+        this.Gain = gain
+    }
+}

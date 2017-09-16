@@ -1,5 +1,5 @@
 import { Error } from "./../../../BuildContent/Misc"
-import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame } from "./../../../BuildContent/Types"
+import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame, PackedSound, PackedMusic, PackedDialog } from "./../../../BuildContent/Types"
 import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../../../BuildContent/Tree"
 
 import zlib = require("zlib")
@@ -52,6 +52,12 @@ const SpriteFrameOffsetTopPixels: number[] = []
 const SpriteFrameDurationMilliseconds: number[] = []
 const BackgroundFrameIds: number[] = []
 const BackgroundFrameDurationMilliseconds: number[] = []
+const SoundFilenames: string[] = []
+const SoundGains: number[] = []
+const MusicFilenames: string[] = []
+const MusicGains: number[] = []
+const DialogFilenames: string[] = []
+const DialogGains: number[] = []
 
 function GenerateContent() {
     console.info("Generating content scripts...")
@@ -71,6 +77,21 @@ function GenerateContent() {
             BackgroundFrameIds.push(backgroundFrame.Empty ? 65535 : backgroundFrame.Id)
             BackgroundFrameDurationMilliseconds.push(backgroundFrame.DurationSeconds * 1000)
             return `${BackgroundFrameIds.length - 1}`
+        },
+        sound: (sound: PackedSound) => {
+            SoundFilenames.push(sound.InterleavedFilename)
+            SoundGains.push(sound.Gain)
+            return `${SoundFilenames.length - 1}`
+        },
+        music: (music: PackedMusic) => {
+            MusicFilenames[music.Id] = music.InterleavedFilename
+            MusicGains.push(music.Gain)
+            return `${music.Id}`
+        },
+        dialog: (dialog: PackedDialog) => {
+            DialogFilenames[dialog.Id] = dialog.InterleavedFilename
+            DialogGains.push(dialog.Gain)
+            return `${dialog.Id}`
         }
     })
     GenerateHeader()
@@ -89,7 +110,10 @@ function GenerateHeader() {
         Configuration.VirtualHeight,
         SpriteFrameAtlasLeftPixels.length,
         BackgroundFrameIds.length,
-        UniqueBackgroundIds
+        UniqueBackgroundIds,
+        SoundFilenames.length,
+        MusicFilenames.length,
+        DialogFilenames.length
     ]).buffer)
     Chunks.push(Buffer.from(Configuration.Name, "utf8"))
     Header = `var WidthVirtualPixels = ${Configuration.VirtualWidth}
@@ -222,6 +246,114 @@ function LoadBackgroundFrames() {
         console.log(`Background frame ${i} loaded`)
         Error(err)
         Chunks[addBackgroundFramesAt + i] = data
+        remainingFrames--
+        if (!remainingFrames) BuildSoundTable()
+    })
+    if (!remainingFrames) BuildSoundTable()
+}
+
+function BuildSoundTable() {
+    console.info("Building sound table...")
+    const buffer = Buffer.concat([
+        Float32Array.from(SoundGains).buffer
+    ].map(ab => new Buffer(ab)))
+
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping sound table deflation as not building for production")
+        Chunks.push(buffer)
+        LoadSounds()
+    } else {
+        console.info("Deflating sound table...")
+        zlib.deflate(buffer, (err, deflated) => {
+            Error(err)
+            Chunks.push(deflated)
+            LoadSounds()
+        })
+    }
+}
+
+function LoadSounds() {
+    console.info("Loading sounds...")
+    const addSoundsAt = Chunks.length
+    let remainingFrames = SoundFilenames.length
+    let index = 0
+    for (const sound of SoundFilenames) fs.readFile(sound, (err, data) => {
+        const capturedIndex = index++
+        console.log(`Sound ${capturedIndex} (${sound}) loaded`)
+        Error(err)
+        Chunks[addSoundsAt + capturedIndex] = data
+        remainingFrames--
+        if (!remainingFrames) BuildMusicTable()
+    })
+    if (!remainingFrames) BuildMusicTable()
+}
+
+function BuildMusicTable() {
+    console.info("Building music table...")
+    const buffer = Buffer.concat([
+        Float32Array.from(MusicGains).buffer
+    ].map(ab => new Buffer(ab)))
+
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping music table deflation as not building for production")
+        Chunks.push(buffer)
+        LoadMusic()
+    } else {
+        console.info("Deflating music table...")
+        zlib.deflate(buffer, (err, deflated) => {
+            Error(err)
+            Chunks.push(deflated)
+            LoadMusic()
+        })
+    }
+}
+
+function LoadMusic() {
+    console.info("Loading music...")
+    const addMusicAt = Chunks.length
+    let remainingFrames = MusicFilenames.length
+    let index = 0
+    for (const music of MusicFilenames) fs.readFile(music, (err, data) => {
+        const capturedIndex = index++
+        console.log(`Music ${capturedIndex} (${music}) loaded`)
+        Error(err)
+        Chunks[addMusicAt + capturedIndex] = data
+        remainingFrames--
+        if (!remainingFrames) BuildDialogTable()
+    })
+    if (!remainingFrames) BuildDialogTable()
+}
+
+function BuildDialogTable() {
+    console.info("Building dialog table...")
+    const buffer = Buffer.concat([
+        Float32Array.from(DialogGains).buffer
+    ].map(ab => new Buffer(ab)))
+
+    if (process.env.NODE_ENV != "production") {
+        console.info("Skipping dialog table deflation as not building for production")
+        Chunks.push(buffer)
+        LoadDialog()
+    } else {
+        console.info("Deflating dialog table...")
+        zlib.deflate(buffer, (err, deflated) => {
+            Error(err)
+            Chunks.push(deflated)
+            LoadDialog()
+        })
+    }
+}
+
+function LoadDialog() {
+    console.info("Loading dialog...")
+    const addDialogAt = Chunks.length
+    let remainingFrames = DialogFilenames.length
+    let index = 0
+    for (const dialog of DialogFilenames) fs.readFile(dialog, (err, data) => {
+        const capturedIndex = index++
+        console.log(`Dialog ${capturedIndex} (${dialog}) loaded`)
+        Error(err)
+        Chunks[addDialogAt + capturedIndex] = data
         remainingFrames--
         if (!remainingFrames) CompileChunks()
     })

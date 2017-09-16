@@ -1,5 +1,5 @@
 import { Error, MinifyImages, ScaleUpToFakeNearestNeighbor } from "./../../../BuildContent/Misc"
-import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame } from "./../../../BuildContent/Types"
+import { Build, Configuration, PackedSpriteFrame, PackedBackgroundFrame, PackedSound, PackedMusic, PackedDialog } from "./../../../BuildContent/Types"
 import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../../../BuildContent/Tree"
 
 import cpr = require("cpr")
@@ -71,7 +71,10 @@ function GenerateContent() {
     console.info("Generating content scripts...")
     Content = GenerateCodeFromContentTree(GenerateContentTreeFromBuild(Build), false, {
         sprite: (spriteFrame: PackedSpriteFrame) => spriteFrame.Empty ? `new EmptySpriteFrame(${spriteFrame.DurationSeconds})` : `new SpriteFrame(${spriteFrame.AtlasLeftPixels}, ${spriteFrame.AtlasTopPixels}, ${spriteFrame.WidthPixels}, ${spriteFrame.HeightPixels}, ${spriteFrame.OffsetLeftPixels}, ${spriteFrame.OffsetTopPixels}, ${spriteFrame.DurationSeconds})`,
-        background: (backgroundFrame: PackedBackgroundFrame) => backgroundFrame.Empty ? `new EmptyBackgroundFrame(${backgroundFrame.DurationSeconds})` : `new BackgroundFrame(${backgroundFrame.Id}, ${backgroundFrame.WidthPixels}, ${backgroundFrame.HeightPixels}, ${backgroundFrame.DurationSeconds})`
+        background: (backgroundFrame: PackedBackgroundFrame) => backgroundFrame.Empty ? `new EmptyBackgroundFrame(${backgroundFrame.DurationSeconds})` : `new BackgroundFrame(${backgroundFrame.Id}, ${backgroundFrame.WidthPixels}, ${backgroundFrame.HeightPixels}, ${backgroundFrame.DurationSeconds})`,
+        sound: (sound: PackedSound) => `new Sound(${sound.StartSeconds}, ${sound.DurationSeconds}, ${sound.Gain})`,
+        music: (music: PackedMusic) => `new Music(${music.Id}, ${music.Gain})`,
+        dialog: (dialog: PackedDialog) => `new Dialog(${dialog.Id}, ${dialog.Gain})`
     })
     ReadGame()
 }
@@ -255,8 +258,44 @@ function CopyBackgrounds() {
     console.info("Copying backgrounds...")
     cpr("Temp/Content/Packed/background", "Temp/Assembled/DOM/backgrounds", {}, err => {
         Error(err)
-        Done()
+        CopySounds()
     })
+}
+
+function CopySounds() {
+    console.info("Copying sounds...")
+    cpr("Temp/Content/Packed/sound/Sounds.wav", "Temp/Assembled/DOM/sounds.wav", {}, err => {
+        Error(err)
+        CopyMusic()
+    })
+}
+
+function CopyMusic() {
+    console.info("Copying music...")
+    let remainingMusic = 0
+    for (const filename in Build.PackedContent["music"]) {
+        remainingMusic++
+        cpr(Build.PackedContent["music"][filename].WavFilename, `Temp/Assembled/DOM/music/${Build.PackedContent["music"][filename].Id}.wav`, {}, err => {
+            Error(err)
+            remainingMusic--
+            if (!remainingMusic) CopyDialog()
+        })
+    }
+    if (!remainingMusic) CopyDialog()
+}
+
+function CopyDialog() {
+    console.info("Copying dialog...")
+    let remainingDialog = 0
+    for (const filename in Build.PackedContent["dialog"]) {
+        remainingDialog++
+        cpr(Build.PackedContent["dialog"][filename].WavFilename, `Temp/Assembled/DOM/dialog/${Build.PackedContent["dialog"][filename].Id}.wav`, {}, err => {
+            Error(err)
+            remainingDialog--
+            if (!remainingDialog) Done()
+        })
+    }
+    if (!remainingDialog) Done()
 }
 
 function Done() {

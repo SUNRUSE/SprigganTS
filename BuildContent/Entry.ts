@@ -2,6 +2,9 @@ require("./Sprite/Imports/Aseprite")
 require("./Sprite/Imports/Png")
 require("./Background/Imports/Aseprite")
 require("./Background/Imports/Png")
+require("./Sound")
+require("./Music")
+require("./Dialog")
 import { GenerateContentTreeFromBuild, GenerateCodeFromContentTree } from "./Tree"
 
 import fs = require("fs")
@@ -232,7 +235,10 @@ function GenerateTypes() {
     console.info("Generating types...")
     const types = GenerateCodeFromContentTree(GenerateContentTreeFromBuild(Build), true, {
         sprite: () => "SpriteFrame",
-        background: () => "BackgroundFrame"
+        background: () => "BackgroundFrame",
+        sound: () => "Sound",
+        music: () => "Music",
+        dialog: () => "Dialog"
     })
 
     console.info("Writing types to \"Temp/Content/Types.ts\"...")
