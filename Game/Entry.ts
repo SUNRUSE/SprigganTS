@@ -9,6 +9,7 @@
 /// <reference path="Demos/Wrapping.ts" />
 /// <reference path="Demos/SaveLoad.ts" />
 /// <reference path="Demos/Transitions.ts" />
+/// <reference path="Demos/Sounds.ts" />
 /// <reference path="Demos/BouncingBalls.ts" />
 /// <reference path="DemoMenu.ts" />
 
