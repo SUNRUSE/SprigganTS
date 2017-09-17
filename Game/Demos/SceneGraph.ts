@@ -140,6 +140,9 @@ new Demo("Scene Graph", (group) => {
     }, {
         Label: "Show",
         Action: () => wrappingGroup.Show()
+    }, {
+        Label: "Sound",
+        Action: () => wrappingGroup.PlaySound(Content.Demos.Sounds.Synth)
     }])
 
     CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonNarrowWidth / 2, WidthVirtualPixels - ButtonNarrowWidth / 2, [{
@@ -187,6 +190,9 @@ new Demo("Scene Graph", (group) => {
     }, {
         Label: "Show",
         Action: () => sprite.Show()
+    }, {
+        Label: "Sound",
+        Action: () => sprite.PlaySound(Content.Demos.Sounds.Synth)
     }])
 
     return closing.Raise
