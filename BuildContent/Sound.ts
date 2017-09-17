@@ -9,8 +9,9 @@ const wav = require("node-wav")
 const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackingHeader>("sound", (imported, then) => {
     const output: { [contentName: string]: PackedSound } = {}
     const paddingArray: number[] = []
-    let offset = 0.25
-    while (paddingArray.length < 44100 * 4 * 0.05) paddingArray.push(0)
+    const spacing = 0.05
+    let offset = spacing
+    while (paddingArray.length < 44100 * 4 * spacing) paddingArray.push(0)
     const padding = new Buffer(paddingArray)
     let left: Buffer[] = [padding]
     let right: Buffer[] = [padding]
@@ -33,7 +34,7 @@ const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackin
                     Gain: imported[filename].Gain
                 }
                 offset += data.byteLength / (2 * 4 * 44100)
-                offset += 0.25
+                offset += spacing
                 left.push(data.slice(0, data.byteLength / 2))
                 left.push(padding)
                 right.push(data.slice(data.byteLength / 2))
