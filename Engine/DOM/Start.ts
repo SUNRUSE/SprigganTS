@@ -4,8 +4,8 @@ onload = () => {
     document.onselectstart = function () { return false };
     (document.body.style as any).MozUserSelect = "none"
 
-    LoadSprites(() => {
+    AudioDriver.Load(() => LoadSprites(() => {
         RemoveLoadingMessage()
         InternalInvoke(StartGame)
-    })
+    }))
 }
