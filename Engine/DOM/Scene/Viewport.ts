@@ -7,7 +7,7 @@ function CreateViewport(): HTMLDivElement {
 
 const CachedViewports: HTMLDivElement[] = []
 
-class Viewport extends SceneObject {
+class Viewport extends MovingSceneObject {
     private readonly HorizontalPositionSignedUnitInterval: number
     private readonly VerticalPositionSignedUnitInterval: number
 
@@ -24,21 +24,15 @@ class Viewport extends SceneObject {
         return CachedViewports.pop() || CreateViewport()
     }
 
-    protected OnRescale(): void {
+    protected OnMovingSceneObjectRescale(): void {
         const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
         this.Element.style.width = `${WidthVirtualPixels * realPixelsPerVirtualPixel}px`
         this.Element.style.height = `${HeightVirtualPixels * realPixelsPerVirtualPixel}px`
-        this.Element.style.left = `${(Display.RealWidthPixels() - WidthVirtualPixels * realPixelsPerVirtualPixel) * (this.HorizontalPositionSignedUnitInterval * 0.5 + 0.5)}px`
-        this.Element.style.top = `${(Display.RealHeightPixels() - HeightVirtualPixels * realPixelsPerVirtualPixel) * (this.VerticalPositionSignedUnitInterval * 0.5 + 0.5)}px`
+        this.Element.style.marginLeft = `${(Display.RealWidthPixels() - WidthVirtualPixels * realPixelsPerVirtualPixel) * (this.HorizontalPositionSignedUnitInterval * 0.5 + 0.5)}px`
+        this.Element.style.marginTop = `${(Display.RealHeightPixels() - HeightVirtualPixels * realPixelsPerVirtualPixel) * (this.VerticalPositionSignedUnitInterval * 0.5 + 0.5)}px`
     }
 
-    protected OnDelete(): void {
+    protected OnMovingSceneObjectDelete(): void {
         CachedViewports.push(this.Element)
-    }
-
-    Tick(): boolean {
-        let any = false
-        for (const child of this.Children) if (child.Tick()) any = true
-        return any
     }
 }
