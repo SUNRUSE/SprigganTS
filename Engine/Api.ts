@@ -61,10 +61,57 @@ declare class Viewport {
     */
     Enable(): Viewport
 
+    /** Gets the number of virtual pixels this Viewport is to the right of its "docked" position.
+     * @returns {float} The number of virtual pixels this Viewport is to the right of its "docked" position..
+     */
+    VirtualPixelsFromLeft(): number
+
+    /** Gets the number of virtual pixels this Viewport is below its "docked" position.
+     * @returns {float} The number of virtual pixels this Viewport is below its "docked" position..
+     */
+    VirtualPixelsFromTop(): number
+
+    /** Moves this Viewport to a specified location immediately. 
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Viewport to the right of its "docked" position.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Viewport below its "docked" position.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Move(virtualPixelsFromLeft: number, virtualPixelsFromTop: number): Viewport
+
+    /** Moves this Viewport from its current location to a specified location over the course of a set duration.  Initially paused if this Viewport is .Pause()-d.
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Viewport to the right of its "docked" position.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Viewport below its "docked" position.
+     * @param {float} durationSeconds The number of seconds to take to reach the destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Viewport reaches the specified destination.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): Viewport
+
+    /** Moves this Viewport from its current location to a specified location at a set speed.  Initially paused if this Viewport is .Pause()-d.
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Viewport to the right of its "docked" position.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Viewport below the parent scene object's origin.
+     * @param {float} pixelsPerSecond The number of pixels to cover per second.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Viewport reaches the specified destination.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Viewport
+
     /** Removes this Viewport and all its children from the scene graph.
-     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Delete(...).Something(...)).
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Delete(...).VirtualPixelsFromLeft(...)).
      */
     Delete(): Viewport
+
+    /** Plays a Sound from this Viewport's center, using positional audio if available.
+     * @param {Sound} sound The Sound to play.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+     */
+    PlaySound(sound: Sound): Viewport
+
+    /** Plays a line of Dialog from this Viewport's center, using positional audio if available.
+     * @param {Dialog} dialog The Dialog to play.
+     * @returns {Viewport} This Viewport, for chaining method calls "fluently" (.Move(...).Pause(...)).
+     */
+    PlayDialog(dialog: Dialog): Viewport
 }
 
 declare class Group {
