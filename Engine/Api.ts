@@ -308,6 +308,86 @@ declare class Sprite {
     PlayDialog(dialog: Dialog): Sprite
 }
 
+declare class Background {
+    /** Displays a BackgroundFrame inside a Viewport or Group.  May fail to load.  Does not block clicks.
+     * @param {Viewport | Group} parent The parent scene object to add the new Background to.
+     * @param {BackgroundFrame | BackgroundFrame[]} animation The BackgroundFrame(s) to play.
+    */
+    constructor(parent: Viewport | Group, animation: BackgroundFrame | BackgroundFrame[])
+
+    /** Pauses this Background; motion and animation will be paused until this Background is Resume -d.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Pause(): Background
+
+    /** Resumes this Background; motion and animation will resume from where they were .Pause()-d.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Resume(): Background
+
+    /** Hides this Background.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Hide(): Background
+
+    /** Shows this Background.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Show(): Background
+
+    /** Gets the number of virtual pixels this Background is to the right of the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Background is to the right of the parent scene object's origin.
+     */
+    VirtualPixelsFromLeft(): number
+
+    /** Gets the number of virtual pixels this Background is below the parent scene object's origin.
+     * @returns {float} The number of virtual pixels this Background is below the parent scene object's origin.
+     */
+    VirtualPixelsFromTop(): number
+
+    /** Moves this Background to a specified location immediately. 
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Background to the right of the parent scene object's origin.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Background below the parent scene object's origin.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    Move(virtualPixelsFromLeft: number, virtualPixelsFromTop: number): Background
+
+    /** Moves this Background from its current location to a specified location over the course of a set duration.  Initially paused if this Background is .Pause()-d.
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Background to the right of the parent scene object's origin.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Background below the parent scene object's origin.
+     * @param {float} durationSeconds The number of seconds to take to reach the destination.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Background reaches the specified destination.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): Background
+
+    /** Moves this Background from its current location to a specified location at a set speed.  Initially paused if this Background is .Pause()-d.
+     * @param {integer} virtualPixelsFromLeft The number of virtual pixels to place this Background to the right of the parent scene object's origin.
+     * @param {integer} virtualPixelsFromTop The number of virtual pixels to place this Background below the parent scene object's origin.
+     * @param {float} pixelsPerSecond The number of pixels to cover per second.
+     * @param {?function} onArrivingIfUninterrupted An optional callback to execute if and when this Background reaches the specified destination.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    */
+    MoveAt(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, pixelsPerSecond: number, onArrivingIfUninterrupted?: () => void): Background
+
+    /** Removes this Background from the scene graph.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Delete(...).VirtualPixelsFromLeft(...)).
+     */
+    Delete(): Background
+
+    /** Plays a Sound from this Background, using positional audio if available.
+     * @param {Sound} sound The Sound to play.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+     */
+    PlaySound(sound: Sound): Background
+
+    /** Plays a line of Dialog from this Background, using positional audio if available.
+     * @param {Dialog} dialog The Dialog to play.
+     * @returns {Background} This Background, for chaining method calls "fluently" (.Move(...).Pause(...)).
+     */
+    PlayDialog(dialog: Dialog): Background
+}
+
 /** Creates a cheap "static sprite" which cannot be interacted with (no direct click handler, deletion, animation or motion controls).  This is intended for writing text, etc. as this would defer to the containing Viewport or Group for this functionality.
  * @param {Viewport | Group} parent The scene object to add a new static sprite to.
  * @param {SpriteFrame} frame The SpriteFrame to show.
@@ -315,23 +395,6 @@ declare class Sprite {
  * @param {integer} virtualPixelsFromTop The number of virtual pixels to place the new static sprite below the parent scene object's origin.
  */
 declare function AddStaticSprite(parent: Viewport | Group, frame: SpriteFrame, virtualPixelsFromLeft: number, virtualPixelsFromTop: number): void
-
-/** A single image, drawn behind all scene objects.  Any area not covered by the background or a scene object is black. */
-declare namespace Background {
-    /** Plays a looping animation.  If no subsequent animation is played, the last frame remains visible.  Initially paused if .Pause()-d.
-     * @param {Background | Background[]} animation An animation of one or more frames to play.
-     */
-    function Set(animation: SpriteFrame | SpriteFrame[]): void
-
-    /** If a background was previously Set, it is removed. */
-    function Remove(): void
-
-    /** Pauses the animation Set. */
-    function Pause(): void
-
-    /** Resumes the animation Set and then .Pause()-d. */
-    function Resume(): void
-}
 
 /** Enters a transition, used to change scene.  An error will occur if this is called while a previous transition is in progress.  Input is blocked while entering or exiting a transition.
  * @param {TransitionStep} type The TransitionStep to show while entering the transition.
