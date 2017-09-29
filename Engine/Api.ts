@@ -212,15 +212,15 @@ declare class Sprite {
     */
     constructor(parent: Viewport | Group, onClick?: () => void)
 
-    /** Pauses this Sprite; motion and animation will be paused until this Group is Resume -d.
-     * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
+    /** Pauses this Sprite; motion and animation will be paused until this Sprite is Resume -d.
+     * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    Pause(): Group
+    Pause(): Sprite
 
     /** Resumes this Sprite; motion and animation will resume from where they were .Pause()-d.
-     * @returns {Group} This Group, for chaining method calls "fluently" (.Move(...).Pause(...)).
+     * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
     */
-    Resume(): Group
+    Resume(): Sprite
 
     /** Hides this Sprite; clicks will not trigger actions or block underlying scene objects being clicked until .Show()-n.
      * @returns {Sprite} This Sprite, for chaining method calls "fluently" (.Move(...).Pause(...)).
