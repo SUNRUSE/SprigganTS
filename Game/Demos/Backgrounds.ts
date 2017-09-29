@@ -1,22 +1,31 @@
 new Demo("Backgrounds", (group) => {
+    const backgroundGroup = new Group(group)
+    let background: Background | undefined
+
     const buttons: {
         readonly Label: string,
         readonly Action: () => void
     }[] = [{
         Label: "Static",
-        Action: () => Background.Set(Content.Demos.Backgrounds.Static)
+        Action: () => {
+            if (background) background.Delete()
+            background = new Background(backgroundGroup, Content.Demos.Backgrounds.Static)
+        }
     }, {
         Label: "Animated",
-        Action: () => Background.Set(Content.Demos.Backgrounds.Animated)
+        Action: () => {
+            if (background) background.Delete()
+            background = new Background(backgroundGroup, Content.Demos.Backgrounds.Animated)
+        }
     }, {
         Label: "Pause",
-        Action: () => Background.Pause()
+        Action: () => { if (background) background.Pause() }
     }, {
         Label: "Resume",
-        Action: () => Background.Resume()
+        Action: () => { if (background) background.Resume() }
     }, {
         Label: "Remove",
-        Action: () => Background.Remove()
+        Action: () => { if (background) background.Delete() }
     }]
 
     for (const button of buttons) {

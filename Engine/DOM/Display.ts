@@ -21,6 +21,5 @@ namespace Display {
         SceneRoot.Instance.Rescale()
         ResizeShade()
         ResizeTransition()
-        Background.Resize()
     }
 }

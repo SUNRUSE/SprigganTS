@@ -22,7 +22,11 @@ function LoadSprites(then: () => void) {
                     SetLoadingMessage("Caching static sprites...")
                     setTimeout(() => {
                         while (CachedStaticSprites.length < NumberOfInitiallyCachedSprites) CachedStaticSprites.push(new StaticSprite())
-                        then()
+                        SetLoadingMessage("Caching backgrounds...")
+                        setTimeout(() => {
+                            while (CachedBackgroundWrappers.length < NumberOfInitiallyCachedBackgroundWrappers) CachedBackgroundWrappers.push(CreateBackgroundWrapper())
+                            then()
+                        }, 0)
                     }, 0)
                 }, 0)
             }, 0)

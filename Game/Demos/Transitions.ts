@@ -1,5 +1,5 @@
 new Demo("Transitions", (group) => {
-    Background.Set(Content.Demos.Transitions.Background)
+    new Background(group, Content.Demos.Transitions.Background)
     let transitions = 0
     let textGroup: Group | undefined
     function RefreshText() {
@@ -513,5 +513,5 @@ new Demo("Transitions", (group) => {
         FontBig.Write(buttonGroup, transitionType.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => { Background.Remove() }
+    return () => { }
 })
