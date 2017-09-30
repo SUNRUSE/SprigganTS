@@ -9,6 +9,26 @@ abstract class MovingSceneObject extends SceneObject {
     private ToVirtualPixelsFromTop = 0
     private MotionTimer?: Timer
 
+    SecondsUntilDestinationReachedForTransitions(): number {
+        return Math.max(0, Math.min(
+            super.SecondsUntilDestinationReachedForTransitions(),
+            this.MotionTimer ? this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions() : Infinity
+        ))
+    }
+
+    CurrentAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        return super.CurrentAbsoluteVirtualPixelsFromLeftForTransitions() + this.VirtualPixelsFromLeftForTransitions()
+    }
+
+    DestinationAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        let output = super.DestinationAbsoluteVirtualPixelsFromLeftForTransitions()
+        if (this.MotionTimer && !this.Paused()) {
+            const elapsedAtDestination = this.MotionTimer.ElapsedSecondsForTransitions() + this.SecondsUntilDestinationReachedForTransitions()
+            output += Mix(this.FromVirtualPixelsFromLeft, this.ToVirtualPixelsFromLeft, elapsedAtDestination / this.MotionTimer.DurationSeconds)
+        } else output += this.VirtualPixelsFromLeftForTransitions()
+        return output
+    }
+
     VirtualPixelsFromLeft(): number {
         if (!this.MotionTimer) return this.ToVirtualPixelsFromLeft
         return Mix(this.FromVirtualPixelsFromLeft, this.ToVirtualPixelsFromLeft, this.MotionTimer.ElapsedUnitInterval())
@@ -43,7 +63,7 @@ abstract class MovingSceneObject extends SceneObject {
         this.ToVirtualPixelsFromLeft = virtualPixelsFromLeft
         this.ToVirtualPixelsFromTop = virtualPixelsFromTop
         this.SetElementLocation(virtualPixelsFromLeft, virtualPixelsFromTop)
-        if (!this.Paused()) for (const instance of this.SoundInstances) instance.ResumeAt(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()))
+        this.Moved()
         if ("transition" in this.Element.style) ForceStyleRefresh(this.Element)
         return this
     }
@@ -93,7 +113,7 @@ abstract class MovingSceneObject extends SceneObject {
             if (this.Paused()) this.MotionTimer.Pause()
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         }
-        if (!this.Paused()) for (const instance of this.SoundInstances) instance.ResumeMotion(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()), ConvertPositionToPanning(virtualPixelsFromLeft), durationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
+        this.Moved()
         return this
     }
 
@@ -147,10 +167,8 @@ abstract class MovingSceneObject extends SceneObject {
                 this.SetTransition(this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
                 this.SetElementLocation(this.ToVirtualPixelsFromLeft, this.ToVirtualPixelsFromTop)
             }
-            for (const instance of this.SoundInstances) instance.ResumeMotion(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()), ConvertPositionToPanning(this.ToVirtualPixelsFromLeft), this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
-        } else {
-            for (const instance of this.SoundInstances) instance.ResumeAt(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()))
         }
+        this.Moved()
         this.OnMovingSceneObjectResume()
     }
 
@@ -166,6 +184,7 @@ abstract class MovingSceneObject extends SceneObject {
         } else {
             this.SetElementLocation(this.VirtualPixelsFromLeft(), this.VirtualPixelsFromTop())
         }
+        this.OnMoved()
         this.OnMovingSceneObjectRescale()
     }
 
@@ -186,11 +205,21 @@ abstract class MovingSceneObject extends SceneObject {
     PlaySound(sound: Sound): void {
         const soundInstance = AudioDriver.PlaySound(sound, () => Remove(this.SoundInstances, soundInstance))
         this.SoundInstances.push(soundInstance)
-        if (!this.Paused()) {
-            if (this.MotionTimer) {
-                soundInstance.ResumeMotion(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()), ConvertPositionToPanning(this.ToVirtualPixelsFromLeft), this.MotionTimer.DurationSeconds - this.MotionTimer.ElapsedSecondsForTransitions())
+        this.OnMoved()
+    }
+
+    protected OnMoved(): void {
+        if (!this.SoundInstances.length) return
+        if (this.Paused()) {
+            for (const sound of this.SoundInstances) sound.Pause()
+        } else {
+            const secondsUntilDestinationReached = this.SecondsUntilDestinationReachedForTransitions()
+            if (secondsUntilDestinationReached == Infinity) {
+                for (const sound of this.SoundInstances) sound.ResumeAt(ConvertPositionToPanning(this.CurrentAbsoluteVirtualPixelsFromLeftForTransitions()))
             } else {
-                soundInstance.ResumeAt(ConvertPositionToPanning(this.VirtualPixelsFromLeftForTransitions()))
+                const from = ConvertPositionToPanning(this.CurrentAbsoluteVirtualPixelsFromLeftForTransitions())
+                const to = ConvertPositionToPanning(this.DestinationAbsoluteVirtualPixelsFromLeftForTransitions())
+                for (const sound of this.SoundInstances) sound.ResumeMotion(from, to, secondsUntilDestinationReached)
             }
         }
     }

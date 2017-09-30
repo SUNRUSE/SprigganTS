@@ -20,6 +20,14 @@ class Viewport extends MovingSceneObject {
         this.Rescale()
     }
 
+    CurrentAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        return super.CurrentAbsoluteVirtualPixelsFromLeftForTransitions() + this.HorizontalPositionSignedUnitInterval * ((Display.RealWidthPixels() / Display.RealPixelsPerVirtualPixel()) - WidthVirtualPixels) * 0.5
+    }
+
+    DestinationAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        return super.DestinationAbsoluteVirtualPixelsFromLeftForTransitions() + this.HorizontalPositionSignedUnitInterval * ((Display.RealWidthPixels() / Display.RealPixelsPerVirtualPixel()) - WidthVirtualPixels) * 0.5
+    }
+
     protected CreateElement(): HTMLDivElement {
         return CachedViewports.pop() || CreateViewport()
     }

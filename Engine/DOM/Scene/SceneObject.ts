@@ -1,5 +1,5 @@
 abstract class SceneObject {
-    private readonly Parent?: SceneObject
+    protected readonly Parent?: SceneObject
     protected readonly Children: SceneObject[] = []
     readonly StaticSprites: StaticSprite[] = []
     readonly Element: HTMLDivElement
@@ -22,6 +22,25 @@ abstract class SceneObject {
             if (this.Disabled()) return
             InternalInvoke(onClick)
         }
+    }
+
+    protected Moved(): void {
+        for (const child of this.Children) child.Moved()
+        this.OnMoved()
+    }
+
+    protected OnMoved(): void { }
+
+    SecondsUntilDestinationReachedForTransitions(): number {
+        return this.Parent ? this.Parent.SecondsUntilDestinationReachedForTransitions() : Infinity
+    }
+
+    CurrentAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        return this.Parent ? this.Parent.CurrentAbsoluteVirtualPixelsFromLeftForTransitions() : 0
+    }
+
+    DestinationAbsoluteVirtualPixelsFromLeftForTransitions(): number {
+        return this.Parent ? this.Parent.DestinationAbsoluteVirtualPixelsFromLeftForTransitions() : 0
     }
 
     protected abstract CreateElement(): HTMLDivElement
