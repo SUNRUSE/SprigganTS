@@ -51,9 +51,6 @@ abstract class MovingSceneObject extends SceneObject {
     MoveOver(virtualPixelsFromLeft: number, virtualPixelsFromTop: number, durationSeconds: number, onArrivingIfUninterrupted?: () => void): this {
         if (this.Deleted()) return this
 
-        virtualPixelsFromLeft = Math.round(virtualPixelsFromLeft)
-        virtualPixelsFromTop = Math.round(virtualPixelsFromTop)
-
         if (this.MotionTimer) {
             this.FromVirtualPixelsFromLeft = this.VirtualPixelsFromLeft()
             this.FromVirtualPixelsFromTop = this.VirtualPixelsFromTop()
