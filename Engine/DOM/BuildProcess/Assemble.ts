@@ -226,6 +226,7 @@ function CreateHtml() {
 <html>
 
 <head>
+    <meta charset="UTF-8">
     ${Favicons.html.join("\n")}
     <title>${process.env.NODE_ENV != "production" ? "DEVELOPMENT BUILD of " : ""}${Configuration.Name}</title>
     <meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1, width=device-width, height=device-height, user-scalable=no">
