@@ -19,10 +19,10 @@ function WebAudioApiDriver(): AudioDriver | undefined {
         private Progress = 0
         private StartedAt = 0
 
-        private readonly From: MovingSceneObject
+        private readonly GetPanning: () => number
         private readonly OnDeletion: () => void
 
-        constructor(sound: Sound, from: MovingSceneObject, onDeletion: () => void) {
+        constructor(sound: Sound, getPanning: () => number, onDeletion: () => void) {
             if ("createStereoPanner" in context) {
                 this.Panner = {
                     // Chrome, Firefox, Edge.
@@ -44,7 +44,7 @@ function WebAudioApiDriver(): AudioDriver | undefined {
             this.StartedAt = context.currentTime
             this.Gain.gain.setValueAtTime(sound.Gain, this.StartedAt)
             this.Sound = sound
-            this.From = from
+            this.GetPanning = getPanning
             this.OnDeletion = onDeletion
         }
         Pause(): void {
@@ -87,7 +87,7 @@ function WebAudioApiDriver(): AudioDriver | undefined {
         }
         Tick(): void {
             if (this.Panner.Type == "PannerNode")
-                this.Panner.Node.setPosition(ConvertPositionToPanning(this.From.CurrentAbsoluteVirtualPixelsFromLeftForTransitions()), 0, -1)
+                this.Panner.Node.setPosition(this.GetPanning(), 0, -1)
         }
         Delete(): void {
             this.OnDeletion()
@@ -126,8 +126,8 @@ function WebAudioApiDriver(): AudioDriver | undefined {
             }
             request.send()
         },
-        PlaySound(sound: Sound, from: MovingSceneObject, onDeletion: () => void): SoundInstance {
-            return new WebAudioApiSoundInstance(sound, from, onDeletion)
+        PlaySound(sound: Sound, getPanning: () => number, onDeletion: () => void): SoundInstance {
+            return new WebAudioApiSoundInstance(sound, getPanning, onDeletion)
         },
         Tick(): boolean {
             for (const soundInstance of SoundInstancesRequiringTick) soundInstance.Tick()
