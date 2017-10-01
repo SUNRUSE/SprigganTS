@@ -263,20 +263,25 @@ function CopyBackgrounds() {
     })
 }
 
+const audioFileExtensions = ["mp3", "ogg", "wav"]
+
 function CopySounds() {
     console.info("Copying sounds...")
-    cpr("Temp/Content/Packed/sound/Encoded.wav", "Temp/Assembled/DOM/sounds.wav", {}, err => {
+    let remaining = audioFileExtensions.length
+    for (const extension of audioFileExtensions) cpr(`Temp/Content/Packed/sound/Encoded.${extension}`, `Temp/Assembled/DOM/sounds.${extension}`, {}, err => {
         Error(err)
-        CopyMusic()
+        remaining--
+        if (!remaining) CopyMusic()
     })
+    if (!remaining) CopyMusic()
 }
 
 function CopyMusic() {
     console.info("Copying music...")
     let remainingMusic = 0
-    for (const filename in Build.PackedContent["music"]) {
+    for (const extension of audioFileExtensions) for (const filename in Build.PackedContent["music"]) {
         remainingMusic++
-        cpr(path.join(Build.PackedContent["music"][filename].Directory, "Encoded.wav"), `Temp/Assembled/DOM/music/${Build.PackedContent["music"][filename].Id}.wav`, {}, err => {
+        cpr(path.join(Build.PackedContent["music"][filename].Directory, `Encoded.${extension}`), `Temp/Assembled/DOM/music/${Build.PackedContent["music"][filename].Id}.${extension}`, {}, err => {
             Error(err)
             remainingMusic--
             if (!remainingMusic) CopyDialog()
@@ -288,9 +293,9 @@ function CopyMusic() {
 function CopyDialog() {
     console.info("Copying dialog...")
     let remainingDialog = 0
-    for (const filename in Build.PackedContent["dialog"]) {
+    for (const extension of audioFileExtensions) for (const filename in Build.PackedContent["dialog"]) {
         remainingDialog++
-        cpr(path.join(Build.PackedContent["dialog"][filename].Directory, "Encoded.wav"), `Temp/Assembled/DOM/dialog/${Build.PackedContent["dialog"][filename].Id}.wav`, {}, err => {
+        cpr(path.join(Build.PackedContent["dialog"][filename].Directory, `Encoded.${extension}`), `Temp/Assembled/DOM/dialog/${Build.PackedContent["dialog"][filename].Id}.${extension}`, {}, err => {
             Error(err)
             remainingDialog--
             if (!remainingDialog) Done()
