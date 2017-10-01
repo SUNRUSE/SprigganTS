@@ -5,6 +5,7 @@ const wav = require("node-wav")
 import fs = require("fs")
 import path = require("path")
 const vorbis = require("libvorbis.js")
+const lamejs = require("lamejs")
 
 function PreprocessRawAudio(filename: string, channelData: Float32Array[], sampleRate: number, then: (channelDAta: Float32Array[], gain: number) => void) {
     channelData = channelData.slice()
@@ -164,6 +165,18 @@ const Encoders: { [name: string]: (channelData: Float32Array[], then: (buffer: B
         FlushVorbis()
         vorbis._encoder_destroy(encoder)
         then(Buffer.concat(chunks))
+    },
+    mp3(channelData, then) {
+        const encoder = new lamejs.Mp3Encoder(2, 44100, 192)
+
+        const left = new Int16Array(channelData[0].length)
+        const right = new Int16Array(channelData[0].length)
+        for (let i = 0; i < channelData[0].length; i++) {
+            left[i] = channelData[0][i] * 32767
+            right[i] = channelData[1][i] * 32767
+        }
+
+        then(Buffer.concat([new Buffer(encoder.encodeBuffer(new Int16Array(left), new Int16Array(right)).buffer), new Buffer(encoder.flush().buffer)]))
     }
 }
 
