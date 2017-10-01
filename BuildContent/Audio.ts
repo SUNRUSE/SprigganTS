@@ -129,8 +129,8 @@ const Encoders: { [name: string]: (channelData: Float32Array[], then: (buffer: B
     wav(channelData, then) {
         then(wav.encode(channelData, {
             sampleRate: 44100,
-            float: true,
-            bitDepth: 32
+            float: false,
+            bitDepth: 8
         }))
     },
     ogg(channelData, then) {
