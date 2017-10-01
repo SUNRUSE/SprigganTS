@@ -4,6 +4,7 @@ const wav = require("node-wav")
 
 import fs = require("fs")
 import path = require("path")
+const vorbis = require("libvorbis.js")
 
 function PreprocessRawAudio(filename: string, channelData: Float32Array[], sampleRate: number, then: (channelDAta: Float32Array[], gain: number) => void) {
     channelData = channelData.slice()
@@ -130,6 +131,39 @@ const Encoders: { [name: string]: (channelData: Float32Array[], then: (buffer: B
             float: true,
             bitDepth: 32
         }))
+    },
+    ogg(channelData, then) {
+        const encoder = vorbis._encoder_create_vbr(2, 44100, 0.5)
+        const chunks: Buffer[] = []
+        function FlushVorbis() {
+            const dataLength = vorbis._encoder_get_data_len(encoder)
+            if (!dataLength) return
+            const dataPointer = vorbis._encoder_get_data(encoder)
+            const chunk = vorbis.HEAPU8.subarray(dataPointer, dataPointer + dataLength)
+            const data = new Uint8Array(chunk)
+            const buffer = data.buffer
+            vorbis._encoder_clear_data(encoder)
+            chunks.push(new Buffer(buffer))
+        }
+        vorbis._encoder_write_headers(encoder)
+        FlushVorbis()
+        let readSamples = 0
+        while (readSamples < channelData[0].length) {
+            const sliceStart = readSamples
+            readSamples += 4096 * 10
+            readSamples = Math.min(readSamples, channelData[0].length)
+            vorbis._encoder_prepare_analysis_buffers(encoder, readSamples - sliceStart)
+            const bufferPointer = vorbis._encoder_get_analysis_buffer(encoder, 0)
+            vorbis.HEAPF32.set(new Float32Array(channelData[0].subarray(sliceStart, readSamples)), bufferPointer >> 2)
+            const bufferPointer2 = vorbis._encoder_get_analysis_buffer(encoder, 1)
+            vorbis.HEAPF32.set(new Float32Array(channelData[1].subarray(sliceStart, readSamples)), bufferPointer2 >> 2)
+            vorbis._encoder_encode(encoder)
+            FlushVorbis()
+        }
+        vorbis._encoder_finish(encoder)
+        FlushVorbis()
+        vorbis._encoder_destroy(encoder)
+        then(Buffer.concat(chunks))
     }
 }
 
