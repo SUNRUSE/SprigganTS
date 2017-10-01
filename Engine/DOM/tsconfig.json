@@ -11,6 +11,7 @@
         "Display.ts",
         "Timers.ts",
         "Content.ts",
+        "Audio/FileExtensions.ts",
         "Audio/Driver.ts",
         "Audio/WebAudioApiDriver.ts",
         "Audio/DummyDriver.ts",

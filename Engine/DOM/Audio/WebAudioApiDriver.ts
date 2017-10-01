@@ -1,5 +1,7 @@
 function WebAudioApiDriver(): AudioDriver | undefined {
     if (!("AudioContext" in window) && !("webkitAudioContext" in window)) return undefined
+    const fileExtension = GetAudioFileExtension()
+    if (!fileExtension) return undefined
     const context: AudioContext = "AudioContext" in window ? new AudioContext : new (window as any).webkitAudioContext()
     let soundsBuffer: AudioBuffer
     const SoundInstancesRequiringTick: WebAudioApiSoundInstance[] = []
@@ -104,7 +106,7 @@ function WebAudioApiDriver(): AudioDriver | undefined {
         Load(then: () => void): void {
             SetLoadingMessage("Downloading sounds...")
             const request = new XMLHttpRequest()
-            request.open("GET", "sounds.wav", true)
+            request.open("GET", `sounds.${fileExtension}`, true)
             request.responseType = "arraybuffer"
             request.onload = () => {
                 if (request.readyState != 4) return
