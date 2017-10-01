@@ -116,7 +116,7 @@ function MinifyScripts() {
                 properties: {
                     keep_quoted: true,
                     builtins: true,
-                    reserved: domprops
+                    reserved: domprops.concat(["pan"]) // Workaround for mishoo/UglifyJS2#2343.
                 }
             },
             ie8: true
