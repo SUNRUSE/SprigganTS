@@ -148,7 +148,8 @@ function InternalInvoke(callback?: () => void) {
     CurrentTime = RunningTowardsTime
     const futureTickRequiredByScene = SceneRoot.Instance.Tick()
     const futureTickRequiredByTransition = TickTransition()
-    const futureTickRequired = futureTickRequiredByScene || futureTickRequiredByTransition
+    const futureTickRequiredByAudio = AudioDriver.Tick()
+    const futureTickRequired = futureTickRequiredByScene || futureTickRequiredByTransition || futureTickRequiredByAudio
 
     if (Timeout !== undefined) {
         clearTimeout(Timeout)

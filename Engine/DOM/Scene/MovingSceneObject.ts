@@ -203,7 +203,7 @@ abstract class MovingSceneObject extends SceneObject {
     private readonly SoundInstances: SoundInstance[] = []
 
     PlaySound(sound: Sound): void {
-        const soundInstance = AudioDriver.PlaySound(sound, () => Remove(this.SoundInstances, soundInstance))
+        const soundInstance = AudioDriver.PlaySound(sound, this, () => Remove(this.SoundInstances, soundInstance))
         this.SoundInstances.push(soundInstance)
         this.OnMoved()
     }

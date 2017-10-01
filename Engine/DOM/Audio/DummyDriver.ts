@@ -16,8 +16,9 @@ function DummyDriver(): AudioDriver {
         Load(then: () => void): void {
             then()
         },
-        PlaySound(sound: Sound, onDeletion: () => void): SoundInstance {
+        PlaySound(sound: Sound, from: MovingSceneObject, onDeletion: () => void): SoundInstance {
             return new DummySoundInstance(onDeletion)
-        }
+        },
+        Tick(): boolean { return false }
     }
 }

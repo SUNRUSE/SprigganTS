@@ -1,6 +1,7 @@
 type AudioDriver = {
     Load(then: () => void): void
-    PlaySound(sound: Sound, onDeletion: () => void): SoundInstance
+    PlaySound(sound: Sound, from: MovingSceneObject, onDeletion: () => void): SoundInstance
+    Tick(): boolean
 }
 
 type SoundInstance = {
