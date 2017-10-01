@@ -7,5 +7,15 @@ onload = () => {
     AudioDriver.Load(() => LoadSprites(() => {
         RemoveLoadingMessage()
         InternalInvoke(StartGame)
+
+        onmousedown = OnFirstUserInteraction
+        ontouchstart = OnFirstUserInteraction
+        onkeydown = OnFirstUserInteraction
+        let firstUserInteraction = true
+        function OnFirstUserInteraction() {
+            if (!firstUserInteraction) return
+            firstUserInteraction = false
+            AudioDriver.FirstUserInteraction()
+        }
     }))
 }

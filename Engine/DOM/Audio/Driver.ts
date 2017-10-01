@@ -2,6 +2,7 @@ type AudioDriver = {
     Load(then: () => void): void
     PlaySound(sound: Sound, getPanning: () => number, onDeletion: () => void): SoundInstance
     Tick(): boolean
+    FirstUserInteraction(): void
 }
 
 type SoundInstance = {

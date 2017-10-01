@@ -19,6 +19,7 @@ function DummyDriver(): AudioDriver {
         PlaySound(sound: Sound, getPanning: () => number, onDeletion: () => void): SoundInstance {
             return new DummySoundInstance(onDeletion)
         },
-        Tick(): boolean { return false }
+        Tick(): boolean { return false },
+        FirstUserInteraction(): void { }
     }
 }

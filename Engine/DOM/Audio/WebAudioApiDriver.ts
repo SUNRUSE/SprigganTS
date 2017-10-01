@@ -134,6 +134,12 @@ function WebAudioApiDriver(): AudioDriver | undefined {
         Tick(): boolean {
             for (const soundInstance of SoundInstancesRequiringTick) soundInstance.Tick()
             return SoundInstancesRequiringTick.length > 0
+        },
+        FirstUserInteraction(): void {
+            const source = context.createBufferSource()
+            source.buffer = context.createBuffer(1, 1, 44100)
+            source.connect(context.destination)
+            source.start()
         }
     }
 }
