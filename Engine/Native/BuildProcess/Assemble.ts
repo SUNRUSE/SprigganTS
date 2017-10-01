@@ -4,6 +4,7 @@ import { GenerateCodeFromContentTree, GenerateContentTreeFromBuild } from "./../
 
 import zlib = require("zlib")
 import fs = require("fs")
+import path = require("path")
 const rimraf = require("rimraf")
 import mkdirp = require("mkdirp")
 import uglifyjs = require("uglify-js")
@@ -52,11 +53,11 @@ const SpriteFrameOffsetTopPixels: number[] = []
 const SpriteFrameDurationMilliseconds: number[] = []
 const BackgroundFrameIds: number[] = []
 const BackgroundFrameDurationMilliseconds: number[] = []
-const SoundFilenames: string[] = []
+const SoundDirectories: string[] = []
 const SoundGains: number[] = []
-const MusicFilenames: string[] = []
+const MusicDirectories: string[] = []
 const MusicGains: number[] = []
-const DialogFilenames: string[] = []
+const DialogDirectories: string[] = []
 const DialogGains: number[] = []
 
 function GenerateContent() {
@@ -79,17 +80,17 @@ function GenerateContent() {
             return `${BackgroundFrameIds.length - 1}`
         },
         sound: (sound: PackedSound) => {
-            SoundFilenames.push(sound.InterleavedFilename)
+            SoundDirectories.push(sound.Directory)
             SoundGains.push(sound.Gain)
-            return `${SoundFilenames.length - 1}`
+            return `${SoundDirectories.length - 1}`
         },
         music: (music: PackedMusic) => {
-            MusicFilenames[music.Id] = music.InterleavedFilename
+            MusicDirectories[music.Id] = music.Directory
             MusicGains.push(music.Gain)
             return `${music.Id}`
         },
         dialog: (dialog: PackedDialog) => {
-            DialogFilenames[dialog.Id] = dialog.InterleavedFilename
+            DialogDirectories[dialog.Id] = dialog.Directory
             DialogGains.push(dialog.Gain)
             return `${dialog.Id}`
         }
@@ -111,9 +112,9 @@ function GenerateHeader() {
         SpriteFrameAtlasLeftPixels.length,
         BackgroundFrameIds.length,
         UniqueBackgroundIds,
-        SoundFilenames.length,
-        MusicFilenames.length,
-        DialogFilenames.length
+        SoundDirectories.length,
+        MusicDirectories.length,
+        DialogDirectories.length
     ]).buffer)
     Chunks.push(Buffer.from(Configuration.Name, "utf8"))
     Header = `var WidthVirtualPixels = ${Configuration.VirtualWidth}
@@ -275,9 +276,9 @@ function BuildSoundTable() {
 function LoadSounds() {
     console.info("Loading sounds...")
     const addSoundsAt = Chunks.length
-    let remainingFrames = SoundFilenames.length
+    let remainingFrames = SoundDirectories.length
     let index = 0
-    for (const sound of SoundFilenames) fs.readFile(sound, (err, data) => {
+    for (const sound of SoundDirectories) fs.readFile(path.join(sound, "Interleaved.bin"), (err, data) => {
         const capturedIndex = index++
         console.log(`Sound ${capturedIndex} (${sound}) loaded`)
         Error(err)
@@ -311,9 +312,9 @@ function BuildMusicTable() {
 function LoadMusic() {
     console.info("Loading music...")
     const addMusicAt = Chunks.length
-    let remainingFrames = MusicFilenames.length
+    let remainingFrames = MusicDirectories.length
     let index = 0
-    for (const music of MusicFilenames) fs.readFile(music, (err, data) => {
+    for (const music of MusicDirectories) fs.readFile(path.join(music, "Interleaved.bin"), (err, data) => {
         const capturedIndex = index++
         console.log(`Music ${capturedIndex} (${music}) loaded`)
         Error(err)
@@ -347,9 +348,9 @@ function BuildDialogTable() {
 function LoadDialog() {
     console.info("Loading dialog...")
     const addDialogAt = Chunks.length
-    let remainingFrames = DialogFilenames.length
+    let remainingFrames = DialogDirectories.length
     let index = 0
-    for (const dialog of DialogFilenames) fs.readFile(dialog, (err, data) => {
+    for (const dialog of DialogDirectories) fs.readFile(path.join(dialog, "Interleaved.bin"), (err, data) => {
         const capturedIndex = index++
         console.log(`Dialog ${capturedIndex} (${dialog}) loaded`)
         Error(err)

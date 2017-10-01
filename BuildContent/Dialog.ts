@@ -7,15 +7,13 @@ const DialogContentType = new ContentType<ImportedDialog, PackedDialog, DialogPa
     let id = 0
     for (const name in imported) output[name] = {
         Id: id++,
-        WavFilename: imported[name].WavFilename,
-        InterleavedFilename: imported[name].InterleavedFilename,
+        Directory: imported[name].Directory,
         Gain: imported[name].Gain
     }
     then({}, output)
 })
 
-SetupAudioImports<ImportedDialog>(DialogContentType, (planarFilename, interleavedFilename, wavFilename, gain) => ({
-    WavFilename: wavFilename,
-    InterleavedFilename: interleavedFilename,
+SetupAudioImports<ImportedDialog>(DialogContentType, false, true, true, (directory, gain) => ({
+    Directory: directory,
     Gain: gain
 }))

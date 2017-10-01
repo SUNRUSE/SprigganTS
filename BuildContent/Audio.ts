@@ -5,7 +5,9 @@ const wav = require("node-wav")
 import fs = require("fs")
 import path = require("path")
 
-function PreprocessRawAudio(filename: string, channelData: Float32Array[], sampleRate: number, then: (planarFilename: string, interleavedFilename: string, wavFilename: string, gain: number) => void) {
+function PreprocessRawAudio(filename: string, channelData: Float32Array[], sampleRate: number, then: (channelDAta: Float32Array[], gain: number) => void) {
+    channelData = channelData.slice()
+
     if (sampleRate != 44100) Error(`File "${filename}" uses a sample rate of ${sampleRate}; 44100 was expected`)
     if (channelData.length < 1) Error(`File "${filename}" contains no audio channels`)
     if (channelData.length > 2) Error(`File "${filename}" contains more than two audio channels`)
@@ -52,39 +54,34 @@ function PreprocessRawAudio(filename: string, channelData: Float32Array[], sampl
         channelData[0] = new Float32Array(channelData[0].slice(0, -trailing))
         channelData[1] = new Float32Array(channelData[1].slice(0, -trailing))
     } else console.log(`There are no trailing samples which can be trimmed (left ${trailingLeft}, right ${trailingRight})`)
+    then(channelData, gain)
+}
 
-    const planarFilename = path.join("Temp", "Content", "Imported", filename, "Planar.bin")
-    console.log(`Writing raw audio samples from "${filename}" to "${planarFilename}"...`)
+function WritePlanarAudio(directory: string, channelData: Float32Array[], then: () => void): void {
+    const planarFilename = path.join(directory, "Planar.bin")
+    console.log(`Writing raw planar audio samples to "${planarFilename}"...`)
     fs.writeFile(planarFilename, Buffer.concat([new Buffer(channelData[0].buffer), new Buffer(channelData[1].buffer)]), err => {
         Error(err)
-        console.log(`Raw audio samples from "${filename}" written to "${planarFilename}" successfully`)
-        console.log("Generating interleaved audio...")
-        const interleaved = new Int16Array(channelData[0].length * 2)
-        for (let i = 0; i < channelData[0].length; i++) {
-            interleaved[i * 2] = channelData[0][i] * 32767
-            interleaved[i * 2 + 1] = channelData[1][i] * 32767
-        }
-        const interleavedFilename = path.join("Temp", "Content", "Imported", filename, "Interleaved.bin")
-        console.log(`Writing interleaved audio samples from "${filename}" to "${interleavedFilename}"...`)
-        fs.writeFile(interleavedFilename, new Buffer(interleaved.buffer), err => {
-            Error(err)
-            const wavFilename = path.join("Temp", "Content", "Imported", filename, "Encoded.wav")
-            console.log("Encoding .wav...")
-            const encodedWav = wav.encode(channelData, {
-                sampleRate: 44100,
-                float: true,
-                bitDepth: 32
-            })
-            console.log(`Writing .wav encoded audio samples from "${filename}" to "${wavFilename}"...`)
-            fs.writeFile(wavFilename, encodedWav, err => {
-                Error(err)
-                then(planarFilename, interleavedFilename, wavFilename, gain)
-            })
-        })
+        then()
     })
 }
 
-function SetupAudioImports<Imported>(contentType: ContentType<Imported, any, any>, convertToContentData: (planarFilename: string, interleavedFilename: string, wavFilename: string, gain: number) => Imported) {
+function WriteInterleavedAudio(directory: string, channelData: Float32Array[], then: () => void): void {
+    console.log("Generating interleaved audio...")
+    const interleaved = new Int16Array(channelData[0].length * 2)
+    for (let i = 0; i < channelData[0].length; i++) {
+        interleaved[i * 2] = channelData[0][i] * 32767
+        interleaved[i * 2 + 1] = channelData[1][i] * 32767
+    }
+    const interleavedFilename = path.join(directory, "Interleaved.bin")
+    console.log(`Writing raw interleaved audio samples "${interleavedFilename}"`)
+    fs.writeFile(interleavedFilename, new Buffer(interleaved.buffer), err => {
+        Error(err)
+        then()
+    })
+}
+
+function SetupAudioImports<Imported>(contentType: ContentType<Imported, any, any>, writeRawPlanarOnImport: boolean, writeRawInterleavedOnImport: boolean, encodeOnImport: boolean, convertToContentData: (directory: string, gain: number) => Imported) {
     new ContentTypeImport<Imported>(contentType, "wav", (filename, then) => {
         console.log(`Reading "${filename}"...`)
         fs.readFile(filename, (err, data) => {
@@ -94,13 +91,61 @@ function SetupAudioImports<Imported>(contentType: ContentType<Imported, any, any
                 readonly sampleRate: number
                 readonly channelData: Float32Array[]
             } = wav.decode(data)
-            PreprocessRawAudio(filename, decoded.channelData, decoded.sampleRate, (planarFilename, interleavedFilename, wavFilename, gain) => {
-                const content: { [name: string]: Imported } = {}
-                content[RemoveExtension(RemoveExtension(filename))] = convertToContentData(planarFilename, interleavedFilename, wavFilename, gain)
-                then(content)
+            PreprocessRawAudio(filename, decoded.channelData, decoded.sampleRate, (channelData, gain) => {
+                const directory = path.join("Temp", "Content", "Imported", filename)
+
+                if (writeRawPlanarOnImport)
+                    WritePlanarAudio(directory, channelData, AfterWritingRawPlanar)
+                else
+                    AfterWritingRawPlanar()
+
+                function AfterWritingRawPlanar() {
+                    if (writeRawInterleavedOnImport)
+                        WriteInterleavedAudio(directory, channelData, AfterWritingRawInterleaved)
+                    else
+                        AfterWritingRawInterleaved()
+
+                    function AfterWritingRawInterleaved() {
+                        if (encodeOnImport)
+                            EncodeAudioInMemory(directory, channelData, AfterEncoding)
+                        else
+                            AfterEncoding()
+
+                        function AfterEncoding() {
+                            const content: { [name: string]: Imported } = {}
+                            content[RemoveExtension(RemoveExtension(filename))] = convertToContentData(directory, gain)
+                            then(content)
+                        }
+                    }
+                }
             })
         })
     })
 }
 
-export { SetupAudioImports }
+const Encoders: { [name: string]: (channelData: Float32Array[], then: (buffer: Buffer) => void) => void } = {
+    wav(channelData, then) {
+        then(wav.encode(channelData, {
+            sampleRate: 44100,
+            float: true,
+            bitDepth: 32
+        }))
+    }
+}
+
+function EncodeAudioInMemory(directory: string, channelData: Float32Array[], then: () => void) {
+    console.log(`Encoding "${directory}"...`)
+    let remainingEncoders = Object.keys(Encoders).length
+    for (const name in Encoders) Encoders[name](channelData, buffer => {
+        const filename = path.join(directory, `Encoded.${name}`)
+        console.log(`Writing "${filename}"...`)
+        fs.writeFile(filename, buffer, err => {
+            Error(err)
+            console.log(`Written "${filename}"`)
+            remainingEncoders--
+            if (!remainingEncoders) then()
+        })
+    })
+}
+
+export { SetupAudioImports, WritePlanarAudio, WriteInterleavedAudio, EncodeAudioInMemory }

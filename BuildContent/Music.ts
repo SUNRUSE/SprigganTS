@@ -7,15 +7,13 @@ const MusicContentType = new ContentType<ImportedMusic, PackedMusic, MusicPackin
     let id = 0
     for (const name in imported) output[name] = {
         Id: id++,
-        WavFilename: imported[name].WavFilename,
-        InterleavedFilename: imported[name].InterleavedFilename,
+        Directory: imported[name].Directory,
         Gain: imported[name].Gain
     }
     then({}, output)
 })
 
-SetupAudioImports<ImportedMusic>(MusicContentType, (planarFilename, interleavedFilename, wavFilename, gain) => ({
-    WavFilename: wavFilename,
-    InterleavedFilename: interleavedFilename,
+SetupAudioImports<ImportedMusic>(MusicContentType, false, true, true, (directory, gain) => ({
+    Directory: directory,
     Gain: gain
 }))

@@ -83,14 +83,12 @@ type PackedBackgroundFrame =
 type BackgroundPackingHeader = {}
 
 type ImportedSound = {
-    readonly PlanarFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly Gain: number
 }
 
 type PackedSound = {
-    readonly PlanarFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly StartSeconds: number
     readonly DurationSeconds: number
     readonly Gain: number
@@ -99,30 +97,26 @@ type PackedSound = {
 type SoundPackingHeader = {}
 
 type ImportedMusic = {
-    readonly WavFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly Gain: number
 }
 
 type PackedMusic = {
     readonly Id: number
-    readonly WavFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly Gain: number
 }
 
 type MusicPackingHeader = {}
 
 type ImportedDialog = {
-    readonly WavFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly Gain: number
 }
 
 type PackedDialog = {
     readonly Id: number
-    readonly WavFilename: string
-    readonly InterleavedFilename: string
+    readonly Directory: string
     readonly Gain: number
 }
 

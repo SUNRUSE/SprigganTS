@@ -265,7 +265,7 @@ function CopyBackgrounds() {
 
 function CopySounds() {
     console.info("Copying sounds...")
-    cpr("Temp/Content/Packed/sound/Sounds.wav", "Temp/Assembled/DOM/sounds.wav", {}, err => {
+    cpr("Temp/Content/Packed/sound/Encoded.wav", "Temp/Assembled/DOM/sounds.wav", {}, err => {
         Error(err)
         CopyMusic()
     })
@@ -276,7 +276,7 @@ function CopyMusic() {
     let remainingMusic = 0
     for (const filename in Build.PackedContent["music"]) {
         remainingMusic++
-        cpr(Build.PackedContent["music"][filename].WavFilename, `Temp/Assembled/DOM/music/${Build.PackedContent["music"][filename].Id}.wav`, {}, err => {
+        cpr(path.join(Build.PackedContent["music"][filename].Directory, "Encoded.wav"), `Temp/Assembled/DOM/music/${Build.PackedContent["music"][filename].Id}.wav`, {}, err => {
             Error(err)
             remainingMusic--
             if (!remainingMusic) CopyDialog()
@@ -290,7 +290,7 @@ function CopyDialog() {
     let remainingDialog = 0
     for (const filename in Build.PackedContent["dialog"]) {
         remainingDialog++
-        cpr(Build.PackedContent["dialog"][filename].WavFilename, `Temp/Assembled/DOM/dialog/${Build.PackedContent["dialog"][filename].Id}.wav`, {}, err => {
+        cpr(path.join(Build.PackedContent["dialog"][filename].Directory, "Encoded.wav"), `Temp/Assembled/DOM/dialog/${Build.PackedContent["dialog"][filename].Id}.wav`, {}, err => {
             Error(err)
             remainingDialog--
             if (!remainingDialog) Done()

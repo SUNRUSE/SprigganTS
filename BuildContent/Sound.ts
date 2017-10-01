@@ -1,10 +1,10 @@
 import { ImportedSound, PackedSound, SoundPackingHeader } from "./Types"
 import { Error } from "./Misc"
 import { ContentType } from "./ContentType"
-import { SetupAudioImports } from "./Audio"
+import { SetupAudioImports, EncodeAudioInMemory } from "./Audio"
 
 import fs = require("fs")
-const wav = require("node-wav")
+import path = require("path")
 
 const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackingHeader>("sound", (imported, then) => {
     const output: { [contentName: string]: PackedSound } = {}
@@ -23,14 +23,13 @@ const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackin
     } else {
         console.info("Loading all sounds...")
         for (const filename in imported) {
-            fs.readFile(imported[filename].PlanarFilename, (err, data) => {
+            fs.readFile(path.join(imported[filename].Directory, "Planar.bin"), (err, data) => {
                 console.log(`Loaded "${filename}"`)
                 Error(err)
                 output[filename] = {
-                    PlanarFilename: imported[filename].PlanarFilename,
-                    InterleavedFilename: imported[filename].InterleavedFilename,
                     StartSeconds: offset,
                     DurationSeconds: data.byteLength / (2 * 4 * 44100),
+                    Directory: imported[filename].Directory,
                     Gain: imported[filename].Gain
                 }
                 offset += data.byteLength / (2 * 4 * 44100)
@@ -47,27 +46,18 @@ const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackin
     }
 
     function Done() {
-        console.info("Encoding sounds to WAV...")
+        console.info("Packing sounds...")
         function ConvertBufferToFloat32Array(buffer: Buffer): Float32Array {
             const floats: number[] = []
             for (let i = 0; i < buffer.byteLength / 4; i++) floats.push(buffer.readFloatLE(i * 4))
             return new Float32Array(floats)
         }
-        const encodedWav = wav.encode([ConvertBufferToFloat32Array(Buffer.concat(left)), ConvertBufferToFloat32Array(Buffer.concat(right))], {
-            sampleRate: 44100,
-            float: true,
-            bitDepth: 32
-        })
-        console.info("Writing packed sounds as WAV...")
-        fs.writeFile("Temp/Content/Packed/sound/Sounds.wav", encodedWav, err => {
-            Error(err)
-            then({}, output)
-        })
+
+        EncodeAudioInMemory("Temp/Content/Packed/sound", [ConvertBufferToFloat32Array(Buffer.concat(left)), ConvertBufferToFloat32Array(Buffer.concat(right))], () => then({}, output))
     }
 })
 
-SetupAudioImports<ImportedSound>(SoundContentType, (planarFilename, interleavedFilename, wavFilename, gain) => ({
-    PlanarFilename: planarFilename,
-    InterleavedFilename: interleavedFilename,
+SetupAudioImports<ImportedSound>(SoundContentType, true, true, false, (directory, gain) => ({
+    Directory: directory,
     Gain: gain
 }))
