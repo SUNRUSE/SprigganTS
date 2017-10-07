@@ -72,6 +72,7 @@ function FocusLost(localEvent: Event) {
             SceneRoot.Instance.Pause()
             SceneRoot.Instance.Disable()
             PauseTransition()
+            AudioDriver.PauseMusic()
         })
 
         if (AnimationFrame !== undefined) {
@@ -105,6 +106,7 @@ function FocusRegained() {
             SceneRoot.Instance.Enable()
             // If we are mid-transition, the scene root will be disabled again by this.
             ResumeTransition()
+            AudioDriver.ResumeMusic()
         })
     }
 }

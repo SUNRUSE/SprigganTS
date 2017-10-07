@@ -102,6 +102,76 @@ function WebAudioApiDriver(): AudioDriver | undefined {
             Remove(SoundInstancesRequiringTick, this)
         }
     }
+    let currentMusic: WebAudioApiMusicInstance | undefined = undefined
+    let musicPaused = false
+    class WebAudioApiMusicInstance {
+        private State: {
+            readonly Loaded: false
+            readonly Request: XMLHttpRequest
+        } | {
+            readonly Loaded: true
+            readonly Buffer: AudioBuffer
+            Source: AudioBufferSourceNode | undefined
+            readonly Gain: GainNode
+        }
+        private StartedAt: number
+        private Progress = 0
+        constructor(music: Music) {
+            currentMusic = this
+            const request = new XMLHttpRequest()
+            request.open("GET", `music/${music.Id}.${fileExtension}`, true)
+            request.responseType = "arraybuffer"
+            request.onload = () => {
+                if (request.readyState != 4) return
+                if (request.status >= 200 && request.status < 300) context.decodeAudioData(request.response, buffer => {
+                    this.State = {
+                        Loaded: true,
+                        Buffer: buffer,
+                        Source: undefined,
+                        Gain: context.createGain()
+                    }
+                    this.State.Gain.gain.setValueAtTime(music.Gain, context.currentTime)
+                    this.State.Gain.connect(context.destination)
+                    if (!musicPaused) this.Resume()
+                }, () => { })
+            }
+            request.send()
+            this.State = {
+                Loaded: false,
+                Request: request
+            }
+        }
+        Pause(): void {
+            if (!this.State.Loaded) return
+            if (!this.State.Source) return
+            this.Progress = (this.Progress + context.currentTime - this.StartedAt) % this.State.Buffer.duration
+            this.State.Source.disconnect(this.State.Gain)
+            this.State.Source.stop()
+            this.State.Source = undefined
+        }
+        Resume(): void {
+            if (!this.State.Loaded) return
+            if (this.State.Source) return
+            this.StartedAt = context.currentTime
+            this.State.Source = context.createBufferSource()
+            this.State.Source.buffer = this.State.Buffer
+            this.State.Source.loop = true
+            this.State.Source.connect(this.State.Gain)
+            this.State.Source.start(context.currentTime, this.Progress)
+        }
+        Delete(): void {
+            if (this.State.Loaded) {
+                if (this.State.Source) {
+                    this.State.Source.disconnect(this.State.Gain)
+                    this.State.Source.stop()
+                }
+                this.State.Gain.disconnect(context.destination)
+            } else {
+                this.State.Request.abort()
+            }
+            currentMusic = undefined
+        }
+    }
     return {
         Load(then: () => void): void {
             SetLoadingMessage("Downloading sounds...")
@@ -140,6 +210,23 @@ function WebAudioApiDriver(): AudioDriver | undefined {
             source.buffer = context.createBuffer(1, 1, 44100)
             source.connect(context.destination)
             source.start()
+        },
+        SetMusic(music: Music): void {
+            if (currentMusic) currentMusic.Delete()
+            currentMusic = new WebAudioApiMusicInstance(music)
+        },
+        StopMusic(): void {
+            if (!currentMusic) return
+            currentMusic.Delete()
+            currentMusic = undefined
+        },
+        PauseMusic(): void {
+            musicPaused = true
+            if (currentMusic) currentMusic.Pause()
+        },
+        ResumeMusic(): void {
+            musicPaused = false
+            if (currentMusic) currentMusic.Resume()
         }
     }
 }

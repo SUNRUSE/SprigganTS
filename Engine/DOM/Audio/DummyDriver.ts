@@ -20,6 +20,10 @@ function DummyDriver(): AudioDriver {
             return new DummySoundInstance(onDeletion)
         },
         Tick(): boolean { return false },
-        FirstUserInteraction(): void { }
+        FirstUserInteraction(): void { },
+        SetMusic(music: Music): void { },
+        StopMusic(): void { },
+        PauseMusic(): void { },
+        ResumeMusic(): void { }
     }
 }

@@ -3,6 +3,10 @@ type AudioDriver = {
     PlaySound(sound: Sound, getPanning: () => number, onDeletion: () => void): SoundInstance
     Tick(): boolean
     FirstUserInteraction(): void
+    SetMusic(music: Music): void
+    StopMusic(): void
+    PauseMusic(): void
+    ResumeMusic(): void
 }
 
 type SoundInstance = {
@@ -13,3 +17,23 @@ type SoundInstance = {
 }
 
 let AudioDriver = WebAudioApiDriver() || DummyDriver()
+
+class Music {
+    readonly Id: number
+    readonly Gain: number
+
+    constructor(id: number, gain: number) {
+        this.Id = id
+        this.Gain = gain
+    }
+}
+
+namespace Music {
+    export function Set(music: Music): void {
+        AudioDriver.SetMusic(music)
+    }
+
+    export function Stop(): void {
+        AudioDriver.StopMusic()
+    }
+}

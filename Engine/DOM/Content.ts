@@ -44,16 +44,6 @@ class Sound {
     }
 }
 
-class Music {
-    readonly Id: number
-    readonly Gain: number
-
-    constructor(id: number, gain: number) {
-        this.Id = id
-        this.Gain = gain
-    }
-}
-
 class Dialog {
     readonly Id: number
     readonly Gain: number

@@ -10,6 +10,7 @@
 /// <reference path="Demos/SaveLoad.ts" />
 /// <reference path="Demos/Transitions.ts" />
 /// <reference path="Demos/Sounds.ts" />
+/// <reference path="Demos/Music.ts" />
 /// <reference path="Demos/BouncingBalls.ts" />
 /// <reference path="DemoMenu.ts" />
 
