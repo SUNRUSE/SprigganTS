@@ -11,7 +11,7 @@ const MusicContentType = new ContentType<ImportedMusic, PackedMusic, MusicPackin
         Gain: imported[name].Gain
     }
     then({}, output)
-})
+}, then => then({}))
 
 SetupAudioImports<ImportedMusic>(MusicContentType, false, true, true, (directory, gain) => ({
     Directory: directory,

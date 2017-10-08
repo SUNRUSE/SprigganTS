@@ -118,6 +118,6 @@ const BackgroundContentType = new ContentType<ImportedBackgroundFrame, PackedBac
         }
         then({}, collapsed)
     }
-})
+}, then => then({}))
 
 export { BackgroundContentType }

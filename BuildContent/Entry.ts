@@ -63,6 +63,7 @@ let PreviousBuild: Build = {
     PackingHeaders: {},
     PackedContent: {}
 }
+let FirstBuild = true
 
 function CheckForPreviousBuild() {
     console.info("Checking for a previous build (Temp/Content/Index.json)...")
@@ -75,12 +76,11 @@ function CheckForPreviousBuild() {
             })
         }
         else {
-            let failed = true
             try {
                 PreviousBuild = JSON.parse(data)
-                failed = false
+                FirstBuild = false
             } catch (e) { }
-            if (failed) {
+            if (FirstBuild) {
                 console.info("JSON file from previous build corrupted, deleting the \"Temp/Content\" directory...")
                 rimraf("Temp/Content", (err: any) => {
                     Error(err)
@@ -182,7 +182,7 @@ function Pack() {
     console.info("Checking for content types which require packing...")
     let remainingContentTypes = ContentTypes.length
     for (const contentType of ContentTypes) {
-        let changed = false
+        let changed = FirstBuild
         for (const contentTypeImport of contentType.ContentTypeImports) {
             for (const filename of FilesCreated.concat(FilesModified).concat(FilesDeleted)) {
                 if (EndsWith(filename, `.${contentType.FirstExtension}.${contentTypeImport.SecondExtension}`)) {
@@ -211,12 +211,22 @@ function Pack() {
                             collapsed[contentName] = Build.ImportedContent[contentType.FirstExtension][filename][contentName]
                         }
                     }
-                    contentType.Pack(collapsed, (header, packed) => {
-                        console.info(`Content type ${contentType.FirstExtension} has been packed`)
-                        Build.PackingHeaders[contentType.FirstExtension] = header
-                        Build.PackedContent[contentType.FirstExtension] = packed
-                        ContentTypeCompleted()
-                    })
+                    if (Object.keys(collapsed).length) {
+                        contentType.Pack(collapsed, (header, packed) => {
+                            console.info(`Content type ${contentType.FirstExtension} has been packed`)
+                            Build.PackingHeaders[contentType.FirstExtension] = header
+                            Build.PackedContent[contentType.FirstExtension] = packed
+                            ContentTypeCompleted()
+                        })
+                    } else {
+                        console.info(`There is no content for content type ${contentType.FirstExtension}; generating dummy data...`)
+                        contentType.CreateDummyData(header => {
+                            console.info(`Dummy data has been generated for content type ${contentType.FirstExtension}`)
+                            Build.PackingHeaders[contentType.FirstExtension] = header
+                            Build.PackedContent[contentType.FirstExtension] = {}
+                            ContentTypeCompleted()
+                        })
+                    }
                 })
             })
         }

@@ -11,7 +11,7 @@ const DialogContentType = new ContentType<ImportedDialog, PackedDialog, DialogPa
         Gain: imported[name].Gain
     }
     then({}, output)
-})
+}, then => then({}))
 
 SetupAudioImports<ImportedDialog>(DialogContentType, false, true, true, (directory, gain) => ({
     Directory: directory,

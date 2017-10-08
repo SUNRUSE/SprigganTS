@@ -19,7 +19,6 @@ const SpriteContentType = new ContentType<ImportedSpriteFrame, PackedSpriteFrame
     }
     const unpackedFrames: UnpackedFrame[] = []
     let remainingFrames = Object.keys(imported).length
-    if (!remainingFrames) Error("There are no sprite frames to pack")
 
     for (const contentName in imported) {
         const importedFrame = imported[contentName]
@@ -346,6 +345,29 @@ const SpriteContentType = new ContentType<ImportedSpriteFrame, PackedSpriteFrame
             })
         }
     }
+}, then => {
+    const writeStream = fs.createWriteStream("Temp/Content/Packed/sprite/Atlas.png")
+    const png = new pngjs.PNG({ width: 1, height: 1 })
+    png.data[0] = 0
+    png.data[1] = 0
+    png.data[2] = 0
+    png.data[3] = 0
+    png.pack().pipe(writeStream)
+    writeStream.on("error", Error).on("close", () => {
+        const prescaledWriteStream = fs.createWriteStream("Temp/Content/Packed/sprite/AtlasPrescaled.png")
+        const prescaledPng = new pngjs.PNG({ width: 1, height: 1 })
+        prescaledPng.data[0] = 0
+        prescaledPng.data[1] = 0
+        prescaledPng.data[2] = 0
+        prescaledPng.data[3] = 0
+        prescaledPng.pack().pipe(prescaledWriteStream)
+        prescaledWriteStream.on("error", Error).on("close", () => {
+            then({
+                AtlasWidthPixels: 1,
+                AtlasHeightPixels: 1
+            })
+        })
+    })
 })
 
 export { SpriteContentType }

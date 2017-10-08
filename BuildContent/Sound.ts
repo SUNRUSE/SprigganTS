@@ -55,7 +55,8 @@ const SoundContentType = new ContentType<ImportedSound, PackedSound, SoundPackin
 
         EncodeAudioInMemory("Temp/Content/Packed/sound", [ConvertBufferToFloat32Array(Buffer.concat(left)), ConvertBufferToFloat32Array(Buffer.concat(right))], () => then({}, output))
     }
-})
+}, then => EncodeAudioInMemory("Temp/Content/Packed/sound", [new Float32Array([0]), new Float32Array([0])], () => then({}))
+)
 
 SetupAudioImports<ImportedSound>(SoundContentType, true, true, false, (directory, gain) => ({
     Directory: directory,
