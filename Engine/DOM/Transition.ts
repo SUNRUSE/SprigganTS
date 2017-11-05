@@ -99,12 +99,10 @@ class TransitionStepInstance {
 
 class TransitionInstance {
     private readonly EntryInstance: TransitionStepInstance
-    private readonly Exit: TransitionStep
     private ExitInstance: TransitionStepInstance | undefined
 
     constructor(entry: TransitionStep, exit: TransitionStep, call: () => void) {
         SceneRoot.Instance.Disable()
-        this.Exit = exit
         this.EntryInstance = new TransitionStepInstance(entry, () => {
             call()
             this.ExitInstance = new TransitionStepInstance(exit, () => {
