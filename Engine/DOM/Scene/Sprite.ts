@@ -12,7 +12,7 @@ const CachedSprites: HTMLDivElement[] = []
 
 class Sprite extends MovingSceneObject {
     private AnimationTimer?: Timer
-    private CurrentFrame?: SpriteFrame
+    private CurrentFrame?: SpriteFrame | EmptySpriteFrame
     private ImageElement: HTMLImageElement
 
     constructor(parent: SceneObject, onClick?: () => void) {
@@ -26,7 +26,7 @@ class Sprite extends MovingSceneObject {
         return CachedSprites.pop() || CreateSprite()
     }
 
-    Play(animation: SpriteFrame | SpriteFrame[], onCompletionIfUninterrupted?: () => void): Sprite {
+    Play(animation: SpriteFrame | EmptySpriteFrame | (SpriteFrame | EmptySpriteFrame)[], onCompletionIfUninterrupted?: () => void): Sprite {
         if (this.Deleted()) return this
 
         if (this.AnimationTimer) {
@@ -34,7 +34,7 @@ class Sprite extends MovingSceneObject {
             this.AnimationTimer = undefined
         }
 
-        if (animation instanceof SpriteFrame) {
+        if (animation instanceof SpriteFrame || animation instanceof EmptySpriteFrame) {
             this.CurrentFrame = animation
             this.OnMovingSceneObjectRescale()
             if (onCompletionIfUninterrupted == null) return this
@@ -61,8 +61,8 @@ class Sprite extends MovingSceneObject {
         return this
     }
 
-    Loop(animation: SpriteFrame | SpriteFrame[]): Sprite {
-        if (animation instanceof SpriteFrame) {
+    Loop(animation: SpriteFrame | EmptySpriteFrame | (SpriteFrame | EmptySpriteFrame)[]): Sprite {
+        if (animation instanceof SpriteFrame || animation instanceof EmptySpriteFrame) {
             this.Play(animation)
         } else {
             const playAgain = () => this.Play(animation, playAgain)
@@ -81,15 +81,20 @@ class Sprite extends MovingSceneObject {
 
     protected OnMovingSceneObjectRescale(): void {
         if (!this.CurrentFrame) return
-        const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
-        this.Element.style.width = `${this.CurrentFrame.WidthPixels * realPixelsPerVirtualPixel}px`
-        this.Element.style.height = `${this.CurrentFrame.HeightPixels * realPixelsPerVirtualPixel}px`
-        this.Element.style.marginLeft = `${this.CurrentFrame.MarginLeft * realPixelsPerVirtualPixel}px`
-        this.Element.style.marginTop = `${this.CurrentFrame.MarginTop * realPixelsPerVirtualPixel}px`
-        this.ImageElement.style.left = `-${this.CurrentFrame.LeftPixels * realPixelsPerVirtualPixel}px`
-        this.ImageElement.style.width = `${ContentSpritesWidth * realPixelsPerVirtualPixel}px`
-        this.ImageElement.style.top = `-${this.CurrentFrame.TopPixels * realPixelsPerVirtualPixel}px`
-        this.ImageElement.style.height = `${ContentSpritesHeight * realPixelsPerVirtualPixel}px`
+        if (this.CurrentFrame instanceof SpriteFrame) {
+            const realPixelsPerVirtualPixel = Display.RealPixelsPerVirtualPixel()
+            this.Element.style.width = `${this.CurrentFrame.WidthPixels * realPixelsPerVirtualPixel}px`
+            this.Element.style.height = `${this.CurrentFrame.HeightPixels * realPixelsPerVirtualPixel}px`
+            this.Element.style.marginLeft = `${this.CurrentFrame.MarginLeft * realPixelsPerVirtualPixel}px`
+            this.Element.style.marginTop = `${this.CurrentFrame.MarginTop * realPixelsPerVirtualPixel}px`
+            this.ImageElement.style.left = `-${this.CurrentFrame.LeftPixels * realPixelsPerVirtualPixel}px`
+            this.ImageElement.style.width = `${ContentSpritesWidth * realPixelsPerVirtualPixel}px`
+            this.ImageElement.style.top = `-${this.CurrentFrame.TopPixels * realPixelsPerVirtualPixel}px`
+            this.ImageElement.style.height = `${ContentSpritesHeight * realPixelsPerVirtualPixel}px`
+        } else {
+            this.Element.style.width = "0"
+            this.Element.style.height = "0"
+        }
     }
 
     protected OnMovingSceneObjectDelete(): void {

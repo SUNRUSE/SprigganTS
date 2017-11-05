@@ -18,6 +18,14 @@ class SpriteFrame {
     }
 }
 
+class EmptySpriteFrame {
+    readonly DurationSeconds: number
+
+    constructor(durationSeconds: number) {
+        this.DurationSeconds = durationSeconds
+    }
+}
+
 class BackgroundFrame {
     readonly FileNumber: number
     readonly Width: number

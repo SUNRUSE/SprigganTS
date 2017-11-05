@@ -51,6 +51,7 @@ class StaticSprite {
     }
 }
 
-function AddStaticSprite(parent: Viewport | Group, frame: SpriteFrame, virtualPixelsFromLeft: number, virtualPixelsFromTop: number): void {
+function AddStaticSprite(parent: Viewport | Group, frame: SpriteFrame | EmptySpriteFrame, virtualPixelsFromLeft: number, virtualPixelsFromTop: number): void {
+    if (frame instanceof EmptySpriteFrame) return
     (CachedStaticSprites.pop() || new StaticSprite()).Set(parent, frame, virtualPixelsFromLeft, virtualPixelsFromTop)
 }
