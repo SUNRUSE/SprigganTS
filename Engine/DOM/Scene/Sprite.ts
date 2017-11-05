@@ -40,6 +40,8 @@ class Sprite extends MovingSceneObject {
             if (onCompletionIfUninterrupted == null) return this
             this.AnimationTimer = new Timer(animation.DurationSeconds, onCompletionIfUninterrupted)
             if (this.Paused()) this.AnimationTimer.Pause()
+        } else if (!animation.length) {
+            this.Play(new EmptySpriteFrame(0), onCompletionIfUninterrupted)
         } else {
             let frame = 0
 
