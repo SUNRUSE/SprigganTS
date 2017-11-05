@@ -62,7 +62,7 @@ class Sprite extends MovingSceneObject {
     }
 
     Loop(animation: SpriteFrame | EmptySpriteFrame | (SpriteFrame | EmptySpriteFrame)[]): Sprite {
-        if (animation instanceof SpriteFrame || animation instanceof EmptySpriteFrame) {
+        if (animation instanceof SpriteFrame || animation instanceof EmptySpriteFrame || animation.length < 2) {
             this.Play(animation)
         } else {
             const playAgain = () => this.Play(animation, playAgain)
