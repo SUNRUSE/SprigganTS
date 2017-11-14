@@ -138,6 +138,7 @@ abstract class SceneObject {
         while (this.StaticSprites.length) this.StaticSprites[0].Delete()
         while (this.Children.length) this.Children[0].Delete()
         this.Element.style.visibility = "inherit"
+        this.Element.onclick = () => { }
         if (this.Parent) this.Parent.Element.removeChild(this.Element)
         this.OnDelete()
         this.LocallyDeletedValue = true
