@@ -1,5 +1,6 @@
 {
     "files": [
+        "ErrorHandler.ts",
         "LoadingMessage.ts",
         "Ambient.ts",
         "../Types.ts",
