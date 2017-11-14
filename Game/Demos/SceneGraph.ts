@@ -1,8 +1,5 @@
 function SceneGraphDemo() {
-    const closing = new OneTimeEvent<() => void>()
-
     const middleViewport = new Viewport()
-    closing.Listen(() => middleViewport.Delete())
 
     const simulationGroup = new Group(middleViewport)
     simulationGroup.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
@@ -54,14 +51,13 @@ function SceneGraphDemo() {
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
 
-    function CreateButtons(label: string, horizontalPositionSignedUnitInterval: number, outX: number, inX: number, buttons: {
+    function CreateButtons(label: string, horizontalPositionSignedUnitInterval: number, x: number, buttons: {
         readonly Label: string
         readonly Action: () => void
-    }[]) {
+    }[]): Viewport {
         const menuViewport = new Viewport(horizontalPositionSignedUnitInterval, 1)
         const menuGroup = new Group(menuViewport)
-        menuGroup.Move(outX, 0)
-        menuGroup.MoveOver(inX, 0, 0.5)
+        menuGroup.Move(x, 0)
         FontBig.Write(menuGroup, label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, HeightVirtualPixels - (buttons.length + 0.5) * ButtonHeight)
         for (const button of buttons) {
             const buttonGroup = new Group(menuGroup, () => {
@@ -73,13 +69,13 @@ function SceneGraphDemo() {
             buttonSprite.Loop(Content.Buttons.Narrow.Unpressed)
             FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, 0, 0)
         }
-        closing.Listen(() => menuGroup.MoveOver(outX, 0, 0.5, () => menuViewport.Delete()))
+        return menuViewport
     }
 
     const randomSizeX = 144
     const randomSizeY = 48
 
-    CreateButtons("Group", -1, -ButtonNarrowWidth / 2, ButtonNarrowWidth / 2, [{
+    const leftViewport = CreateButtons("Group", -1, ButtonNarrowWidth / 2, [{
         Label: "Pause",
         Action: () => wrappingGroup.Pause()
     }, {
@@ -148,7 +144,7 @@ function SceneGraphDemo() {
         Action: () => wrappingGroup.PlaySound(Content.Demos.Sounds.Synth)
     }])
 
-    CreateButtons("Sprite", 1, WidthVirtualPixels + ButtonNarrowWidth / 2, WidthVirtualPixels - ButtonNarrowWidth / 2, [{
+    const rightViewport = CreateButtons("Sprite", 1, WidthVirtualPixels - ButtonNarrowWidth / 2, [{
         Label: "Pause",
         Action: () => sprite.Pause()
     }, {
@@ -198,5 +194,9 @@ function SceneGraphDemo() {
         Action: () => sprite.PlaySound(Content.Demos.Sounds.Synth)
     }])
 
-    return closing.Raise
+    return () => {
+        middleViewport.Delete()
+        leftViewport.Delete()
+        rightViewport.Delete()
+    }
 }
