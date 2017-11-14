@@ -1,4 +1,6 @@
-new Demo("Fonts", (group) => {
+function FontsDemo() {
+    const middleViewport = new Viewport()
+
     const text = "Text can be multi-line,\nanchored to the top,\nbottom, left, right\nor middle."
 
     const configurations: [HorizontalAlignment, VerticalAlignment][] = [
@@ -19,23 +21,23 @@ new Demo("Fonts", (group) => {
     const width = FontBig.WidthVirtualPixels(text)
     const height = FontBig.HeightVirtualPixels(text)
 
-    const topLeft = new Sprite(group)
+    const topLeft = new Sprite(middleViewport)
     topLeft.Loop(Content.Markers.Bounds.TopLeft)
     topLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
-    const topRight = new Sprite(group)
+    const topRight = new Sprite(middleViewport)
     topRight.Loop(Content.Markers.Bounds.TopRight)
     topRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2)
 
-    const bottomLeft = new Sprite(group)
+    const bottomLeft = new Sprite(middleViewport)
     bottomLeft.Loop(Content.Markers.Bounds.BottomLeft)
     bottomLeft.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2 + height)
 
-    const bottomRight = new Sprite(group)
+    const bottomRight = new Sprite(middleViewport)
     bottomRight.Loop(Content.Markers.Bounds.BottomRight)
     bottomRight.Move(WidthVirtualPixels / 2 + width, HeightVirtualPixels / 2 + height)
 
-    let textGroup = new Group(group)
+    let textGroup = new Group(middleViewport)
 
     ShowNextConfiguration()
 
@@ -45,7 +47,7 @@ new Demo("Fonts", (group) => {
         const configuration = configurations[configurationId++]
         configurationId = configurationId % configurations.length
 
-        textGroup = new Group(group)
+        textGroup = new Group(middleViewport)
         FontBig.Write(textGroup, text, configuration[0], configuration[1], WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
         let left = WidthVirtualPixels / 2
@@ -91,9 +93,12 @@ new Demo("Fonts", (group) => {
 
     const configurationTimer = new RecurringTimer(0.75, ShowNextConfiguration)
 
-    const anchorSprite = new Sprite(group)
+    const anchorSprite = new Sprite(middleViewport)
     anchorSprite.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     anchorSprite.Loop(Content.Markers.Anchor)
 
-    return () => configurationTimer.Stop()
-})
+    return () => {
+        configurationTimer.Stop()
+        middleViewport.Delete()
+    }
+}

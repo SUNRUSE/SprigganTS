@@ -1,5 +1,10 @@
-new Demo("Scene Graph", (group) => {
-    const simulationGroup = new Group(group)
+function SceneGraphDemo() {
+    const closing = new OneTimeEvent<() => void>()
+
+    const middleViewport = new Viewport()
+    closing.Listen(() => middleViewport.Delete())
+
+    const simulationGroup = new Group(middleViewport)
     simulationGroup.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
     const groupSize = 48
@@ -48,8 +53,6 @@ new Demo("Scene Graph", (group) => {
         clickSprite.Play(Content.Demos.SceneGraph.Clicked, () => clickSprite.Delete())
     })
     sprite.Loop(Content.Demos.SceneGraph.Sprite.Idle)
-
-    const closing = new OneTimeEvent<() => void>()
 
     function CreateButtons(label: string, horizontalPositionSignedUnitInterval: number, outX: number, inX: number, buttons: {
         readonly Label: string
@@ -196,4 +199,4 @@ new Demo("Scene Graph", (group) => {
     }])
 
     return closing.Raise
-})
+}

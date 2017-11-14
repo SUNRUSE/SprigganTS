@@ -1,4 +1,5 @@
-new Demo("Bouncing Balls", (group) => {
+function BouncingBallsDemo() {
+    const middleViewport = new Viewport()
     const ballSize = 32
     const left = ballSize / 2
     const top = ballSize / 2
@@ -7,7 +8,7 @@ new Demo("Bouncing Balls", (group) => {
     const right = left + width
     const bottom = top + height
     for (let i = 0; i < 10; i++) {
-        const ball = new Sprite(group)
+        const ball = new Sprite(middleViewport)
         ball.Loop(Content.Demos.BouncingBalls.Red)
         ball.Move(ballSize + Math.random() * (WidthVirtualPixels - ballSize * 2), ballSize + Math.random() * (HeightVirtualPixels - ballSize * 2))
         let movingRight = Math.random() < 0.5
@@ -28,7 +29,5 @@ new Demo("Bouncing Balls", (group) => {
             }
         }
     }
-    return () => {
-
-    }
-})
+    return () => middleViewport.Delete()
+}

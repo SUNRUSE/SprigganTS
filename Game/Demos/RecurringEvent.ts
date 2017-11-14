@@ -1,4 +1,6 @@
-new Demo("RecurringEvent", (group) => {
+function RecurringEventDemo() {
+    const middleViewport = new Viewport()
+
     let subGroup: Group
     let event: RecurringEvent<(value: number) => void>
 
@@ -6,7 +8,7 @@ new Demo("RecurringEvent", (group) => {
     Start()
 
     function Start() {
-        subGroup = new Group(group)
+        subGroup = new Group(middleViewport)
         if (firstStart) {
             firstStart = false
         } else {
@@ -87,5 +89,5 @@ new Demo("RecurringEvent", (group) => {
         }
     }
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}

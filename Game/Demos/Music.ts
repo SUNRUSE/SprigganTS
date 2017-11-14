@@ -1,4 +1,6 @@
-new Demo("Music", (group) => {
+function MusicDemo() {
+    const bottomViewport = new Viewport(0, 1)
+
     const buttons = [{
         Label: "Classical",
         Action: () => Music.Set(Content.Demos.Music.Classical)
@@ -14,7 +16,7 @@ new Demo("Music", (group) => {
     }]
 
     for (const button of buttons) {
-        const buttonGroup = new Group(group, () => {
+        const buttonGroup = new Group(bottomViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             button.Action()
         })
@@ -24,5 +26,8 @@ new Demo("Music", (group) => {
         FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => Music.Stop()
-})
+    return () => {
+        Music.Stop()
+        bottomViewport.Delete()
+    }
+}

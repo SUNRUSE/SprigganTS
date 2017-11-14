@@ -1,86 +1,100 @@
+/// <reference path="Demos/OneTimeEvent.ts" />
+/// <reference path="Demos/RecurringEvent.ts" />
+/// <reference path="Demos/SceneGraph.ts" />
+/// <reference path="Demos/Backgrounds.ts" />
+/// <reference path="Demos/Fonts.ts" />
+/// <reference path="Demos/Wrapping.ts" />
+/// <reference path="Demos/SaveLoad.ts" />
+/// <reference path="Demos/Transitions.ts" />
+/// <reference path="Demos/Sounds.ts" />
+/// <reference path="Demos/Music.ts" />
+/// <reference path="Demos/BouncingBalls.ts" />
+
 function DemoMenu() {
-    const spacing = 2
+    const demos: {
+        readonly Label: string
+        readonly Run: () => () => void
+    }[] = [{
+        Label: "OneTimeEvent",
+        Run: OneTimeEventDemo
+    }, {
+        Label: "RecurringEvent",
+        Run: RecurringEventDemo
+    }, {
+        Label: "Scene Graph",
+        Run: SceneGraphDemo
+    }, {
+        Label: "Backgrounds",
+        Run: BackgroundsDemo
+    }, {
+        Label: "Fonts",
+        Run: FontsDemo
+    }, {
+        Label: "Wrapping",
+        Run: WrappingDemo
+    }, {
+        Label: "Save and Load",
+        Run: SaveLoadDemo
+    }, {
+        Label: "Transitions",
+        Run: TransitionsDemo
+    }, {
+        Label: "Sounds",
+        Run: SoundsDemo
+    }, {
+        Label: "Music",
+        Run: MusicDemo
+    }, {
+        Label: "Bouncing Balls",
+        Run: BouncingBallsDemo
+    }]
 
-    const titleViewport = new Viewport(0, -1, false)
-    let titleGroup = new Group(titleViewport)
-    titleGroup.Move(WidthVirtualPixels / 2, ButtonHeight / 2)
-    FontBig.Write(titleGroup, "SprigganTS Sample", HorizontalAlignment.Middle, VerticalAlignment.Middle)
+    const middleViewport = new Viewport()
 
-    const rowsPerColumn = Math.floor(HeightVirtualPixels / (ButtonHeight + spacing)) - 1
-    const columns = Math.ceil(Demos.length / rowsPerColumn)
+    const rows = 8
+    const columns = 1 + ((demos.length - (demos.length % rows)) / rows)
+    let column = 0
+    let row = 0
 
-    let openedDemos = 0
-    const remainingButtonGroups: [Group, Sprite][] = []
-    TakeNextDemo()
+    FontBig.Write(middleViewport, "SprigganTS Sample", HorizontalAlignment.Middle, VerticalAlignment.Bottom, WidthVirtualPixels / 2, HeightVirtualPixels / 2 - 4 - (ButtonHeight + 2) * rows / 2)
 
-    function TakeNextDemo() {
-        if (openedDemos == Demos.length) return
-        const demo = Demos[openedDemos]
+    for (const demo of demos) {
+        const buttonGroup = new Group(middleViewport, Clicked).Move(
+            WidthVirtualPixels / 2 + (0.5 + column - columns / 2) * (ButtonWideWidth + 2) + 1,
+            HeightVirtualPixels / 2 + (0.5 + row - rows / 2) * (ButtonHeight + 2) + 1
+        )
+        new Sprite(buttonGroup).Loop(Content.Buttons.Wide.Unpressed)
+        FontBig.Write(buttonGroup, demo.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
-        // "Lock in" the non-undefined reference here.
-        const demoReference = demo
+        function Clicked() {
+            Transition(FadeOutTransitionStep, FadeInTransitionStep, () => {
+                middleViewport.Delete()
+                const closeDemo = demo.Run()
 
-        const buttonGroup = new Group(titleViewport, Select)
-        buttonGroup.Move(WidthVirtualPixels + ButtonWideWidth / 2, ButtonHeight * 1.5 + (openedDemos % rowsPerColumn) * (ButtonHeight + spacing))
-        buttonGroup.MoveAt(Math.floor(openedDemos / rowsPerColumn) * (ButtonWideWidth + spacing) + (WidthVirtualPixels - (columns - 1) * ButtonWideWidth + Math.max(0, (columns - 2)) * spacing) / 2, buttonGroup.VirtualPixelsFromTop(), 2500, TakeNextDemo)
+                const homeViewport = new Viewport(-1, -1)
+                homeViewport.Move(ButtonNarrowWidth / 2, ButtonHeight / 2)
+                const homeSprite = new Sprite(homeViewport, HomeClicked).Loop(Content.Buttons.Narrow.Unpressed)
+                FontBig.Write(homeViewport, "Home", HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
-        const buttonSprite = new Sprite(buttonGroup)
-        buttonSprite.Play(Content.Buttons.Wide.Materialize)
+                const titleViewport = new Viewport(0, -1)
+                FontBig.Write(titleViewport, demo.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle, WidthVirtualPixels / 2, ButtonHeight / 2)
 
-        FontBig.Write(buttonGroup, demoReference.Name, HorizontalAlignment.Middle, VerticalAlignment.Middle)
-
-        remainingButtonGroups.push([buttonGroup, buttonSprite])
-        openedDemos++
-
-        function Select() {
-            buttonSprite.Play(Content.Buttons.Wide.Pressed)
-
-            const demoViewport = new Viewport()
-            const demoScrollingGroup = new Group(demoViewport)
-            demoScrollingGroup.Move(0, HeightVirtualPixels)
-            demoScrollingGroup.MoveAt(0, 0, 500)
-            const demoGroup = new Group(demoScrollingGroup)
-            const stopDemo = demoReference.Setup(demoGroup)
-
-            const homeButtonViewport = new Viewport(-1, -1)
-            const homeButtonGroup = new Group(homeButtonViewport, ReturnHome)
-            homeButtonGroup.Move(ButtonNarrowWidth / 2, -ButtonHeight / 2)
-            const homeButtonSprite = new Sprite(homeButtonGroup)
-            homeButtonSprite.Loop(Content.Buttons.Narrow.Unpressed)
-            FontBig.Write(homeButtonGroup, "< Home", HorizontalAlignment.Middle, VerticalAlignment.Middle)
-            homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, ButtonHeight / 2, 125)
-
-            function ReturnHome() {
-                stopDemo()
-                demoScrollingGroup.MoveAt(0, HeightVirtualPixels, 500, () => demoViewport.Delete())
-                homeButtonSprite.Play(Content.Buttons.Narrow.Pressed)
-                titleGroup.MoveAt(WidthVirtualPixels / 2, ButtonHeight / 2, 125, () => titleViewport.Delete())
-                homeButtonGroup.MoveAt(ButtonNarrowWidth / 2, -ButtonHeight / 2, 125, () => homeButtonViewport.Delete())
-                DemoMenu()
-            }
-
-            buttonGroup.MoveOver(WidthVirtualPixels / 2, ButtonHeight / 2, 0.125, () => {
-                titleGroup.Delete()
-                titleGroup = new Group(titleViewport)
-                titleGroup.Move(WidthVirtualPixels / 2, ButtonHeight / 2)
-                FontBig.Write(titleGroup, demoReference.Name, HorizontalAlignment.Middle, VerticalAlignment.Middle)
-                buttonSprite.Play(Content.Buttons.Wide.Dematerialize, () => buttonGroup.Delete())
-            })
-
-            RemoveNextButtonGroup()
-            function RemoveNextButtonGroup() {
-                const otherGroup = remainingButtonGroups.shift()
-                if (!otherGroup) return
-                if (otherGroup[0] == buttonGroup) {
-                    RemoveNextButtonGroup()
-                    return
+                function HomeClicked() {
+                    homeSprite.Play(Content.Buttons.Narrow.Pressed)
+                    Transition(FadeOutTransitionStep, FadeInTransitionStep, () => {
+                        closeDemo()
+                        DemoMenu()
+                        homeViewport.Delete()
+                        titleViewport.Delete()
+                    })
                 }
-                otherGroup[0].MoveAt(-ButtonWideWidth / 2, otherGroup[0].VirtualPixelsFromTop(), 2500, () => {
-                    otherGroup[0].Delete()
-                    RemoveNextButtonGroup()
-                })
-                otherGroup[1].Play(Content.Buttons.Wide.Dematerialize)
-            }
+            })
+        }
+
+        row++
+        if (row == 8) {
+            row = 0
+            column++
         }
     }
 }

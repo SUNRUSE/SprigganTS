@@ -1,10 +1,11 @@
-new Demo("Transitions", (group) => {
-    new Background(group, Content.Demos.Transitions.Background)
+function TransitionsDemo() {
+    const middleViewport = new Viewport()
+    new Background(middleViewport, Content.Demos.Transitions.Background)
     let transitions = 0
     let textGroup: Group | undefined
     function RefreshText() {
         if (textGroup) textGroup.Delete()
-        textGroup = new Group(group)
+        textGroup = new Group(middleViewport)
         FontBig.Write(textGroup, `You have seen ${transitions++} transition(s).`, HorizontalAlignment.Middle, VerticalAlignment.Middle, WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     }
     RefreshText()
@@ -503,7 +504,7 @@ new Demo("Transitions", (group) => {
         }
     }]
     for (const transitionType of transitionTypes) {
-        const buttonGroup = new Group(group, () => {
+        const buttonGroup = new Group(middleViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             Transition(transitionType.Entry, transitionType.Exit, RefreshText)
         })
@@ -513,5 +514,5 @@ new Demo("Transitions", (group) => {
         FontBig.Write(buttonGroup, transitionType.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}

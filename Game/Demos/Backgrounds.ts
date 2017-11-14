@@ -1,5 +1,6 @@
-new Demo("Backgrounds", (group) => {
-    const backgroundGroup = new Group(group)
+function BackgroundsDemo() {
+    const middleViewport = new Viewport()
+    const backgroundGroup = new Group(middleViewport)
     let background: Background | undefined
 
     const buttons: {
@@ -29,7 +30,7 @@ new Demo("Backgrounds", (group) => {
     }]
 
     for (const button of buttons) {
-        const buttonGroup = new Group(group, () => {
+        const buttonGroup = new Group(middleViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             button.Action()
         })
@@ -39,5 +40,5 @@ new Demo("Backgrounds", (group) => {
         FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}

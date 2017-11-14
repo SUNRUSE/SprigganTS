@@ -1,5 +1,6 @@
-new Demo("Sounds", (group) => {
-    const emitter = new Group(group)
+function SoundsDemo() {
+    const middleViewport = new Viewport()
+    const emitter = new Group(middleViewport)
     emitter.Move(WidthVirtualPixels / 2, HeightVirtualPixels / 2)
     FontBig.Write(emitter, "Emitter", HorizontalAlignment.Middle, VerticalAlignment.Middle)
     let movingRight = false
@@ -21,7 +22,7 @@ new Demo("Sounds", (group) => {
     }]
 
     for (const sound of sounds) {
-        const buttonGroup = new Group(group, () => {
+        const buttonGroup = new Group(middleViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             emitter.PlaySound(sound.Sound)
         })
@@ -31,5 +32,5 @@ new Demo("Sounds", (group) => {
         FontBig.Write(buttonGroup, sound.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}

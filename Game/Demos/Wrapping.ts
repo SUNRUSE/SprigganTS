@@ -1,17 +1,19 @@
-new Demo("Wrapping", (group) => {
+function WrappingDemo() {
+    const middleViewport = new Viewport()
+
     const text = "Text can be wrapped to fit a width.\n\nThis respects space (including\ttabs) within wrapped lines, and can split incomprehensibly long words which do not fit on one line.\n\nOh, and words-which-are-joined-by-hyphens, don't forget those."
 
-    const staticRulerSprite = new Sprite(group)
+    const staticRulerSprite = new Sprite(middleViewport)
     staticRulerSprite.Loop(Content.Markers.Ruler)
     staticRulerSprite.Move(0, 30)
 
-    const rulerSprite = new Sprite(group)
+    const rulerSprite = new Sprite(middleViewport)
     rulerSprite.Loop(Content.Markers.Ruler)
     rulerSprite.Move(0, 30)
 
     let movingRight = true
     let cachedText = ""
-    let cachedTextGroup = new Group(group)
+    let cachedTextGroup = new Group(middleViewport)
 
     const refresh = () => {
         if (movingRight) {
@@ -25,7 +27,7 @@ new Demo("Wrapping", (group) => {
         const wrapped = FontBig.Wrap(text, rulerSprite.VirtualPixelsFromLeft())
         if (wrapped != cachedText) {
             cachedTextGroup.Delete()
-            cachedTextGroup = new Group(group)
+            cachedTextGroup = new Group(middleViewport)
             FontBig.Write(cachedTextGroup, wrapped, HorizontalAlignment.Left, VerticalAlignment.Top, 0, 30)
             cachedText = wrapped
         }
@@ -34,5 +36,8 @@ new Demo("Wrapping", (group) => {
     refresh()
 
     const timer = new RecurringTimer(0.25, refresh)
-    return () => timer.Stop()
-})
+    return () => {
+        middleViewport.Delete()
+        timer.Stop()
+    }
+}

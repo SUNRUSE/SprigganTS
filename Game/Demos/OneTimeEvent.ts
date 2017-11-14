@@ -1,4 +1,5 @@
-new Demo("OneTimeEvent", (group) => {
+function OneTimeEventDemo() {
+    const middleViewport = new Viewport()
     let subGroup: Group
     let event: OneTimeEvent<(value: number) => void>
 
@@ -6,7 +7,7 @@ new Demo("OneTimeEvent", (group) => {
     Start()
 
     function Start() {
-        subGroup = new Group(group)
+        subGroup = new Group(middleViewport)
         if (firstStart) {
             firstStart = false
         } else {
@@ -87,5 +88,5 @@ new Demo("OneTimeEvent", (group) => {
         }
     }
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}

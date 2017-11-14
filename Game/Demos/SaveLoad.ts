@@ -1,4 +1,6 @@
-new Demo("Save and Load", (group) => {
+function SaveLoadDemo() {
+    const middleViewport = new Viewport()
+
     type Saved = { OpenedTimes: number }
 
     const loaded = Load<Saved>("Name")
@@ -15,7 +17,7 @@ new Demo("Save and Load", (group) => {
     if (!loaded) text += "\n\nA previous save could not be loaded."
     if (!saved) text += "\n\nThis information could not be saved."
 
-    FontBig.Write(group, text, HorizontalAlignment.Middle, VerticalAlignment.Middle, WidthVirtualPixels / 2, HeightVirtualPixels / 2)
+    FontBig.Write(middleViewport, text, HorizontalAlignment.Middle, VerticalAlignment.Middle, WidthVirtualPixels / 2, HeightVirtualPixels / 2)
 
-    return () => { }
-})
+    return () => middleViewport.Delete()
+}
