@@ -63,10 +63,11 @@ function DemoMenu() {
             WidthVirtualPixels / 2 + (0.5 + column - columns / 2) * (ButtonWideWidth + 2) + 1,
             HeightVirtualPixels / 2 + (0.5 + row - rows / 2) * (ButtonHeight + 2) + 1
         )
-        new Sprite(buttonGroup).Loop(Content.Buttons.Wide.Unpressed)
+        const buttonSprite = new Sprite(buttonGroup).Loop(Content.Buttons.Wide.Unpressed)
         FontBig.Write(buttonGroup, demo.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
         function Clicked() {
+            buttonSprite.Play(Content.Buttons.Wide.Pressed)
             Transition(FadeOutTransitionStep, FadeInTransitionStep, () => {
                 middleViewport.Delete()
                 const closeDemo = demo.Run()
