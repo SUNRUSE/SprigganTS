@@ -71,9 +71,9 @@ function DemoMenu() {
                 middleViewport.Delete()
                 const closeDemo = demo.Run()
 
-                const homeViewport = new Viewport(-1, -1)
+                const homeViewport = new Viewport(-1, -1, false, HomeClicked)
                 homeViewport.Move(ButtonNarrowWidth / 2, ButtonHeight / 2)
-                const homeSprite = new Sprite(homeViewport, HomeClicked).Loop(Content.Buttons.Narrow.Unpressed)
+                const homeSprite = new Sprite(homeViewport).Loop(Content.Buttons.Narrow.Unpressed)
                 FontBig.Write(homeViewport, "Home", HorizontalAlignment.Middle, VerticalAlignment.Middle)
 
                 const titleViewport = new Viewport(0, -1)
