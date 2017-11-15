@@ -21,8 +21,9 @@ function SoundsDemo() {
         Sound: Content.Demos.Sounds.Piano
     }]
 
+    const bottomViewport = new Viewport(0, 1)
     for (const sound of sounds) {
-        const buttonGroup = new Group(middleViewport, () => {
+        const buttonGroup = new Group(bottomViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             emitter.PlaySound(sound.Sound)
         })
@@ -32,5 +33,8 @@ function SoundsDemo() {
         FontBig.Write(buttonGroup, sound.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => middleViewport.Delete()
+    return () => {
+        middleViewport.Delete()
+        bottomViewport.Delete()
+    }
 }

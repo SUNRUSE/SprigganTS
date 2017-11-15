@@ -503,8 +503,10 @@ function TransitionsDemo() {
             }]
         }
     }]
+
+    const bottomViewport = new Viewport(0, 1)
     for (const transitionType of transitionTypes) {
-        const buttonGroup = new Group(middleViewport, () => {
+        const buttonGroup = new Group(bottomViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             Transition(transitionType.Entry, transitionType.Exit, RefreshText)
         })
@@ -514,5 +516,8 @@ function TransitionsDemo() {
         FontBig.Write(buttonGroup, transitionType.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => middleViewport.Delete()
+    return () => {
+        middleViewport.Delete()
+        bottomViewport.Delete()
+    }
 }

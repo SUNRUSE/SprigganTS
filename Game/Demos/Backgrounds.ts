@@ -29,8 +29,9 @@ function BackgroundsDemo() {
         Action: () => { if (background) background.Delete() }
     }]
 
+    const bottomViewport = new Viewport(0, 1)
     for (const button of buttons) {
-        const buttonGroup = new Group(middleViewport, () => {
+        const buttonGroup = new Group(bottomViewport, () => {
             staticSprite.Play(Content.Buttons.Narrow.Pressed)
             button.Action()
         })
@@ -40,5 +41,8 @@ function BackgroundsDemo() {
         FontBig.Write(buttonGroup, button.Label, HorizontalAlignment.Middle, VerticalAlignment.Middle)
     }
 
-    return () => middleViewport.Delete()
+    return () => {
+        middleViewport.Delete()
+        bottomViewport.Delete()
+    }
 }

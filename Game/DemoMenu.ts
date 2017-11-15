@@ -1,5 +1,4 @@
-/// <reference path="Demos/OneTimeEvent.ts" />
-/// <reference path="Demos/RecurringEvent.ts" />
+/// <reference path="Demos/Event.ts" />
 /// <reference path="Demos/SceneGraph.ts" />
 /// <reference path="Demos/Backgrounds.ts" />
 /// <reference path="Demos/Fonts.ts" />
@@ -16,10 +15,10 @@ function DemoMenu() {
         readonly Run: () => () => void
     }[] = [{
         Label: "OneTimeEvent",
-        Run: OneTimeEventDemo
+        Run: EventDemo(() => new OneTimeEvent<(value: number) => void>())
     }, {
         Label: "RecurringEvent",
-        Run: RecurringEventDemo
+        Run: EventDemo(() => new RecurringEvent<(value: number) => void>())
     }, {
         Label: "Scene Graph",
         Run: SceneGraphDemo
